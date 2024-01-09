@@ -1,0 +1,185 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ECMA31360 PSet 2: OLS and Treatment Effects
+% Author: Melissa Tartari
+% Created: 09/22/2023
+% Last Updated: 1/3/2023
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\setcounter{MaxMatrixCols}{10}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\textwidth=7.6in
+\textheight=9.9in
+\topmargin=-1.2in
+\headheight=0in
+\headsep=.5in
+\hoffset  -1.25in
+
+\newcommand{\psetyear}{2024}
+\newcommand{\psetnum}{2}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy} 
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[R]{\color{Gray}{ECMA 31360 PSet \psetnum, Page \thepage}}
+
+\usepackage{lineno}
+\linenumbers
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\title{ECMA 31360, Pset 2: Using OLS to Estimate Treatment Effects (100p)}
+\date{}
+\author{Melissa Tartari, University of Chicago}
+\maketitle
+\thispagestyle{fancy}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\noindent \textcolor{Maroon}{\textbf{Notation}: Starting with this pset we no longer use upper case and small case to distinguish between random variables and realizations of random variables. The context determine what is what.}\\
+
+\noindent \textcolor{Maroon}{\textbf{Objective of the PSet}: In PSet1 you considered the OLS estimator in a \textcolor{ForestGreen}{prediction} context: you had a linear-in-parameters CEF, $E[y_i|D_i]=\alpha+\beta D_i$ with $D_i$ being a 0/1 variable, and showed that the OLS estimator of $\beta$ is unbiased for $E[y_i|D_i=1]-E[y_i|D_i=0]$. Here you consider the OLS estimator in a \textcolor{ForestGreen}{causal} context: you start with the outcome equation\footnote{Think of this equation as stemming from some theoretical model which we have left unspecified.} $y_i=\alpha+\beta D_i + u_i$, where $D_i$ and $u_i$ are determinants of $y_i$ (observed and unobserved respectively), and study the circumstances under which the OLS estimator of $\beta$ enables inference about the causal effect of $D_i$ on $y_i$. Comparing the two contexts yields a lot of learning. To answer PSet2's questions you do \underline{not} need the course material unless explicitly stated because Pset2 you use the traditional (i.e., pre Rubin Causal Model) approach to causal analysis (from introductory econometrics courses).}\\
+
+\noindent \textcolor{Maroon}{\textbf{Background for the PSet}: Walmart Inc. is an American retail corporation that operates a chain of hypermarkets. Walmart introduced \textit{Sam's Club Plus} \href{https://www.samsclub.com/sams/pagedetails/content.jsp?pageName=aboutSams&xid=hpg_member_3}{(link)} in February 2018. Membership in \textit{Sam's Club Plus} implies that customers earn cash rewards (e.g., they get \$10 back for every \$500 spent on qualifying purchases), enjoy free-shipping on many items, and reduced 2-day shipping charges. \textit{Sam's Club Plus} charges an annual fee of \$100. Shoppers may use brick-and-mortar Walmart stores, or shop online at Walmart.com. The questions below focus on the causal impact of \textit{Sam's Club Plus} membership on online spend.}\footnote{All references to Walmart.com and its customers in this problem set are entirely fictitious and are used solely for the purpose of illustrating
+statistical concepts and their application in various contexts.}  
+
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=1em, topsep=5pt]
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % Question 1
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \item (50p) Let $y_{i}$ be customer $i$'s spend at Walmart.com in a given month. Let $D_{i}=1$ if customer $i$ is a \textit{Sam's Club Plus} member, $=0$ otherwise. Assume membership status does not vary during the month. $y_{i}$ is determined by the customer's membership status ($D_{i}$) and other determinants ($u_{i}$) according to the \textcolor{ForestGreen}{homogeneous treatment effects} model:\label{item:q1}
+    
+    \begin{equation} \label{model_1}
+    y_{i}=\alpha +\rho D_{i}+u_{i}.
+    \end{equation} 
+    
+    For example, $u_{i}$ may include household income and size. As $\left( y_{i},D_{i},u _{i}\right) $ vary across customers, we think of them as RVs. Let $E\left[ u_{i}\right] =0$, where the expectation is taken with respect to the \textcolor{ForestGreen}{distribution} of $u_{i}$ in the \textcolor{ForestGreen}{population} of Walmart.com customers. You have data on a \textcolor{ForestGreen}{sample} of size $n$ of customers: $\left\{ \left( y_{i},D_{i}\right) |i=1,\ldots,n\right\} $. Note that $u_{i}$ is not included in the data for any of the sample customers.\footnote{That is, you observe the customer's spend and their membership status but not their household income and size, nor any of the other determinants of how much they spend on Walmart.com. This is the reason why we use the letter $u$, it is mnemonic for \textit{unobserved}.} Some of the sample customers are \textit{Sam's Club Plus} members, some are not. As your data contains a mix of both types of customers we say that you  have \textcolor{ForestGreen}{``observational variation in the cause or treatment''}. $\left( \alpha ,\rho \right) $ are \textcolor{ForestGreen}{unknown parameters}. Let $\overline{y}^{0}$ (respectively, $\overline{y}^{1}$) denote the \textcolor{ForestGreen}{sample average} of $y_{i}$ across sample customers with $D_{i}=0$ (respectively, with $D_{i}=1$).
+    
+    \begin{enumerate}
+        \item (2p) Provide additional examples of determinants of spend that may be part of $u _{i}$. \textcolor{gray}{\textbf{Hint}: In the background there is a consumer demand model, i.e., you think of model (\ref{model_1}) as a \textcolor{ForestGreen}{consumer expenditure function} from microeconomics.}
+        
+        \item (2p) Show that $\rho$ is the causal impact of \textit{Sam's Club Plus} membership on a customer's spend, \underline{in the sense that}, $\rho$ is the difference in a customer's spend with and without membership holding all else the same.
+        
+        \item (2p) Is $E\left[ u _{i}\right] =0$ an \textcolor{ForestGreen}{assumption} or a \textcolor{ForestGreen}{normalization}? Show it.\footnote{An assumption imposes a restriction on the objects/items present in your model, the restriction may or may not hold. For example, if a claim is stated subject to an assumption then your proof will use the assumption to arrive at the result, which means that the result may not obtain had you dropped the assumption. A normalization is when you recognize that two (or more) objects/items in a model are not separately identified, i.e., there is no way to learn about each of them separately, e.g., you may only learn their sum or product, or some other function of the two (or more) objects. If you recognize such a situation in your model you reparametrize the model so that the objects in the reformulated model are learnable.}
+                
+        \item (2p) Let $\left( \widehat{\alpha },\widehat{\rho }\right) $ denote the \textcolor{ForestGreen}{Ordinary Least Squares} (henceforth OLS) \textcolor{ForestGreen}{estimator} of parameters $\left(\alpha ,\rho \right)$ in model (\ref{model_1}). Do you need to make any assumption on $u _{i}$ to compute $\left( \widehat{\alpha },\widehat{\rho }\right) $ in a particular sample?
+        
+        \item (10p) Verify expression (\ref{ols_simplereg}). \textcolor{gray}{\textbf{Hint}: Leverage the derivations you did for PSet1, do not use linear algebra. \textbf{Note}: We leverage this result repeatedly, make sure to understand it both from an intuitive standpoint and algebraically.}
+        \begin{equation} \label{ols_simplereg}
+            \left[ 
+            \begin{array}{c}
+            \widehat{\alpha } \\ 
+            \widehat{\rho }
+            \end{array}
+            \right] =\left[ 
+            \begin{array}{c}
+            \overline{y}^{0} \\ 
+            \overline{y}^{1}-\overline{y}^{0}
+            \end{array}
+            \right] \text{.}  
+        \end{equation}
+        
+        \item (2p) Use expression (\ref{ols_simplereg}) to describe in plain English estimator $\left( \widehat{\alpha }, \widehat{\rho }\right) $.\label{item:q1-old-as-group-averages}
+                
+        \item (2p) \textbf{Without further assumptions}: Are $\left( \widehat{\alpha }, \widehat{\rho }\right) $ unbiased/consistent estimators of $\left( \alpha,\rho \right) $? Explain (no proof).
+        
+        \item (4p) You have a \textcolor{ForestGreen}{random sample} (RS) of Walmart.com customers. In econometrics the assumption that $E\left[ u _{i}|D_{i}=1\right] =E\left[ u _{i}|D_{i}=0\right] $ is called the \textcolor{ForestGreen}{``zero conditional mean assumption''} (ZCMA) because, once we make the normalization $E[u_i]=0$, it writes as $E\left[ u _{i}|D_{i}=1\right] =E\left[ u _{i}|D_{i}=0\right] = E[u_i]=0$. Describe the ZCMA in plain English. 
+        
+        \item (8p) Show that $\rho$ is identified if ZCMA holds. \textcolor{gray}{\textbf{Hint}: Express $\rho$ \textit{exclusively} as a function of \textcolor{ForestGreen}{population data moments (PDM)}, that is, features of the population distribution of $(y_i,D_i)$.}
+        
+        \item (12p) Assume that ZCMA holds. Is estimator $\widehat{\rho }$ unbiased (6p)? Is it consistent (6p)? Prove it. \textcolor{gray}{\textbf{Hint}: Let $D=\{D_1,\dots,D_n\}$. Show $E[\widehat{\rho}]=\rho \ \forall \rho$ and $\widehat{\rho} \overset{p}{\rightarrow }\rho \ \forall \rho$ starting with expression (\ref{ols_simplereg}).}\label{item:ols:statistical-properties}
+        
+        \item (2p) In place of maintaining ZCMA, assume that $u _{i}\bot D_{i}$, where the symbol ``$\bot $'' signifies \textcolor{ForestGreen}{statistical independence}. Does your answer to \textbf{\ref{item:ols:statistical-properties}} change? If it does, how?
+        
+        \item (2p) In light of your answers to the previous questions: Do you expect estimator $\widehat{\rho }$ to be unbiased/consistent when constructed using a sample of actual Walmart.com customers chosen at random? Explain.
+        \end{enumerate}
+        
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % Question 2
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+        \item (20p) Consider the time \textbf{before} Walmart introduced \textit{Sam's Club Plus}. Sales leadership have come up with the idea of a \textit{Sam's Club Plus} membership that offers cash back on all orders. Scientists want to design and carry out a \textcolor{ForestGreen}{randomized control trial (RCT)} to estimate how different consumer spend would be on average with a \textit{Sam's Club Plus} membership. The estimate would help stakeholders decide whether to roll-out a \textit{Sam's Club Plus} program, and how to price it. \label{item:q2}
+        \begin{enumerate}
+        
+        \item (2p) Suggest two reasons why a customer's spend at Walmart.com may differ with versus without a \textit{Sam's Club Plus} membership, all else the same.
+        
+        \item (12p) The Walmart scientists carried out an RCT: they \textcolor{ForestGreen}{randomly assigned} (RA) \textit{Sam's Club Plus} membership status to $10,000$ existing customers (at no charge) (\textcolor{ForestGreen}{treated group}) and left the rest of the customers \textit{as is} i.e., without the membership (\textcolor{ForestGreen}{control group}). Provide a discussion of this RCT's possible limitations/challenges by following step by step the list of limitations given in \texttt{CAUS\_intro.pdf}, that is, \textcolor{ForestGreen}{implementation hurdles}, \textcolor{ForestGreen}{lack of generalizability}, etc.
+        
+        \item (6p) The RCT is carried out. The post-experiment analysis sample includes the $10,000$ customers in the treatment group, and $10,000$ customers chosen randomly from the control group. For each sample customer, the data only records the customer's membership status and how much they spent at Walmart.com during the first month following the date of RA, i.e., $\left\{ \left( y_{i},D_{i}\right) |i=1,\ldots,n=20,000\right\} $. Can the scientists use the \textcolor{ForestGreen}{experimental variation} in this data to estimate $\rho$ in model (\ref{model_1}) by OLS? Explain. How shall they interpret the resulting OLS estimate?
+    \end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Question 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+    \item (20p) The setting is as in \textbf{\ref{item:q1}} but for the following: $y_{i}$ is determined by a customer's \textit{Sam's Club Plus}-membership status ($D_{i}$) and other unobserved determinants ($v _{i}$) according to the \textcolor{ForestGreen}{heterogeneous treatment effects} model: \label{item:q3}
+    \begin{equation}\label{model_2}
+    y_{i}=\alpha +\rho _{i}D_{i}+v_{i}. 
+    \end{equation}
+Note that $\rho _{i}$ varies across customers. You have access to a RS of existing Walmart customers. As in \textbf{\ref{item:q1}}, the data is the collection $\left\{ \left( y_{i},D_{i}\right) |i=1,\ldots,n\right\} $. Note that $\rho _{i}$ is \textbf{not} included in your data, nor is $v_i$.
+
+    \begin{enumerate}
+        \item (2p) Interpret $\rho _{i}$.
+        \item (4p) Think of each $\rho _{i}$ as a \textcolor{ForestGreen}{draw} from a distribution. Let $\rho \equiv E\left[ \rho _{i}\right] $, $\rho_1 \equiv E\left[ \rho _{i}|D_{i}=1\right]$, and $\rho_0 = E\left[ \rho _{i}|D_{i}=0\right]$. Describe in plain English these three objects. Interpret in plain English the assumption $\rho=\rho_1=\rho_0 $. Speculate about why this assumption is called \textcolor{ForestGreen}{``no selection on gains''} (specialize your answer to the situation being considered).\label{item:q3-att}
+        %%%%%%%%%%%
+        \item (2p) Verify that you can rewrite model (\ref{model_2}) as a simple linear regression model:
+     \begin{equation}\label{model_3}
+    y_{i}=\alpha +\rho_1 D_{i}+u_{i} \text{ with } u_i \equiv v_i+(\rho_i-E[\rho_i|D_i=1])D_i. 
+    \end{equation}       
+%%%%%%%%%%%
+        \item (6p) Consider the OLS estimator of the slope parameter in model (\ref{model_3}). In \textbf{\ref{item:q1}} you established that $\widehat{\rho_1 }=\overline{y}^{1}-\overline{y}^{0}$ and $\widehat{\rho_1 }$ is unbiased for $\rho_1$ under the ZCMA $E[u_i|D_i=1]=E[u_i|D_i=0]$. 
+        \begin{enumerate}
+        \item What are the substantive benefits of this result? That is, what do you learn about the causal effect of the treatment?
+        \item What does the ZCMA $E[u_i|D_i=1]=E[u_i|D_i=0]$ imply for the relationship between the unobserved ($v_i$) and observed ($D_i$) determinants of the outcome?
+        \end{enumerate}
+
+%%%%%%%%%%%
+\item (6p) Under which additional condition does $\widehat{\rho}_1$ allow us to infer the average causal effect of treatment for the entire population, rather than only for the sub-population of \textit{Sam's Club Plus} members?
+
+    \end{enumerate}
+    
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %%% Question 4
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+    \item (10p) Take stock. You worked with two models: (1) $y_{i}=\alpha +\rho D_{i}+u _{i}$, see expression (\ref{model_1}); and (2) $y_{i}=\alpha +\rho _{i}D_{i}+v_{i}$, see expression (\ref{model_2}). You considered one estimator: the OLS estimator of the intercept and slope coefficients in a linear regression of customer spend on a constant term and an indicator of \textit{Sam's Club Plus} membership status. You derived the assumptions that suffice for the OLS estimator of the slope coefficient to be unbiased for $\rho$ in model (\ref{model_1}), and to be unbiased for the mean of $\rho _{i}$ in the sub-population of \textit{Sam's Club Plus}  members or in the entire population in model (\ref{model_2}). What did you learn about interpreting the OLS estimator of the slope coefficient in a causal context? Write 3 to 5 sentences.
+\end{enumerate}
+
+\end{document}

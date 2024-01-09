@@ -34,16 +34,12 @@
 \newtheorem{problem}[theorem]{Problem}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{remark}[theorem]{Remark}
-\newtheorem{solution}[theorem]{Solution}
+
+% use custom solution environment instead of proof environment
+% \newtheorem{solution}[theorem]{Solution}
 \newtheorem{summary}[theorem]{Summary}
 \newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
 
-\textwidth=7.6in
-\textheight=9.9in
-\topmargin=-1.2in
-\headheight=0in
-\headsep=.5in
-\hoffset  -1.25in
 
 \newcommand{\psetyear}{2024}
 \newcommand{\psetnum}{2}
@@ -54,7 +50,21 @@
 \fancyfoot[R]{\color{Gray}{ECMA 31360 PSet \psetnum, Page \thepage}}
 
 \usepackage{lineno}
-\linenumbers
+% \linenumbers
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Andi's configs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% set margins to 1 inch
+\usepackage{listings}
+\usepackage[top=1in,bottom=1in,left=1in,right=1in,centering]{geometry}
+\usepackage{varwidth}
+
+% Add a solutions command
+\newcommand{\solution}[1]{\begin{quote}\noindent{\color{NavyBlue}\textbf{Solution:}} #1 \end{quote}}
+
+% Gap command - adds a 1em gap horizontally
+\newcommand{\gap}{\vspace{1 em}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Document
@@ -71,7 +81,7 @@
 %% Part 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\noindent \textcolor{Maroon}{\textbf{Notation}: Starting with this pset we no longer use upper case and small case to distinguish between random variables and realizations of random variables. The context determine what is what.}\\
+% \noindent \textcolor{Maroon}{\textbf{Notation}: Starting with this pset we no longer use upper case and small case to distinguish between random variables and realizations of random variables. The context determine what is what.}\\
 
 \noindent \textcolor{Maroon}{\textbf{Objective of the PSet}: In PSet1 you considered the OLS estimator in a \textcolor{ForestGreen}{prediction} context: you had a linear-in-parameters CEF, $E[y_i|D_i]=\alpha+\beta D_i$ with $D_i$ being a 0/1 variable, and showed that the OLS estimator of $\beta$ is unbiased for $E[y_i|D_i=1]-E[y_i|D_i=0]$. Here you consider the OLS estimator in a \textcolor{ForestGreen}{causal} context: you start with the outcome equation\footnote{Think of this equation as stemming from some theoretical model which we have left unspecified.} $y_i=\alpha+\beta D_i + u_i$, where $D_i$ and $u_i$ are determinants of $y_i$ (observed and unobserved respectively), and study the circumstances under which the OLS estimator of $\beta$ enables inference about the causal effect of $D_i$ on $y_i$. Comparing the two contexts yields a lot of learning. To answer PSet2's questions you do \underline{not} need the course material unless explicitly stated because Pset2 you use the traditional (i.e., pre Rubin Causal Model) approach to causal analysis (from introductory econometrics courses).}\\
 
@@ -83,7 +93,7 @@ statistical concepts and their application in various contexts.}
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
  % Question 1
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+    \newpage 
     \item (50p) Let $y_{i}$ be customer $i$'s spend at Walmart.com in a given month. Let $D_{i}=1$ if customer $i$ is a \textit{Sam's Club Plus} member, $=0$ otherwise. Assume membership status does not vary during the month. $y_{i}$ is determined by the customer's membership status ($D_{i}$) and other determinants ($u_{i}$) according to the \textcolor{ForestGreen}{homogeneous treatment effects} model:\label{item:q1}
     
     \begin{equation} \label{model_1}
@@ -94,12 +104,63 @@ statistical concepts and their application in various contexts.}
     
     \begin{enumerate}
         \item (2p) Provide additional examples of determinants of spend that may be part of $u _{i}$. \textcolor{gray}{\textbf{Hint}: In the background there is a consumer demand model, i.e., you think of model (\ref{model_1}) as a \textcolor{ForestGreen}{consumer expenditure function} from microeconomics.}
-        
-        \item (2p) Show that $\rho$ is the causal impact of \textit{Sam's Club Plus} membership on a customer's spend, \underline{in the sense that}, $\rho$ is the difference in a customer's spend with and without membership holding all else the same.
-        
-        \item (2p) Is $E\left[ u _{i}\right] =0$ an \textcolor{ForestGreen}{assumption} or a \textcolor{ForestGreen}{normalization}? Show it.\footnote{An assumption imposes a restriction on the objects/items present in your model, the restriction may or may not hold. For example, if a claim is stated subject to an assumption then your proof will use the assumption to arrive at the result, which means that the result may not obtain had you dropped the assumption. A normalization is when you recognize that two (or more) objects/items in a model are not separately identified, i.e., there is no way to learn about each of them separately, e.g., you may only learn their sum or product, or some other function of the two (or more) objects. If you recognize such a situation in your model you reparametrize the model so that the objects in the reformulated model are learnable.}
+        \begin{solution}
+            {
+                One determinant of spend that may be part of $u_i$ is the customer's age. Younger customers may spend more than older customers, for example. Another determinant of spend that may be part of $u_i$ is the customer's location - customers in urban areas may spend more than customers in rural areas due to the convenience of online shopping, shipping times/rates, etc.
+            }
+        \end{solution}
+        \gap
+        \item (2p) Show that $\rho$ is the causal impact of \textit{Sam's Club Plus} membership on a customer's spend, \newline\underline{in the sense that}, $\rho$ is the difference in a customer's spend with and without membership holding all else the same.
+        \begin{solution}
+            {
+                Given the model above, we can analyze the two cases for $D_i$.
                 
+                When $D_{i} = 1$, the equation becomes:
+                \[ y_{i} = \alpha + \rho + u_{i} \]
+
+                And when $D_{i} = 0$, the equation becomes:
+                \[ y_{i} = \alpha + u_{i} \]
+
+                Now, let's consider the difference between the spend of a customer who is a Sam's Club Plus member ($D_{i} = 1$) and one who is not ($D_{i} = 0$). Holding all else the same, we can take the difference of the two above equations:
+
+                \[ \overline{y}^{1} - \overline{y}^{0} = \left( \alpha + \rho + u_{i} \right) - \left( \alpha + u_{i} \right) = \rho \]
+
+                This demonstrates that $\rho$ is the difference in a customer's spend with and without Sam's Club Plus membership, while holding all other factors constant - the unobserved term $u_{i}$ cancels out in the difference. Thus, $\rho$ in this model represents the causal impact of a Sam's Club Plus membership on a customer's spend at Walmart.com.
+            }
+        \end{solution}
+
+        \newpage
+        \item (2p) Is $E\left[ u _{i}\right] =0$ an \textcolor{ForestGreen}{assumption} or a \textcolor{ForestGreen}{normalization}? Show it.\footnote{An assumption imposes a restriction on the objects/items present in your model, the restriction may or may not hold. For example, if a claim is stated subject to an assumption then your proof will use the assumption to arrive at the result, which means that the result may not obtain had you dropped the assumption. A normalization is when you recognize that two (or more) objects/items in a model are not separately identified, i.e., there is no way to learn about each of them separately, e.g., you may only learn their sum or product, or some other function of the two (or more) objects. If you recognize such a situation in your model you reparametrize the model so that the objects in the reformulated model are learnable.}
+        \begin{solution}
+            {
+                $E[u_i] = 0$ is a normalization. Supposed $E[u_i] \neq 0$. Then we can reparametrize as follows:
+                \[ y_i = \alpha + \rho D_i + u_i - E[u_i]  + E[u_i]\]
+                \[ y_i = (\alpha + E[u_i]) + \rho D_i + \left( u_i - E[u_i] \right) \]
+                \[ y_i = \tilde{\alpha} + \rho D_i + \tilde{u}_i \]
+                and we have arrived at the same model as before, but with a different unobserved term. 
+
+                \gap
+                In general, if we find that for a given $\alpha$ and $\rho$, $E[u_i] \neq 0$, we can absorb the non-zero mean of the error term into the constant term $\alpha$, thus allowing us to correctly assume that $E[\tilde{u}_i] = 0$. Thus, $E[u_i] = 0$ is a normalization.
+            }
+        \end{solution}
+        \gap
         \item (2p) Let $\left( \widehat{\alpha },\widehat{\rho }\right) $ denote the \textcolor{ForestGreen}{Ordinary Least Squares} (henceforth OLS) \textcolor{ForestGreen}{estimator} of parameters $\left(\alpha ,\rho \right)$ in model (\ref{model_1}). Do you need to make any assumption on $u _{i}$ to compute $\left( \widehat{\alpha },\widehat{\rho }\right) $ in a particular sample?
+        \begin{solution}
+            {
+                To compute the Ordinary Least Squares (OLS) estimators $\left(\widehat{\alpha}, \widehat{\rho}\right)$ for the parameters $\left(\alpha, \rho\right)$ in the model \(y_{i} = \alpha + \rho D_{i} + u_{i}\), you don't need to make any specific assumptions about the distribution or properties of the error term \(u_{i}\). 
+
+                The OLS estimators for \(\alpha\) and \(\rho\) are obtained by minimizing the sum of squared differences between the observed values of \(y_{i}\) and the values predicted by the model for a given sample:
+
+                \[\widehat{\alpha}, \widehat{\rho} = \arg \min_{\alpha, \rho} \sum_{i=1}^{n} \left(y_{i} - \alpha - \rho D_{i}\right)^{2}\]
+
+                This estimation method does not require any assumptions specifically about the distribution or properties of \(u_{i}\). 
+
+                \gap 
+
+                However, while OLS doesn't require explicit assumptions about \(u_{i}\) for estimation, certain assumptions under the classical linear regression are needed to establish the properties of the estimators (e.g., unbiasedness, consistency, efficiency). These assumptions include things like the error term having a mean of zero conditional on the predictors, homoscedasticity (constant variance of errors), and no correlation between the errors and the independent variables. Violations of these assumptions can affect the reliability of the OLS estimators in terms of their statistical properties.
+            }
+        \gap
+        \end{solution}
         
         \item (10p) Verify expression (\ref{ols_simplereg}). \textcolor{gray}{\textbf{Hint}: Leverage the derivations you did for PSet1, do not use linear algebra. \textbf{Note}: We leverage this result repeatedly, make sure to understand it both from an intuitive standpoint and algebraically.}
         \begin{equation} \label{ols_simplereg}

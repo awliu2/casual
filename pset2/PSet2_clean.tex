@@ -43,9 +43,10 @@
 
 \newcommand{\psetyear}{2024}
 \newcommand{\psetnum}{2}
+\newcommand{\E}{\mathbb{E}}
 
 \usepackage{fancyhdr}
-\pagestyle{fancy} 
+\pagestyle{fancy}
 \fancyhf{} % clear all header and footer fields
 \fancyfoot[R]{\color{Gray}{ECMA 31360 PSet \psetnum, Page \thepage}}
 
@@ -63,7 +64,7 @@
 % Add a solutions command
 \newcommand{\solution}[1]{\begin{quote}\noindent{\color{NavyBlue}\textbf{Solution:}} #1 \end{quote}}
 
-% Gap command - adds a 1em gap horizontally
+% Gap command - adds a 1em gap vertically
 \newcommand{\gap}{\vspace{1 em}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -73,7 +74,7 @@
 
 \title{ECMA 31360, Pset 2: Using OLS to Estimate Treatment Effects (100p)}
 \date{}
-\author{Melissa Tartari, University of Chicago}
+\author{Derek Li, Andi Liu, Tessie Dong}
 \maketitle
 \thispagestyle{fancy}
 
@@ -83,25 +84,25 @@
 
 % \noindent \textcolor{Maroon}{\textbf{Notation}: Starting with this pset we no longer use upper case and small case to distinguish between random variables and realizations of random variables. The context determine what is what.}\\
 
-\noindent \textcolor{Maroon}{\textbf{Objective of the PSet}: In PSet1 you considered the OLS estimator in a \textcolor{ForestGreen}{prediction} context: you had a linear-in-parameters CEF, $E[y_i|D_i]=\alpha+\beta D_i$ with $D_i$ being a 0/1 variable, and showed that the OLS estimator of $\beta$ is unbiased for $E[y_i|D_i=1]-E[y_i|D_i=0]$. Here you consider the OLS estimator in a \textcolor{ForestGreen}{causal} context: you start with the outcome equation\footnote{Think of this equation as stemming from some theoretical model which we have left unspecified.} $y_i=\alpha+\beta D_i + u_i$, where $D_i$ and $u_i$ are determinants of $y_i$ (observed and unobserved respectively), and study the circumstances under which the OLS estimator of $\beta$ enables inference about the causal effect of $D_i$ on $y_i$. Comparing the two contexts yields a lot of learning. To answer PSet2's questions you do \underline{not} need the course material unless explicitly stated because Pset2 you use the traditional (i.e., pre Rubin Causal Model) approach to causal analysis (from introductory econometrics courses).}\\
+\noindent \textcolor{Maroon}{\textbf{Objective of the PSet}: In PSet1 you considered the OLS estimator in a \textcolor{ForestGreen}{prediction} context: you had a linear-in-parameters CEF, $E[y_i|D_i]=\alpha+\beta D_i$ with $D_i$ being a 0/1 variable, and showed that the OLS estimator of $\beta$ is unbiased for $E[y_i|D_i=1]-E[y_i|D_i=0]$. Here you consider the OLS estimator in a \textcolor{ForestGreen}{causal} context: you start with the outcome equation\footnote{Think of this equation as stemming from some theoretical model which we have left unspecified.} $y_i=\alpha+\beta D_i + u_i$, where $D_i$ and $u_i$ are determinants of $y_i$ (observed and unobserved respectively), and study the circumstances under which the OLS estimator of $\beta$ enables inference about the causal effect of $D_i$ on $y_i$. Comparing the two contexts yields a lot of learning. To answer PSet2's questions you do \underline{not} need the course material unless explicitly stated because Pset2 you use the traditional (i.e., pre Rubin Causal Model) approach to causal analysis (from introductory econometrics courses).} \\
 
 \noindent \textcolor{Maroon}{\textbf{Background for the PSet}: Walmart Inc. is an American retail corporation that operates a chain of hypermarkets. Walmart introduced \textit{Sam's Club Plus} \href{https://www.samsclub.com/sams/pagedetails/content.jsp?pageName=aboutSams&xid=hpg_member_3}{(link)} in February 2018. Membership in \textit{Sam's Club Plus} implies that customers earn cash rewards (e.g., they get \$10 back for every \$500 spent on qualifying purchases), enjoy free-shipping on many items, and reduced 2-day shipping charges. \textit{Sam's Club Plus} charges an annual fee of \$100. Shoppers may use brick-and-mortar Walmart stores, or shop online at Walmart.com. The questions below focus on the causal impact of \textit{Sam's Club Plus} membership on online spend.}\footnote{All references to Walmart.com and its customers in this problem set are entirely fictitious and are used solely for the purpose of illustrating
-statistical concepts and their application in various contexts.}  
+statistical concepts and their application in various contexts.}
 
 \begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=1em, topsep=5pt]
 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
  % Question 1
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    \newpage 
+    \newpage
     \item (50p) Let $y_{i}$ be customer $i$'s spend at Walmart.com in a given month. Let $D_{i}=1$ if customer $i$ is a \textit{Sam's Club Plus} member, $=0$ otherwise. Assume membership status does not vary during the month. $y_{i}$ is determined by the customer's membership status ($D_{i}$) and other determinants ($u_{i}$) according to the \textcolor{ForestGreen}{homogeneous treatment effects} model:\label{item:q1}
-    
+
     \begin{equation} \label{model_1}
     y_{i}=\alpha +\rho D_{i}+u_{i}.
-    \end{equation} 
-    
+    \end{equation}
+
     For example, $u_{i}$ may include household income and size. As $\left( y_{i},D_{i},u _{i}\right) $ vary across customers, we think of them as RVs. Let $E\left[ u_{i}\right] =0$, where the expectation is taken with respect to the \textcolor{ForestGreen}{distribution} of $u_{i}$ in the \textcolor{ForestGreen}{population} of Walmart.com customers. You have data on a \textcolor{ForestGreen}{sample} of size $n$ of customers: $\left\{ \left( y_{i},D_{i}\right) |i=1,\ldots,n\right\} $. Note that $u_{i}$ is not included in the data for any of the sample customers.\footnote{That is, you observe the customer's spend and their membership status but not their household income and size, nor any of the other determinants of how much they spend on Walmart.com. This is the reason why we use the letter $u$, it is mnemonic for \textit{unobserved}.} Some of the sample customers are \textit{Sam's Club Plus} members, some are not. As your data contains a mix of both types of customers we say that you  have \textcolor{ForestGreen}{``observational variation in the cause or treatment''}. $\left( \alpha ,\rho \right) $ are \textcolor{ForestGreen}{unknown parameters}. Let $\overline{y}^{0}$ (respectively, $\overline{y}^{1}$) denote the \textcolor{ForestGreen}{sample average} of $y_{i}$ across sample customers with $D_{i}=0$ (respectively, with $D_{i}=1$).
-    
+
     \begin{enumerate}
         \item (2p) Provide additional examples of determinants of spend that may be part of $u _{i}$. \textcolor{gray}{\textbf{Hint}: In the background there is a consumer demand model, i.e., you think of model (\ref{model_1}) as a \textcolor{ForestGreen}{consumer expenditure function} from microeconomics.}
         \begin{solution}
@@ -111,136 +112,378 @@ statistical concepts and their application in various contexts.}
         \end{solution}
         \gap
         \item (2p) Show that $\rho$ is the causal impact of \textit{Sam's Club Plus} membership on a customer's spend, \newline\underline{in the sense that}, $\rho$ is the difference in a customer's spend with and without membership holding all else the same.
+        
         \begin{solution}
-            {
-                Given the model above, we can analyze the two cases for $D_i$.
-                
-                When $D_{i} = 1$, the equation becomes:
-                \[ y_{i} = \alpha + \rho + u_{i} \]
+        {
+            The causal effect of $D_i$ on $y_i$, holding $u_i$ constant, is given by:
+            \[ \frac{dy_{i}}{dD_{i}} = \frac{d(\alpha + \rho D_{i}+ u_{i})}{dD_{i}} = \rho \]
 
-                And when $D_{i} = 0$, the equation becomes:
-                \[ y_{i} = \alpha + u_{i} \]
+            Given the model above, we can analyze the two cases for $D_i$.
 
-                Now, let's consider the difference between the spend of a customer who is a Sam's Club Plus member ($D_{i} = 1$) and one who is not ($D_{i} = 0$). Holding all else the same, we can take the difference of the two above equations:
+            When $D_{i} = 1$, the equation becomes:
+            \[ y_{i} = \alpha + \rho + u_{i} \]
 
-                \[ \overline{y}^{1} - \overline{y}^{0} = \left( \alpha + \rho + u_{i} \right) - \left( \alpha + u_{i} \right) = \rho \]
+            And when $D_{i} = 0$, the equation becomes:
+            \[ y_{i} = \alpha + u_{i} \]
 
-                This demonstrates that $\rho$ is the difference in a customer's spend with and without Sam's Club Plus membership, while holding all other factors constant - the unobserved term $u_{i}$ cancels out in the difference. Thus, $\rho$ in this model represents the causal impact of a Sam's Club Plus membership on a customer's spend at Walmart.com.
-            }
+            Now, let's consider the difference between the spend of a customer who is a Sam's Club Plus member ($D_{i} = 1$) and one who is not ($D_{i} = 0$). Holding all else the same, we can take the difference of the two above equations:
+
+            \[ \overline{y}^{1} - \overline{y}^{0} = \left( \alpha + \rho + u_{i} \right) - \left( \alpha + u_{i} \right) = \rho \]
+
+            This demonstrates that $\rho$ is the difference in a customer's spend with and without Sam's Club Plus membership, while holding all other factors constant - the unobserved term $u_{i}$ cancels out in the difference. Thus, $\rho$ in this model represents the causal impact of a Sam's Club Plus membership on a customer's spending at Walmart.com.
+        
+        }
         \end{solution}
 
         \newpage
         \item (2p) Is $E\left[ u _{i}\right] =0$ an \textcolor{ForestGreen}{assumption} or a \textcolor{ForestGreen}{normalization}? Show it.\footnote{An assumption imposes a restriction on the objects/items present in your model, the restriction may or may not hold. For example, if a claim is stated subject to an assumption then your proof will use the assumption to arrive at the result, which means that the result may not obtain had you dropped the assumption. A normalization is when you recognize that two (or more) objects/items in a model are not separately identified, i.e., there is no way to learn about each of them separately, e.g., you may only learn their sum or product, or some other function of the two (or more) objects. If you recognize such a situation in your model you reparametrize the model so that the objects in the reformulated model are learnable.}
         \begin{solution}
             {
-                $E[u_i] = 0$ is a normalization. Supposed $E[u_i] \neq 0$. Then we can reparametrize as follows:
+                $E[u_i] = 0$ is the result of normalization - we can simply define the terms in the model, including $u$, in such a way that $E[u_i]$ is made to be zero and the model holds. Suppose for the sake of argument that we find that $E[u_i] \neq 0$. However, we can just manipulate the terms as follows:
                 \[ y_i = \alpha + \rho D_i + u_i - E[u_i]  + E[u_i]\]
                 \[ y_i = (\alpha + E[u_i]) + \rho D_i + \left( u_i - E[u_i] \right) \]
+                Define $\tilde{u_i} = \left( u_i - E[u_i] \right)$, and $\tilde{\alpha} = \left( \alpha + E[u_i] \right)$, giving us a new expression for $y_i$: 
                 \[ y_i = \tilde{\alpha} + \rho D_i + \tilde{u}_i \]
-                and we have arrived at the same model as before, but with a different unobserved term. 
+                and we have arrived at the same model as before, where $E[\tilde{u_i}] = 0$.
 
                 \gap
-                In general, if we find that for a given $\alpha$ and $\rho$, $E[u_i] \neq 0$, we can absorb the non-zero mean of the error term into the constant term $\alpha$, thus allowing us to correctly assume that $E[\tilde{u}_i] = 0$. Thus, $E[u_i] = 0$ is a normalization.
+                In general, if we find that for a given $\alpha$ and $\rho$, $E[u_i] \neq 0$, we can normalize by absorbing the non-zero mean of the error term into the constant term $\alpha$, thus giving $u_i$ the property that $E[\tilde{u}_i] = 0$.
             }
         \end{solution}
         \gap
         \item (2p) Let $\left( \widehat{\alpha },\widehat{\rho }\right) $ denote the \textcolor{ForestGreen}{Ordinary Least Squares} (henceforth OLS) \textcolor{ForestGreen}{estimator} of parameters $\left(\alpha ,\rho \right)$ in model (\ref{model_1}). Do you need to make any assumption on $u _{i}$ to compute $\left( \widehat{\alpha },\widehat{\rho }\right) $ in a particular sample?
         \begin{solution}
             {
-                To compute the Ordinary Least Squares (OLS) estimators $\left(\widehat{\alpha}, \widehat{\rho}\right)$ for the parameters $\left(\alpha, \rho\right)$ in the model \(y_{i} = \alpha + \rho D_{i} + u_{i}\), you don't need to make any specific assumptions about the distribution or properties of the error term \(u_{i}\). 
+                % Do we want to talk about E[XU] = 0?
+                To compute the Ordinary Least Squares (OLS) estimators $\left(\widehat{\alpha}, \widehat{\rho}\right)$ for the parameters $\left(\alpha, \rho\right)$ in the model \(y_{i} = \alpha + \rho D_{i} + u_{i}\), you don't need to make any specific assumptions about the distribution or properties of the error term \(u_{i}\). \gap
 
                 The OLS estimators for \(\alpha\) and \(\rho\) are obtained by minimizing the sum of squared differences between the observed values of \(y_{i}\) and the values predicted by the model for a given sample:
-
+                
                 \[\widehat{\alpha}, \widehat{\rho} = \arg \min_{\alpha, \rho} \sum_{i=1}^{n} \left(y_{i} - \alpha - \rho D_{i}\right)^{2}\]
 
-                This estimation method does not require any assumptions specifically about the distribution or properties of \(u_{i}\). 
+                This estimation method does not require any assumptions specifically about the distribution or properties of \(u_{i}\).
 
-                \gap 
+                \gap
 
                 However, while OLS doesn't require explicit assumptions about \(u_{i}\) for estimation, certain assumptions under the classical linear regression are needed to establish the properties of the estimators (e.g., unbiasedness, consistency, efficiency). These assumptions include things like the error term having a mean of zero conditional on the predictors, homoscedasticity (constant variance of errors), and no correlation between the errors and the independent variables. Violations of these assumptions can affect the reliability of the OLS estimators in terms of their statistical properties.
             }
         \gap
         \end{solution}
         
+        \newpage
         \item (10p) Verify expression (\ref{ols_simplereg}). \textcolor{gray}{\textbf{Hint}: Leverage the derivations you did for PSet1, do not use linear algebra. \textbf{Note}: We leverage this result repeatedly, make sure to understand it both from an intuitive standpoint and algebraically.}
         \begin{equation} \label{ols_simplereg}
-            \left[ 
+            \left[
             \begin{array}{c}
-            \widehat{\alpha } \\ 
+            \widehat{\alpha } \\
             \widehat{\rho }
             \end{array}
-            \right] =\left[ 
+            \right] =\left[
             \begin{array}{c}
-            \overline{y}^{0} \\ 
+            \overline{y}^{0} \\
             \overline{y}^{1}-\overline{y}^{0}
             \end{array}
-            \right] \text{.}  
+            \right] \text{.}
         \end{equation}
-        
-        \item (2p) Use expression (\ref{ols_simplereg}) to describe in plain English estimator $\left( \widehat{\alpha }, \widehat{\rho }\right) $.\label{item:q1-old-as-group-averages}
+        \begin{solution}
+            {
+                Given the OLS model described in part (d) we take first order conditions, obtaining a system of two equations with unknowns $(\hat{\alpha}, \hat{\beta})$:
+                \[ \begin{cases}
+                    \sum_{i=1}^n (y_i - \hat{\alpha} - \hat{\rho}D_i)D_i = 0\\
+                    \\
+                    \sum_{i=1}^n (y_i - \hat{\alpha} - \hat{\rho}D_i) = 0
+                    \end{cases}
+                \]
+                Letting $\bar{y} \equiv \frac{\sum y_i}{n}$ (the sample average of spending)  and $\bar{D} \equiv \frac{\sum D_i}{n}$ (the sample proportion of memberships), the solution to this system is 
+                \begin{align*}
+                    &\hat{\alpha} = \bar{y} - \hat{\rho}\bar{D} \\
+                    &\hat{\rho} = \frac{\sum_{i=1}^n (y_i - \bar{y})(D_i - \bar{D})}{\sum_{i = 1}^n (D_i - \bar{D})^2}
+                \end{align*}
                 
+                First let us examine $\hat{\rho}$. Let $n_0$ refer to the number of samples where $D_i = 0$ and $n_1$ refer to the number of samples where $D_i = 1$ (this necessitates that $n_0 + n_1 = n$). Also let $\sum_{D_i = 1} y_i$ refer to the summation of sample expenditure for all members, and vice versa for $D_i = 0$. Then we get that
+
+                \begin{align*}
+                \hat{\rho}  \gap & = \frac{\sum_{i=1}^n (y_i - \bar{y})(D_i - \bar{D})}{\sum_{i = 1}^n (D_i - \bar{D})^2} \\
+                \\
+                                 & = \frac{\sum_{i=1}^n y_i (D_i - \bar{D})}{\sum_{i=1}^n (D_i - \bar{D})^2} = \frac{\sum_{D_i = 0} y_i (0 - \frac{n_1}{n}) + \sum_{D_i = 1} y_i (1 - \frac{n_1}{n})}{\sum_{D_i = 0} (0 - \frac{n_1}{n})^2 + \sum_{D_i = 1} (1 - \frac{n_1}{n})^2} \\ \\
+                                 & = \frac{\sum_{D_i = 0} y_i (-\frac{n_1}{n}) + \sum_{D_i = 1} y_i (\frac{n_0}{n})}{\sum_{D_i = 0} (-\frac{n_1}{n})^2 + \sum_{D_i = 1} (\frac{n_0}{n})^2} \\ \\
+                                 & = \frac{\frac{1}{n} (-n_1 \sum_{D_i = 0} y_i + n_0 \sum_{D_i = 1} y_i)}{\frac{n_0 n_1}{n^2} \cdot (n_0 + n_1)} = \frac{\frac{1}{n} (n_0 n_1)(-\frac{1}{n_0} \sum_{D_i = 0} y_i + \frac{1}{n_1} \sum_{D_i = 1} y_i)}{\frac{n_0 n_1}{n^2} \cdot (n_0 + n_1)}\\ \\ 
+                                 & = \frac{(-\frac{1}{n_0}\sum_{D_i = 0} y_i + \frac{1}{n_1}\sum_{D_i = 1} y_i)}{\frac{1}{n} \cdot (n_0 + n_1)} = \frac{(-\frac{1}{n_0}\sum_{D_i = 0} y_i + \frac{1}{n_1}\sum_{D_i = 1} y_i)}{n}  \\ \\ 
+                                 & = \frac{1}{n_1}\sum_{D_i = 1}{y_i} - \frac{1}{n_0} \sum_{D_i = 0} y_i\\ \\
+                                 & = \bar{y}^1 - \bar{y}^0
+                \end{align*}
+                Which is exactly what we want. Now let us show $\hat{\alpha} \ = \ \bar{y}^0$:
+                \begin{align*}
+                \hat{\alpha} \  &= \bar{y} - \hat{\rho} \bar{D} = \bar{y} - (\bar{y}^1 - \bar{y}^0)\bar{D} \\ 
+                &= \bar{y} - (\bar{y}^1 - \bar{y}^0) \frac{n_1}{n} \\
+                & = \left( \frac{n_0}{n}\bar{y}^0 + \frac{n_1}{n}\bar{y}^1 \right) - (\frac{n_1}{n} \bar{y}^1 - \frac{n_1}{n}\bar{y}^0) \\ 
+                & = \frac{n_0}{n}\bar{y}^0 + \frac{n_1}{n}\bar{y}^0 = \bar{y}^0
+                \end{align*}
+
+            finishing the exercise.
+            }
+        \end{solution}
+        \gap
+        \item (2p) Use expression (\ref{ols_simplereg}) to describe in plain English estimator $\left( \widehat{\alpha }, \widehat{\rho }\right) $.\label{item:q1-old-as-group-averages}
+
+        \begin{solution}
+            {The estimator $\hat{\alpha}$ is the mean spending on Walmart.com for sampled customers that are not \textit{Sam's Club Plus} members. Whereas $\hat{\beta}$ is the difference in mean spending on Walmart.com between sampled customers that have membership in \textit{Sam's Club Plus} and sampled customers that do not have membership.}
+        \end{solution}
+
         \item (2p) \textbf{Without further assumptions}: Are $\left( \widehat{\alpha }, \widehat{\rho }\right) $ unbiased/consistent estimators of $\left( \alpha,\rho \right) $? Explain (no proof).
+
+        \begin{solution}
+            {
+                Without further assumptions, we cannot say that $\left( \widehat{\alpha }, \widehat{\rho }\right)$ are unbiased or consistent estimators of $\left( \alpha,\rho \right)$. If $u_i$ is correlated with $D_i$, the estimators could be biased and the overall correlation may not be interpreted as purely a causal effect. Consistency also cannot be guaranteed because there may exist serial correlation or heteroskedasticity in the error terms without necessary assumptions. Unbiasedness also requires that $E[U|D] = 0$, which is not an assumption that we can necessarily make in the context of this problem. In addition, consistency requires that $E[Y^2] < \infty$ and that $E[D_i^4] < \infty, \ \forall i$. While this assumption seems reasonable at a glance, it is still not necessarily sound with only the information we currently have on hand regarding this model and the sample.
+            }
+        \end{solution}
+
+        \item (4p) You have a \textcolor{ForestGreen}{random sample} (RS) of Walmart.com customers. In econometrics the assumption that $E\left[ u _{i}|D_{i}=1\right] =E\left[ u _{i}|D_{i}=0\right] $ is called the \textcolor{ForestGreen}{``zero conditional mean assumption''} (ZCMA) because, once we make the normalization $E[u_i]=0$, it writes as $E\left[ u _{i}|D_{i}=1\right] =E\left[ u _{i}|D_{i}=0\right] = E[u_i]=0$. Describe the ZCMA in plain English.
+        \begin{solution}
+            {
+            The ZCMA states that on average, the unobserved determinants have the same effect on the control and treatment groups. Moreover, individual determinants may have differing effects (positive/negative), but on average they will cancel out.
+            }
+        \end{solution}
         
-        \item (4p) You have a \textcolor{ForestGreen}{random sample} (RS) of Walmart.com customers. In econometrics the assumption that $E\left[ u _{i}|D_{i}=1\right] =E\left[ u _{i}|D_{i}=0\right] $ is called the \textcolor{ForestGreen}{``zero conditional mean assumption''} (ZCMA) because, once we make the normalization $E[u_i]=0$, it writes as $E\left[ u _{i}|D_{i}=1\right] =E\left[ u _{i}|D_{i}=0\right] = E[u_i]=0$. Describe the ZCMA in plain English. 
+
+        \item (8p) Show that $\rho$ is identified if ZCMA holds. \textcolor{gray}{\textbf{Hint}: Express $\rho$ \textit{exclusively} as a function of \textcolor{ForestGreen}{population data moments (PDM)}, that is, features of the population distribution of $(y_i,D_i)$.}\label{item:identified_zmca}
+
+        \begin{solution}
+        { Suppose the ZCMA holds. \medskip
+
+        First note that, 
+        \begin{align*}
+            y_i(0) &= \alpha + u_i \\
+            \implies \mathbb{E}[y_i(0) | D_i = 0] &= \mathbb{E}[\alpha + u_i | D_i = 0]\\ 
+             &= \mathbb{E}[\alpha|D_i = 0] + \mathbb{E}[u_i | D_i = 0] \text{, by linearity}\\
+             &= \mathbb{E}[\alpha|D_i = 0] \text{, by ZCMA, }\\
+             &= \alpha \text{, because $\alpha$ is a constant. }
+        \end{align*}
+        \medskip 
+        Moreover,
+        \begin{align*}
+            y_i(1) &= \alpha + \rho + u_i \\
+            \implies \mathbb{E}[y_i(1) | D_i = 1] &= \mathbb{E}[\alpha + \rho + u_i | D_i = 1]\\ 
+             &= \mathbb{E}[\alpha|D_i = 1] + \mathbb{E}[\rho|D_i =1] + \mathbb{E}[u_i | D_i = 0] \text{, by linearity}\\
+             &= \mathbb{E}[\alpha|D_i = 1] + \mathbb{E}[\rho|D_i =1] \text{, by ZCMA, }\\
+             &= \alpha + \rho \text{, because $\alpha, \rho$ are constants. }
+        \end{align*}
         
-        \item (8p) Show that $\rho$ is identified if ZCMA holds. \textcolor{gray}{\textbf{Hint}: Express $\rho$ \textit{exclusively} as a function of \textcolor{ForestGreen}{population data moments (PDM)}, that is, features of the population distribution of $(y_i,D_i)$.}
-        
+        Combining these two results we can show that $\rho$ is identified as follows: 
+        \begin{align*}
+            \rho &= \mathbb{E}[y_i(1) | D_i = 1] - \alpha\\
+            &= \mathbb{E}[y_i(1) | D_i = 1] - \mathbb{E}[y_i(0) | D_i = 0].
+        \end{align*}
+        }
+        \end{solution}
+
         \item (12p) Assume that ZCMA holds. Is estimator $\widehat{\rho }$ unbiased (6p)? Is it consistent (6p)? Prove it. \textcolor{gray}{\textbf{Hint}: Let $D=\{D_1,\dots,D_n\}$. Show $E[\widehat{\rho}]=\rho \ \forall \rho$ and $\widehat{\rho} \overset{p}{\rightarrow }\rho \ \forall \rho$ starting with expression (\ref{ols_simplereg}).}\label{item:ols:statistical-properties}
-        
+
+        \begin{solution}
+            {
+            By similar logic to what we argued in \textbf{\ref{item:identified_zmca}}, 
+            \begin{align*}
+            y_i(0) &= \alpha + u_i \\
+            \implies \mathbb{E}[y_i(0)] &= \mathbb{E}[\alpha + u_i]\\ 
+             &= \mathbb{E}[\alpha] + \mathbb{E}[u_i] \text{, by linearity}\\
+             &= \mathbb{E}[\alpha] \text{, by normalization, }\\
+             &= \alpha \text{, because $\alpha$ is a constant. }
+        \end{align*}
+        \medskip 
+        Moreover,
+        \begin{align*}
+            y_i(1) &= \alpha + \rho + u_i \\
+            \implies \mathbb{E}[y_i(1)] &= \mathbb{E}[\alpha + \rho + u_i]\\ 
+             &= \mathbb{E}[\alpha] + \mathbb{E}[\rho] + \mathbb{E}[u_i] \text{, by linearity}\\
+             &= \mathbb{E}[\alpha] + \mathbb{E}[\rho] \text{, by normalization, }\\
+             &= \alpha + \rho \text{, because $\alpha, \rho$ are constants. }
+        \end{align*}
+            
+            Now we show that $\widehat{\rho}$ is unbiased. Let $n_1$ be the sample size of those who have \textit{Sam's Club Plus} membership. Let $n_0$ be the sample size of those who do not have \textit{Sam's Club Plus} membership. Consider the following:
+            \begin{align*}
+                \widehat{\rho} &= \Bar{y}^1 - \Bar{y}^0\\
+                \implies \E[\widehat{\rho}] &= \E[\Bar{y}^1 - \Bar{y}^0] \\ 
+                &= \E[\Bar{y}^1] - \E[\Bar{y}^0] \text{, by linearity, }\\
+                &= \E\left[\frac{\sum_{D_i=1} y_i(1)}{n_1}\right] - \E\left[\frac{\sum_{D_i=0} y_i(0)}{n_0}\right] \text{, by definition of sample mean, }\\ 
+                &= \frac{1}{n_1}\E\left[\sum_{D_i=1} y_i(1)\right] - \frac{1}{n_0}\E\left[\sum_{D_i=0} y_i(0)\right] \text{, because $n_0, n_1$ are constants, }\\ 
+                &= \frac{1}{n_1}\sum_{1}^{n_1}\E\left[y_i(1)\right] - \frac{1}{n_0}\sum_{1}^{n_0}\E\left[y_i(0)\right] \text{, by linearity of independence, and that $y_i$ is drawn iid,}\\ 
+                &= \frac{1}{n_1}\sum_{1}^{n_1} (\alpha + \rho) - \frac{1}{n_0}\sum_{1}^{n_0} \alpha \text{, by argument above, }\\ 
+                &= \frac{1}{n_1}\cdot n_1 \cdot (\alpha + \rho) - \frac{1}{n_0} \cdot n_0 \cdot \alpha \\ 
+                &= \rho \forall \rho \text{, by simplification}.
+            \end{align*}
+            \newpage
+            Let's now show that $\hat{\rho}$ is consistent. 
+            First, we can show that $\Bar{y}^1$ is consistent for $E[y_i(1)]$. By definition we have that $\Bar{y}^1 = \frac{\sum_{D_i=1} y_i(1)}{n_1}$. Because the collection of $y_i$ is drawn i.i.d, we can argue that 
+            $$\frac{\sum_{D_i=1} y_i(1)}{n_1} \xrightarrow{p} E[y_i(1)] \text{, by the Weak Law of Large Numbers}$$
+            
+            Similarly, we can argue that $\Bar{y}^0$ is consistent for $E[y_i(0)]$. We have that $\Bar{y}^0 = \frac{\sum_{D_i=0} y_i(0)}{n_0}$. By the same logic, 
+                 $$ \frac{\sum_{D_i=0} y_i(0)}{n_0} \xrightarrow{p} E[y_i(0)] \text{, by the Weak Law of Large Numbers.}$$ 
+            
+            We can apply the Weak Law of Large Numbers by leveraging the fact that we have a random sample of Amazon.com customers (from Q1h), such that  $(y_i, D_i, u_i)$ are drawn i.id from some distribution.
+            As shown above, $E[y_i(1)] = \alpha + \rho$ and $E[y_i(0)] = \alpha$, so we can argue:
+                \[\Bar{y}^1 \xrightarrow{p} \alpha + \rho\]
+                \[\Bar{y}^0 \xrightarrow{p} \alpha\]
+            By the Continuous Mapping Theorem, we can conclude that
+            \[\widehat{\rho} = \Bar{y}^1 - \Bar{y}^0 \xrightarrow{p} \alpha + \rho -\alpha\ = \rho \forall \rho\]
+            proving consistency as desired.
+        }
+        \end{solution}
+        \newpage
         \item (2p) In place of maintaining ZCMA, assume that $u _{i}\bot D_{i}$, where the symbol ``$\bot $'' signifies \textcolor{ForestGreen}{statistical independence}. Does your answer to \textbf{\ref{item:ols:statistical-properties}} change? If it does, how?
-        
+
+        \begin{solution}
+            {
+                Our answer to \textbf{\ref{item:ols:statistical-properties}} does not change because independence implies mean independence. Furthermore, ZCMA alongside the normalization that $E[u_i] = 0$ is just to say that we have mean independence between $D_i$ and $u_i$. Thus, assuming $u _{i}\bot D_{i}$ alongside the normalization of $E[u_i] = 0$ maintains ZCMA, and this independence assumption is sufficient to show that $\widehat{\rho}$ is an unbiased and consistent estimator of $\rho$.
+            }
+        \end{solution}
+
         \item (2p) In light of your answers to the previous questions: Do you expect estimator $\widehat{\rho }$ to be unbiased/consistent when constructed using a sample of actual Walmart.com customers chosen at random? Explain.
+
+        \begin{solution}
+            {
+                We do not expect estimator $\widehat{\rho }$ to be unbiased and consistent with a sample of actual Walmart.com customers because it is difficult to achieve ZCMA in this setup. Considering our answer to the first question, we can imagine there are certain unobservable variables that might have differing effect on the control and treatment groups. For example, income might be a factor in $u_i$ and we can see that it might affect the treatment group more in the sense that customers from a lower income background might be more inclined to take advantage of the membership and therefore make more purchases.
+            }
+        \end{solution}
         \end{enumerate}
-        
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%
- % Question 2
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
         \item (20p) Consider the time \textbf{before} Walmart introduced \textit{Sam's Club Plus}. Sales leadership have come up with the idea of a \textit{Sam's Club Plus} membership that offers cash back on all orders. Scientists want to design and carry out a \textcolor{ForestGreen}{randomized control trial (RCT)} to estimate how different consumer spend would be on average with a \textit{Sam's Club Plus} membership. The estimate would help stakeholders decide whether to roll-out a \textit{Sam's Club Plus} program, and how to price it. \label{item:q2}
         \begin{enumerate}
-        
+
         \item (2p) Suggest two reasons why a customer's spend at Walmart.com may differ with versus without a \textit{Sam's Club Plus} membership, all else the same.
-        
+
+        \begin{solution}
+            {
+                One reason that a customer's spend at Walmart.com might be higher with versus without a \textit{Sam's Club Plus} membership is the savings that come with the membership. A customer might feel more inclined to purchase more items from Walmart due to the cash back offered with the membership. Another reason that a customer's spend at Walmart.com might be higher with versus without a membership is the increased loyalty that a customer might feel holding the membership. A customer with a membership might feel more attached to the brand and therefore make more purchases from Walmart.com.
+            }
+        \end{solution}
+
         \item (12p) The Walmart scientists carried out an RCT: they \textcolor{ForestGreen}{randomly assigned} (RA) \textit{Sam's Club Plus} membership status to $10,000$ existing customers (at no charge) (\textcolor{ForestGreen}{treated group}) and left the rest of the customers \textit{as is} i.e., without the membership (\textcolor{ForestGreen}{control group}). Provide a discussion of this RCT's possible limitations/challenges by following step by step the list of limitations given in \texttt{CAUS\_intro.pdf}, that is, \textcolor{ForestGreen}{implementation hurdles}, \textcolor{ForestGreen}{lack of generalizability}, etc.
-        
+
+        \begin{solution}
+            {
+                \begin{itemize}
+                    \item Implementation hurdles: This RCT might be expensive to carry out as the memberships are offered to a large group of customers at no cost, so the cash back benefits might decrease the company's revenue if many customers in the treated group choose to purchase more to take advantage of the cash back program.
+                    \item Lack of generalizability: The sample chosen for the RCT must accurately represent the broader Walmart shopper demographic to ensure the results are generalizable. For example, changes in other pricing strategies or the availability of products during the RCT could also affect the spending behaviors of the treatment and control groups and therefore prevent us from generalizing the results to the population.
+                    \item Attrition Bias: If members drop out of the RCT because they don't perceive immediate benefits from the Sam's Club Plus membership, the remaining participants may not accurately represent the average treated consumer.
+                    \item Hawthorne Bias: Participants aware of their inclusion in the study may change their shopping behavior. For example, those with the membership might spend more to maximize perceived benefits especially knowing that they have the benefit now for free.
+                    \item Substitution Bias: Control group members might seek alternative ways to save money, such as using other discount services. This could lead to an underestimation of the Sam's Club Plus membership's effectiveness on spending behavior.
+                    \item Compliance Bias: This limitation appears less applicable to this case. Walmart's treatment is not the choice to purchase membership, but an assignment of the membership to customers directly. It seems unlikely that there is any way to "comply imperfectly" in a case like this, though it may be similar to the Hawthorne Bias. The possibility that a customer with membership reacts maliciously by intentionally not purchasing products from Walmart is one possible case, though unlikely. If it is true that customer's can purchase membership on their own whilst being part of the control group, such a situation would be more applicable.
+                    \item Contamination Bias: This is less likely to occur in the context of this experiment however there could be a situation where a non-member in the control group asks a member in the treatment group to perform proxy purchases on their behalf.
+                \end{itemize}
+            
+            }
+        \end{solution}
+
         \item (6p) The RCT is carried out. The post-experiment analysis sample includes the $10,000$ customers in the treatment group, and $10,000$ customers chosen randomly from the control group. For each sample customer, the data only records the customer's membership status and how much they spent at Walmart.com during the first month following the date of RA, i.e., $\left\{ \left( y_{i},D_{i}\right) |i=1,\ldots,n=20,000\right\} $. Can the scientists use the \textcolor{ForestGreen}{experimental variation} in this data to estimate $\rho$ in model (\ref{model_1}) by OLS? Explain. How shall they interpret the resulting OLS estimate?
+        \begin{solution}
+            {
+                Should scientists use this sample to perform OLS estimator of the population $\rho$ in model 1, experimental variation will cause different samples of the population to yield variation in the sample estimator $\hat{\rho}$. With a fixed $n = 10,000$, we believe that $n$ is sufficiently large, such that the experimental variation resulting from this sample is minimal and will likely not cause our $\hat{\rho}$ to deviate much from the true population $\rho$ value. However, we must interpret our OLS estimate in the context of our sample - i.e we must know that is not guaranteed to accurately reflect the true population value - rather, our estimator is just one of many values that might be obtained from performing this experiment. However, should we draw an infinite number of samples of size $n$ and perform our experiment, the average of our estimates should approach the true population $\rho$, assuming that our estimators are unbiased and consistent.\gap
+
+                In the context of the \textit{Sam's Club Membership}, our sample OLS estimator $\hat{\rho}$ represents the approximate increase in spending on Walmart.com that can be attributed/is caused solely having the membership, with all other factors being equal.
+             }
+        \end{solution}
     \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Question 3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
+
     \item (20p) The setting is as in \textbf{\ref{item:q1}} but for the following: $y_{i}$ is determined by a customer's \textit{Sam's Club Plus}-membership status ($D_{i}$) and other unobserved determinants ($v _{i}$) according to the \textcolor{ForestGreen}{heterogeneous treatment effects} model: \label{item:q3}
     \begin{equation}\label{model_2}
-    y_{i}=\alpha +\rho _{i}D_{i}+v_{i}. 
+    y_{i}=\alpha +\rho _{i}D_{i}+v_{i}.
     \end{equation}
-Note that $\rho _{i}$ varies across customers. You have access to a RS of existing Walmart customers. As in \textbf{\ref{item:q1}}, the data is the collection $\left\{ \left( y_{i},D_{i}\right) |i=1,\ldots,n\right\} $. Note that $\rho _{i}$ is \textbf{not} included in your data, nor is $v_i$.
+Note that $\rho _{i}$ varies across customers. You have access to an RS of existing Walmart customers. As in \textbf{\ref{item:q1}}, the data is the collection $\left\{ \left( y_{i},D_{i}\right) |i=1,\ldots,n\right\} $. Note that $\rho _{i}$ is \textbf{not} included in your data, nor is $v_i$.
 
     \begin{enumerate}
         \item (2p) Interpret $\rho _{i}$.
+        \begin{solution}
+        {
+            In the context of our new setup, $\rho_i$ represents the individual-specific treatment effect for a given customer $i$. Unlike in Question $(1)$, $p_i$ varies for each individual customer, and thus the magnitude of the effect of a Sam's Club Plus membership on spending will vary per individual in the sample. Specifically, $\rho_i$ captures the difference between the spending of an individual with Sam's Club Plus and the spending of the same individual without Sam's Club Plus.
+        }
+        \end{solution}
         \item (4p) Think of each $\rho _{i}$ as a \textcolor{ForestGreen}{draw} from a distribution. Let $\rho \equiv E\left[ \rho _{i}\right] $, $\rho_1 \equiv E\left[ \rho _{i}|D_{i}=1\right]$, and $\rho_0 = E\left[ \rho _{i}|D_{i}=0\right]$. Describe in plain English these three objects. Interpret in plain English the assumption $\rho=\rho_1=\rho_0 $. Speculate about why this assumption is called \textcolor{ForestGreen}{``no selection on gains''} (specialize your answer to the situation being considered).\label{item:q3-att}
+        \begin{solution}
+        {
+            $\rho$ represents the expected treatment effect across the entire population, this is the difference in spending that an individual with Sam's Club Plus and the spending of that same individual without Sam's Club Plus would have on average. 
+            
+            \medskip
+            
+            $\rho_1$ is the expected treatment effect across customers with Sam's Club Plus. This is the difference in spending that an individual with Sam's Club Plus and the spending of that same individual without Sam's Club Plus would have on average, when such individual is currently a member of Sam's Club Plus. 
+            
+            \medskip
+            
+            $\rho_2$ is the expected treatment effect across the customers without Sam's Club Plus. This is the difference in spending that an individual with Sam's Club Plus and the spending of that same individual without Sam's Club Plus would have on average, when such individual is currently not a member of Sam's Club Plus.  
+
+            \medskip
+
+            The assumption that $\rho = \rho_1 = \rho_0$ states the following: the difference in spending that an individual with Sam's Club Plus and the spending of that same individual without Sam's Club Plus would be on average the same, irrespective of current membership status. The effect on average is the same for the total population, the subset of the population that has membership, and the subset of the population that does not have membership. The assumption may be called "no selection on gains" because it highlights that the decision to obtain membership ("selection") is not influenced by the causal effect of potential gains in spending as a result of obtaining Sam's Club Plus. Selection is not determined by an individual’s personally determined gain (in utility or other metrics) from the membership.
+        }
+        \end{solution}
         %%%%%%%%%%%
         \item (2p) Verify that you can rewrite model (\ref{model_2}) as a simple linear regression model:
-     \begin{equation}\label{model_3}
-    y_{i}=\alpha +\rho_1 D_{i}+u_{i} \text{ with } u_i \equiv v_i+(\rho_i-E[\rho_i|D_i=1])D_i. 
-    \end{equation}       
+        \begin{equation}\label{model_3}
+            y_{i}=\alpha +\rho_1 D_{i}+u_{i} \text{ with } u_i \equiv v_i+(\rho_i-E[\rho_i|D_i=1])D_i.
+        \end{equation}
+        \begin{solution}
+            {
+                \begin{align*}
+                y_{i}&=\alpha +\rho _{i}D_{i}+v_{i} \\
+                     &=\alpha +\rho _{i}D_{i} +\rho_1D_i - \rho_1D_i + v_i \\
+                     &=\alpha +\rho_1D_i +\rho _{i}D_{i} - \rho_1D_i + v_i \\
+                     &=\alpha +\rho_1D_i +(\rho_i - \rho_1)D_{i} + v_i \\
+                     &=\alpha +\rho_1D_i +(\rho_i - E\left[ \rho _{i}|D_{i}=1\right])D_{i} + v_i \\
+                     &=\alpha +\rho_1D_i + u_i \text{ where } u_i = v_i+(\rho_i-E[\rho_i|D_i=1])D_i
+                \end{align*}
+            }
+        \end{solution}
 %%%%%%%%%%%
-        \item (6p) Consider the OLS estimator of the slope parameter in model (\ref{model_3}). In \textbf{\ref{item:q1}} you established that $\widehat{\rho_1 }=\overline{y}^{1}-\overline{y}^{0}$ and $\widehat{\rho_1 }$ is unbiased for $\rho_1$ under the ZCMA $E[u_i|D_i=1]=E[u_i|D_i=0]$. 
+        \item (6p) Consider the OLS estimator of the slope parameter in model (\ref{model_3}). In \textbf{\ref{item:q1}} you established that $\widehat{\rho_1 }=\overline{y}^{1}-\overline{y}^{0}$ and $\widehat{\rho_1 }$ is unbiased for $\rho_1$ under the ZCMA $E[u_i|D_i=1]=E[u_i|D_i=0]$.
         \begin{enumerate}
         \item What are the substantive benefits of this result? That is, what do you learn about the causal effect of the treatment?
+        \begin{solution}
+        {   
+            Establishing that $\widehat{\rho_1} = \bar{y^1} - \bar{y^0}$ and that $\widehat{\rho_1 }$ is unbiased for $\rho_1$ under the ZCMA allows us to conclude that even though $\rho_i$ may vary for each individual treatment, our estimator $\widehat{\rho_1 }$ still directly reflects the true average causal effect of a Sam's Club membership on Walmart.com spending for our population. That is to say, in determining the average treatment effect $\rho_1$, we can average out the individual differences in treatment effect - i.e find that $E[ITE] = E[\widehat{\rho_1}]$. Thus we gain insight into the causal effects of our treatment regardless of the heterogeneity of the treatment effect amongst individuals.
+        }
+        \end{solution}
+        \gap
         \item What does the ZCMA $E[u_i|D_i=1]=E[u_i|D_i=0]$ imply for the relationship between the unobserved ($v_i$) and observed ($D_i$) determinants of the outcome?
+        \begin{solution}
+            {
+                The ZCMA $E[u_i|D_i=1]=E[u_i|D_i=0]$ implies that the unobserved and the observed determinants of the outcome are uncorrelated, in the sense that the unobserved determinants have the same overall effect on $y_i$ regardless of the value of $D_i$.
+            }
+        \end{solution}
+        \gap
         \end{enumerate}
 
 %%%%%%%%%%%
 \item (6p) Under which additional condition does $\widehat{\rho}_1$ allow us to infer the average causal effect of treatment for the entire population, rather than only for the sub-population of \textit{Sam's Club Plus} members?
-
+    \begin{solution}
+    {
+        We want to ensure that the treatment effect $\widehat{\rho}_1$ estimated for \textit{Sam's Club Plus} members using $\widehat{\rho}_1$ can be generalized to the entire population. Thus we need the potential outcome of an individual to depend only on its own treatment assignment and not on the treatment assignment of any other individual - i.e the spending of an individual with $D_i=1$ is not influenced by the membership status of any other individual. Formally, this can be expressed as follows:
+        \[y_i \bot D_j \forall \ (i, j) \text{ s.t } i \neq j\]
+        Thus, regardless of which specific individuals are assigned the treatment, our analysis will arrive at the same overall outcomes, and thus can be generalized to the entire population, not just only to \textit{Sam's Club Plus} members.
+        \gap
+    }
+    \end{solution}
     \end{enumerate}
-    
+
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %%% Question 4
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
+
     \item (10p) Take stock. You worked with two models: (1) $y_{i}=\alpha +\rho D_{i}+u _{i}$, see expression (\ref{model_1}); and (2) $y_{i}=\alpha +\rho _{i}D_{i}+v_{i}$, see expression (\ref{model_2}). You considered one estimator: the OLS estimator of the intercept and slope coefficients in a linear regression of customer spend on a constant term and an indicator of \textit{Sam's Club Plus} membership status. You derived the assumptions that suffice for the OLS estimator of the slope coefficient to be unbiased for $\rho$ in model (\ref{model_1}), and to be unbiased for the mean of $\rho _{i}$ in the sub-population of \textit{Sam's Club Plus}  members or in the entire population in model (\ref{model_2}). What did you learn about interpreting the OLS estimator of the slope coefficient in a causal context? Write 3 to 5 sentences.
+    \begin{solution}
+    {
+        For model (\ref{model_1}), where the treatment effect is assumed to be homogeneous, unbiased estimation of the causal effect relies on the assumption of no unobserved confounding - that is, $E[u_i|D_i=1]=E[u_i|D_i=0]$. This assumption ensures that the treatment assignment is independent of potential outcomes after conditioning on observed covariates, allowing for causal interpretation of the OLS estimator.\medskip
+
+        In model (\ref{model_2}), unbiased estimation requires a different set of assumptions. The OLS estimator can be unbiased for the mean of $\rho_i$ within the sub-population of \textit{Sam's Club Plus} members specifically, and a different set of assumptions applies, i.e that $\rho = \rho_1 = \rho_2$. Furthermore, we were asked to consider the implications of heterogeneous treatment effect, and how we can derive the average treatment effect even for varying individual treatment effects under certain independence assumptions.
+    }
+        
+    \end{solution}
 \end{enumerate}
 
 \end{document}

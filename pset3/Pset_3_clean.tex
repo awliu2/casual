@@ -1,0 +1,189 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ECMA 31360 PSet 3: Causal Inference with Data from RCT 
+% Author: Melissa Tartari
+% Created: 01/05/2020
+% Last Updated: 10/02/2023
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\setcounter{MaxMatrixCols}{10}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+
+\textwidth=7.6in
+\textheight=9.9in
+\topmargin=-1.2in
+\headheight=0in
+\headsep=.5in
+\hoffset  -1.25in
+
+\newcommand{\psetyear}{2022}
+\newcommand{\psetnum}{3}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy} 
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[R]{\color{Gray}{ECMA 31360 PSet \psetnum, Page \thepage}}
+
+\usepackage{lineno}
+\linenumbers
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\title{ECMA 31360, PSet \psetnum: Causal Inference with Data From a RCT}
+\date{}
+\author{Melissa Tartari, University of Chicago}
+\maketitle
+\thispagestyle{fancy}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: Use experimental data to estimate the effect of the offer of training on earnings. Mimic the steps of empirical analysis: 1) describe control and treated groups; 2) test balance in predetermined characteristics to ascertain whether randomization was carried out successfully; 3) estimate impact using the treated-control comparison estimator and regression adjustment; 4) understand the conceptual difference b/w the impact of the offer of training and that of undergoing training.}\\
+
+\noindent \textcolor{Maroon}{\textbf{Background}: The National Supported Work (NSW) demonstration project was a transitional, subsidized work experience program for people with long-standing employment problems. NSW was implemented in 1976-77 as a RCT. Eligible applicants were randomly assigned by the ``flip of a coin'' either to treatment or control. Treated individuals were offered participation in the NSW employment \textit{cum} training program, controls were not. The outcome of interest, earnings, was measured in 1978, i.e., about one year post-intervention. You work with Dehejia and Wahba (1999, 2002)'s extract of the NSW original data.\footnote{\href{https://www.jstor.org/stable/2669919}{Dehejia and Wahba (1999)} Causal Effects in Nonexperimental Studies: reevaluating the Evaluation of Training Programs, \textit{JASA}, pp. 1053-1062 and \href{https://users.nber.org/~rdehejia/papers/matching.pdf}{Dehejia and Wahba (2002)} Propensity-score Matching Methods for Nonexperimental Causal Studies, \textit{ReStat}, pp. 151-161. The original data (not used in the pset) is available at the \href{http://www.icpsr.umich.edu/icpsrweb/ICPSR/studies/7865}{ICPSR page}.} Treated sample contains 185 males, control sample contains 260 males. The treatment is the offer of employment \textit{cum} training.}  
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Premise
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+{\LARGE Part 1: Describe the Data (10 p)}
+\end{center}
+
+
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=1em, topsep=5pt]
+\item (10 p) Combine the NSW data in nswre74\_control.csv and nswre74\_treated.csv and complete Table \ref{tab:Tab_NSW_1}. Note that variables 1-10 are \textcolor{ForestGreen}{predetermined}, i.e., capture characteristics determined at or before treatment assignment; some of these variables are background characteristics (e.g., \texttt{edu}), others capture a subject's pre-RCT labor market experience (e.g., \texttt{u75}). \texttt{re78} is the observed outcome variable. \texttt{treat} is the indicator of treatment status. \textcolor{gray}{\textbf{Programming Guidance}: To load data you may use \href{https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/read.table}{\texttt{utils::read.delim( )}} where  \texttt{utils} is the package and  \texttt{read.delim( )} is a function included in the package; another option is \texttt{read.csv( )} from the same package. There are other packages/functions that accomplish the same task, feel free to use whichever you prefer/are familiar with. To combine (stack rows) dataframes \texttt{df1} and \texttt{df2} into one dataframe \texttt{df} you may use \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/cbind}{\texttt{df <- rbind(df1,df2)}} (mnemonic for row bind) available in base R; see Example 4 \href{https://www.statology.org/rbind-in-r/}{here}. To count how many units are included in each sample you may use \href{https://dplyr.tidyverse.org/reference/count.html}{\texttt{dplyr::tally(dplyr::group\_by(df, treat))}} which employs the \texttt{dplyr} package and the function \texttt{group\_by( )} to group by the treatment column \texttt{treat} and then \texttt{dplyr::tally( )} to produce the counts. To summarize multiple columns (e.g., compute averages) you may use \href{https://dplyr.tidyverse.org/reference/summarise_all.html}{\texttt{dplyr::summarise\_all( )}} in piped format\footnote{Pipes let you take the output of one function and send it directly to the next, which is useful when you need to apply multiple transformation to the same data set. Pipes in R look like \%$>$\% and are made available via the \texttt{magrittr} package installed as part of \texttt{dplyr}.}, i.e. \texttt{dplyr::group\_by(df, treat) \%$>$\% dplyr::summarise\_all(list(mean))}, or without piping \\\texttt{dplyr::summarise\_all(dplyr::group\_by(df, treat), list(mean))}.}
+\end{enumerate}
+
+\begin{table}[!ht!]
+\centering
+\begin{tabular}{ccccc}
+\hline
+\textbf{Variable} & \textbf{Variable}    & \textbf{Variable}    & \multicolumn{2}{c}{\textbf{Sample Average}}    \\ \cline{4-5} 
+\textbf{Counter} & \textbf{Name}       & \textbf{Definition}                        & \textbf{Treated} & \textbf{Control} \\ \hline
+1 & \texttt{age}      & Age in years                     &             &             \\
+2 & \texttt{edu}      & Education in years               &             &            \\
+3 & \texttt{nodegree} & 1 if education $<12$             &             &             \\
+4 & \texttt{black}    & 1 if Black                       &             &             \\
+5 & \texttt{hisp}     & 1 if Hispanic                    &             &             \\
+6 & \texttt{married}  & 1 if married                     &             &             \\
+7 & \texttt{u74}      & 1 if unemployed in '74           &             &             \\
+8 & \texttt{u75}      & 1 if unemployed in '75           &             &             \\
+9 & \texttt{re74}     & Real earnings in '74 (in '82 \$) &             &            \\
+10 & \texttt{re75}     & Real earnings in '75 (in '82 \$) &             &            \\
+\hline
+11 & \texttt{re78}     & Real earnings in '78 (in '82 \$) &             &            \\
+12 & \texttt{treat}    & 1 if received offer of training  & 1                & 0                \\
+\hline
+Sample Size                        &                           &       & 185              & 260              \\ \hline
+\end{tabular}
+\caption{Descriptive statistics for the NSW data by group.}
+\label{tab:Tab_NSW_1}
+\end{table}
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+{\LARGE Part 2: Test Balance (55 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Background on Covariate Balance}: Proper random assignment of treatment \textcolor{ForestGreen}{\textit{balances}} all the subjects' characteristics, including all determinants of the outcome (but for treatment status), both observed and unobserved. Thus, an implication of proper randomization is that there should be no systematic differences (i.e., no ``imbalance'') between control and treatment groups in terms of their observed predetermined variables (OPVs).\footnote{OPVs are often called ``covariates,'' the name stems from the traditional approach to causal inference which uses OPVs as regression covariates, i.e., as right-end-side variables in a regression equation.} You always want to check this implication in your data, because what you find informs how you setup estimation. Below you carry out the check in two ways: (Q1-2) test the hypothesis that the two groups have the same means for all OPVs; (Q3) test the hypothesis that OPVs do not predict treatment status.}
+
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=1em, topsep=5pt]
+\item (5 p) Test \textcolor{ForestGreen}{balance} for each of the 10 OPVs in Table (\ref{tab:Tab_NSW_1}), i.e.,  test that each variable's mean is the same in the control and treated groups. Do so by running 10 simple linear regressions (SLR) specifications. Use a 5\% significance level and look at the relevant 10 t-tests, comment on your findings. \textcolor{gray}{\textbf{Hint}: Each OPV is the dependent variable in its regression equation. All 10 SLR models have the same covariates. \textbf{Programming Guidance}: To run a SLR use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/lm}{\texttt{stats::lm( )}} where \texttt{stats} is a package and \texttt{lm( )} is a function that estimates linear-in-parameter models. It is convenient to first create the formula for the model then pass it to \texttt{lm ()}. Example: Declare \texttt{formula $<$- stats::formula(paste(age, ``$\sim$treat''))} to create the formula for a SLR that has \texttt{age} as the dependent variable regressed on a constant and the treatment indicator (printing \texttt{formula} to standard output (stout) yields \texttt{age $\sim$ treat} because the constant is left implicit and present by default). Then pass the formula to \texttt{lm( )} by typing \texttt{lm\_model $<$- lm(formula = formula, data = df)}. To retrieve regression output use \texttt{summary(lm\_model)}, where \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/summary}{\texttt{summary( )}} is available in base R. Example: Retrieve regression coefficients with \texttt{summary(lm\_model)\$coefficients}. To repeat for each OPV, employ a \texttt{for} loop or e.g., \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply}{\texttt{lapply( )}}, see \href{https://www.statology.org/r-loop-through-data-frame-columns/}{here} for an example.}\label{item:balance_test:single_tests} 
+
+\item (40 p) Testing balance as done in Q\textbf{\ref{item:balance_test:single_tests}} suffers from the so called \href{https://en.wikipedia.org/wiki/Multiple_comparisons_problem}{\textcolor{ForestGreen}{``multiple comparisons''}} or \textcolor{ForestGreen}{``multiple testing'' problem} which occurs when one considers a set of statistical inferences simultaneously. The \href{https://explainxkcd.com/wiki/index.php/882:_Significant}{problem} emerges because as more variables are compared, it becomes more likely that the treatment and control groups appear to differ on at least one attribute \textit{by random chance alone}. To deal
+with this problem we use an estimation methodology called \textcolor{ForestGreen}{SUR estimation} and then test just one hypothesis, the \textit{joint} hypothesis that all OPVs are balanced, i.e., their means are the same in the two groups. SUR stands for \textcolor{ForestGreen}{seemingly unrelated regression} and it is a special case of \textcolor{ForestGreen}{feasible Generalized Least Squares (GLS) estimation}. Instead of estimating the coefficients \textit{equation-by-equation} by OLS (and done in Q\textbf{\ref{item:balance_test:single_tests}}) you combine the 10 equations in a system of equations and estimate the coefficients present in all the equations jointly, accounting for the fact that the unobservables may be correlated across equations within an individual (we continue to assume that they are uncorrelated across units). After estimation, you use standard testing procedures to test the \textit{joint} hypothesis that the slope coefficients in all the equations of the SUR system are zero. This joint test is a test of covariate balance that does not suffer from the ``multiple testing'' problem.\footnote{This approach is appropriate when the number of tests is relatively small. For large scale multiple testing, e.g., in genetics association studies where millions of tests are carried out, you would employ different methodologies. For example, you may use an an approach based on the family-wide error rate: to ensure that the probability of a type 1 error (i.e., of erroneously concluding that at least one characteristic is different between two groups) is less than 5\% you use 5\% divided by the number of tests as the significance level that you compare to the p-value of each individual test.}\label{item:balance_test:multiple_tests} 
+
+\begin{enumerate}[wide, labelindent=0pt]
+\item (25 p) Estimate the SUR system. Are the estimated coefficients and their SEs different from those obtained in Q\textbf{\ref{item:balance_test:single_tests}}? Comment. \textcolor{gray}{\textbf{Hint}: In 2 situations there is no efficiency payoff to GLS versus OLS: 1) the unobservables are uncorrelated across equations within an individual; and 2) the equations have identical covariates. \textbf{Programming guidance}: Use \texttt{systemfit::systemfit}, where \texttt{systemfit} is both the R package and of the function. The vignette is \href{https://cran.r-project.org/web/packages/systemfit/vignettes/systemfit.pdf}{here}, go directly to Section 4.1 and 4.2. Implementation takes 3 steps: 1) collect the 10 formulas in a list (create each formula with \texttt{stats::formula()}); 2) pass the list to \texttt{systemfit::systemfit}, specifying \texttt{method = ``SUR''}; 3) summarize the output using \texttt{summary( )}. Example: If your list of formulas is named \texttt{sur\_system}, you type \texttt{sur\_fit $<$- systemfit::systemfit(formula = sur\_system, data = df, method = ``SUR")} then \texttt{summary(sur\_fit)}.}
+
+\item (15 p) Test \textit{joint} balance by testing the \textcolor{ForestGreen}{joint hypothesis} that the coefficients of \texttt{treat} are zero in all the equations of the system. Spell out null and alternative hypotheses, comment on findings, and verify the test's value and p-value ``manually.'' \textcolor{gray}{\textbf{Hint}: Use the \href{https://en.wikipedia.org/wiki/Likelihood-ratio_test}{\textcolor{ForestGreen}{Likelihood Ratio (LR) test}} where the unrestricted model is the system of equations with \texttt{treat} as covariate, and the restricted model is the system with no regression covariates, i.e., with only the constant term. To verify the value of the test use its algebraic expression. Recall that the test has a $\chi^{2}_{df}$ distribution with $df$ = number of restrictions. \textbf{Programming guidance}: Implementation of the test takes 3 steps: 1) create a list of formulas named \texttt{null\_system} collecting specifications with only the constant; 2) pass the list to \texttt{systemfit::systemfit}: \texttt{null\_fit $<$- systemfit::systemfit(null\_system, data = df, method = ``SUR")}; 3) run the LR test \href{https://rdrr.io/cran/lmtest/man/lrtest.html}{\texttt{lrtest\_obj <- lmtest::lrtest(null\_fit,sur\_fit)}}. Check the attributes of \texttt{lrtest\_obj}. Use \href{https://www.statology.org/chi-square-distribution-in-r-dchisq-pchisq-qchisq-rchisq/}{\texttt{stats::pchisq()}} to verify the test's p-value.}
+\end{enumerate}
+
+\item (10 p) Test that the OPVs do not predict treatment assignment.  Spell out null and alternative hypotheses, comment on findings, and verify the test's value and p-value ``manually.'' Why would scientists carry out this test? \textcolor{gray}{\textbf{Hint:} Use a MLRM and the \textcolor{ForestGreen}{F-test for the overall significance of the regression}. \textbf{Programming guidance}: Use \texttt{summary()} after estimation, e.g., \texttt{summary(lm\_fit)\$fstatistic} returns the test's value and degrees of freedom. Use \href{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html}{\texttt{stats::pf()}} to verify the test's p-value.}\label{item:balance_test:predict_treat} 
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+{\LARGE Part 3: Estimate the Effect of the Offer of Training (35 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: Your target is the \textcolor{ForestGreen}{average treatment effect} (ATE) of receiving a training offer on post-intervention earnings (\texttt{re78}). Here you estimate this \textcolor{ForestGreen}{estimand} using the approaches listed in Table \ref{tab:ate-specs}.
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Spec} & \textbf{Estimation Approach} & \textbf{Description} \\ \hline
+0 & T-test & Compute group-specific sample averages, take difference. \\ \hline
+1 & OLS & Estimate coefficient of SLRM. \\ \hline
+2 & OLS & Add to spec. 1 OPVs \texttt{nodegree} and \texttt{edu} in linear form. \\ \hline
+3 & OLS & Add to spec. 2 the other 8 OPVs in linear form. \\ \hline
+4 & OLS & Add to spec. 3 the interaction b/w \texttt{age} (in deviation from its sample mean) and \texttt{treat} \\ \hline
+\end{tabular}
+\caption{Specifications used to estimate the ATE of offer of training}
+\label{tab:ate-specs}
+\end{table}
+}
+
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=1em, topsep=5pt]
+%%%%%%%%%%%%%%%%%
+\item (5 p) Implement specs 0 (3 p) and 1 (2 p). Describe your findings. \textcolor{gray}{\textbf{Programming Guidance:} To test $H_0$ that ATE is zero in spec 0 use \href{https://www.datacamp.com/tutorial/t-tests-r-tutorial}{\texttt{stats::t.test()}} which implements Welch's Two Sample t-test. To test $H_0$ that ATE is zero in spec 1 use \texttt{summary()} on the object returned by \texttt{stats::lm()}}.\label{item:oot:two-ways}
+
+%%%%%%%%%%%%%%%%%
+\item (20 p) Implement specs 2 through 4. 
+
+\begin{enumerate}[wide, labelindent=0pt]
+
+\item (9 p) Report the estimates of the ATE and test $H_0$ that ATE is zero (3 p each spec). \textcolor{gray}{\textbf{Hint:} You consider spec 2 in light of the imbalance in educational attainment documented in Part 2. This approach to account for the presence of observable confounders (i.e., imbalance in OPVs) is called the \textcolor{ForestGreen}{regression adjustment approach}. Spec 3 has 11 regression covariates. Spec 4 has 12 regression covariates.}
+
+\item (5 p) Are there reasons to add OPVs as covariates when they are balanced across treatment and control groups? If so, what are they? Comment on the estimation results from specs 2 and 3.
+
+\item (1 p) With reference to spec 3, do you think that it is problematic to use lagged / past values of the dependent variable as regression covariates? Explain.
+
+\item (5 p) Are there reasons to add interactions between OPVs and the treatment indicator? If so, what are they? With reference to spec 4, test the following two hypothesis: i) the ATE is zero; ii) the effect of the treatment does not vary by the age of the subject. \textbf{Note:} If additional assumptions are needed to carry out i) and ii), state them. \textcolor{gray}{\textbf{Programming Guidance}: Use \href{https://rdrr.io/cran/car/man/linearHypothesis.html}{\texttt{car::linearHypothesis()}}.}
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%
+\item (5 p) Brainstorm on the possible mechanisms for the estimated ATE of being offered training. \textcolor{gray}{\textbf{Hint:} Can you think of the possible pathways through which on-the-job training may cause an increase in post-intervention earnings?}\label{item:oot:ate-vs-ite}
+
+%%%%%%%%%%%%%%%%%
+\item (5 p) In this question you brainstorm on why the ATE of the offer of training may be different from the ATE of undergoing training. Terminology-wise, the ATE of the offer of training is called an \textcolor{ForestGreen}{Intent to Treat Effect} (ITT). To think about the relationship between these two treatment effects in a systematic way you consider the following setup. Let $Z_{i}$ denote a binary variable that takes the value 1 if individual $i$ is offered training, and zero otherwise. Let $D_{i}$ be a binary variable that takes the value 1 if individual $i$ undergoes training, and zero otherwise. Thus, for instance, and individual who is offered training but does not take it up has $\left( Z_{i},D_{i}\right) =\left( 1,0\right) $. Assume: 1) when an individual receives an offer of training he flips a coin, if it comes up Head he enrolls in the training program while if it comes up Tail he does not; 2) individuals not offered training cannot take it up; 3) the offer of training does not \textit{per se} affect future earnings.\footnote{This assumption rules out e.g., a case in which, by virtue of receiving a training offer, an individual becomes more optimistic about his future labor market prospects and searches for a well paying job harder than he would have had he not received the offer.} Each individual has \textbf{two pairs} of potential outcomes, one pair is associated with treatment defined as \underline{being offered training} and the other pair is associated with treatment defined as \underline{undergoing training}. Specifically, let $\left( y_{1i},y_{0i}\right) $ denote potential 1978 earnings \textit{with} training and \textit{without} training. Similarly, let $\left( y_{1i}^{o},y_{0i}^{o}\right) $ denote potential 1978 earnings \textit{with, and respectively without, the offer of training in hands}. In Q\textbf{\ref{item:oot:two-ways}}-Q\textbf{\ref{item:oot:ate-vs-ite}} your goal was to estimate the ATE of being offered training, let us denote it by $ATE^{o}\equiv E\left[ y_{1i}^{o}-y_{0i}^{o}\right]$ (which is the ITT effect). In this question you are asked to compare $ATE^{o}$ to $ATE\equiv E\left[ y_{1i}-y_{0i}\right]$, and show/discuss why they may be different. \textcolor{gray}{\textbf{Hint \#1}:To answer this question start by relating the two pairs of potential outcomes, specifically, express $\left( y_{1i}^{o},y_{0i}^{o}\right)$ in terms of $\left( y_{1i},y_{0i}\right)$. Go from there. \textbf{Hint \#2}: You have all the information necessary to obtain an exact relationship b/w $ATE^{o}$ and $ATE$. \textbf{Hint \#3}: The key lesson to take from this question is that $ATE^{o}$ is typically different from $ATE$ even in the absence of self-selection into the training program.}
+\end{enumerate}
+
+\end{document}

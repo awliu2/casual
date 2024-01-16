@@ -1,7 +1,7 @@
 ---
 title: "Problem Set 3"
 author: "Tessie Dong, Derek Li, Andi Liu"
-date: Jan 15th, 2024
+date: Due Jan 18th, 2024
 output:
     pdf_document:
         keep_tex: true
@@ -18,10 +18,8 @@ library(tidyverse)
 library(utils)
 ```
 
-<!-- LaTeX custom commands -->
 
-
-\textbf{Problem 1:} Combine the NSW data in `nswre74_control.csv` and `nswre74_treated.csv` and complete Table 1. Note that variables `1-10` are $\color{ForestGreen}{predetermined}$, i.e., capture characteristics determined at or before treatment assignment; some of these variables are background characteristics (e.g., \texttt{edu}), others capture a subject's pre-RCT labor market experience (e.g., \texttt{u75}). \texttt{re78} is the observed outcome variable. \texttt{treat} is the indicator of treatment status.
+\textbf{Part 1: Describe the Data} \newline Combine the NSW data in `nswre74_control.csv` and `nswre74_treated.csv` and complete Table \ref{tab:Tab_NSW_1}. Note that variables `1-10` are $\color{ForestGreen}{predetermined}$, i.e., capture characteristics determined at or before treatment assignment; some of these variables are background characteristics (e.g., \texttt{edu}), others capture a subject's pre-RCT labor market experience (e.g., \texttt{u75}). \texttt{re78} is the observed outcome variable. \texttt{treat} is the indicator of treatment status.
 
 ```{r}
 # load and combine the data sets into one dataframe
@@ -45,31 +43,45 @@ dplyr::summarise_all((dplyr::group_by(df, treat)), list(mean))
 A completed version of Table 1 is provided on the following page.
 \newpage
 
+
 \begin{table}[!ht!]
 \centering
 \begin{tabular}{ccccc}
 \hline
 \textbf{Variable} & \textbf{Variable}    & \textbf{Variable}    & \multicolumn{2}{c}{\textbf{Sample Average}}    \\ \cline{4-5} 
 \textbf{Counter} & \textbf{Name}       & \textbf{Definition}                        & \textbf{Treated} & \textbf{Control} \\ \hline
-1 & \texttt{age}      & Age in years                     & 25.8        & 25.1       \\
-2 & \texttt{edu}      & Education in years               & 10.3        & 10.1       \\
-3 & \texttt{nodegree} & 1 if education $<12$             &             & 0.835      \\
-4 & \texttt{black}    & 1 if Black                       &             & 0.827      \\
-5 & \texttt{hisp}     & 1 if Hispanic                    &             & 0.108      \\
-6 & \texttt{married}  & 1 if married                     &             &            \\
-7 & \texttt{u74}      & 1 if unemployed in '74           &             &            \\
-8 & \texttt{u75}      & 1 if unemployed in '75           &             &            \\
-9 & \texttt{re74}     & Real earnings in '74 (in '82 \$) &             &            \\
-10 & \texttt{re75}     & Real earnings in '75 (in '82 \$) &            &            \\
+1 & \texttt{age}      & Age in years                      & 25.8        & 25.1       \\
+2 & \texttt{edu}      & Education in years                & 10.3        & 10.1       \\
+3 & \texttt{nodegree} & 1 if education $<12$              & 0.708       & 0.835      \\
+4 & \texttt{black}    & 1 if Black                        & 0.843       & 0.827      \\
+5 & \texttt{hisp}     & 1 if Hispanic                     & 0.0595      & 0.108      \\
+6 & \texttt{married}  & 1 if married                      & 0.189       & 0.154      \\
+7 & \texttt{u74}      & 1 if unemployed in '74            & 0.708       & 0.75       \\
+8 & \texttt{u75}      & 1 if unemployed in '75            & 0.6         & 0.685      \\
+9 & \texttt{re74}     & Real earnings in '74 (in '82 \$)  & 2096        & 2107       \\
+10 & \texttt{re75}    & Real earnings in '75 (in '82 \$)  & 1532        & 1267       \\
+\hline 
+11 & \texttt{re78}    & Real earnings in '78 (in '82 \$)  & 6349        & 4555       \\
+12 & \texttt{treat}   & 1 if received offer of training   & 1           & 0          \\
 \hline
-11 & \texttt{re78}     & Real earnings in '78 (in '82 \$) &             &           \\
-12 & \texttt{treat}    & 1 if received offer of training  & 1           & 0                \\
-\hline
-Sample Size                        &                           &       & 185              & 260              \\ \hline
+Sample Size                                             &&& 185         & 260              \\ \hline
 \end{tabular}
 \caption{Descriptive statistics for the NSW data by group.}
 \label{tab:Tab_NSW_1}
 \end{table}
 
+\textbf{Part 2: Test Balance}
+\begin{enumerate}
+\item (5 p) Test \textcolor{ForestGreen}{balance} for each of the 10 OPVs in Table (\ref{tab:Tab_NSW_1}), i.e.,  test that each variable's mean is the same in the control and treated groups. Do so by running 10 simple linear regressions (SLR) specifications. Use a 5\% significance level and look at the relevant 10 t-tests, comment on your findings. \textcolor{gray}{\textbf{Hint}: Each OPV is the dependent variable in its regression equation. All 10 SLR models have the same covariates.}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla euismod, nisl nec ultricies ultricies, nunc nisl ultricies nunc, vitae ultricies nisl nisl nec nisl. Nulla facilisi. Sed euismod, nisl nec ultricies ultricies, nunc nisl ultricies nunc, vitae ultricies nisl nisl nec nisl. Nulla facilisi. Sed euismod, nisl nec ultricies ultricies, nunc nisl ultricies nunc, vitae ultricies nisl nisl nec nisl. Nulla facilisi. Sed euismod, nisl nec ultricies ultricies, nunc nisl ultricies nunc, vitae ultricies nisl nisl nec nisl. Nulla facilisi. Sed euismod, nisl nec ultricies ultricies, nunc nisl ultricies nunc, vitae ultricies nisl nisl nec nisl. Nulla facilisi. Sed euismod, nisl nec ultricies ultricies, nunc nisl ultricies nunc, vitae ultricies nisl nisl nec nisl. Nulla facilisi. Sed euismod, nisl nec ultricies ultricies, nunc nisl ultricies nunc, vitae ultricies nisl nisl nec nisl. Nulla facilisi. Sed euismod, nisl nec ultricies ultricies, nunc nisl ultricies nunc, vitae ultricies nisl nisl nec nisl. Nulla facilisi.
+\item (40 p) Testing balance as done in Q1 suffers from the so called \href{https://en.wikipedia.org/wiki/Multiple_comparisons_problem}{\textcolor{ForestGreen}{``multiple comparisons''}} or \textcolor{ForestGreen}{``multiple testing'' problem} which occurs when one considers a set of statistical inferences simultaneously. The \href{https://explainxkcd.com/wiki/index.php/882:_Significant}{problem} emerges because as more variables are compared, it becomes more likely that the treatment and control groups appear to differ on at least one attribute \textit{by random chance alone}. To deal
+with this problem we use an estimation methodology called \textcolor{ForestGreen}{SUR estimation} and then test just one hypothesis, the \textit{joint} hypothesis that all OPVs are balanced, i.e., their means are the same in the two groups. SUR stands for \textcolor{ForestGreen}{seemingly unrelated regression} and it is a special case of \textcolor{ForestGreen}{feasible Generalized Least Squares (GLS) estimation}. Instead of estimating the coefficients \textit{equation-by-equation} by OLS (and done in Q1 you combine the 10 equations in a system of equations and estimate the coefficients present in all the equations jointly, accounting for the fact that the unobservables may be correlated across equations within an individual (we continue to assume that they are uncorrelated across units). After estimation, you use standard testing procedures to test the \textit{joint} hypothesis that the slope coefficients in all the equations of the SUR system are zero. This joint test is a test of covariate balance that does not suffer from the ``multiple testing'' problem.
+
+\begin{enumerate}
+\item (25 p) Estimate the SUR system. Are the estimated coefficients and their SEs different from those obtained in Q\textbf{\ref{item:balance_test:single_tests}}? Comment. \textcolor{gray}{\textbf{Hint}: In 2 situations there is no efficiency payoff to GLS versus OLS: 1) the unobservables are uncorrelated across equations within an individual; and 2) the equations have identical covariates.}
+
+\item (15 p) Test \textit{joint} balance by testing the \textcolor{ForestGreen}{joint hypothesis} that the coefficients of \texttt{treat} are zero in all the equations of the system. Spell out null and alternative hypotheses, comment on findings, and verify the test's value and p-value ``manually.'' \textcolor{gray}{\textbf{Hint}: Use the \href{https://en.wikipedia.org/wiki/Likelihood-ratio_test}{\textcolor{ForestGreen}{Likelihood Ratio (LR) test}} where the unrestricted model is the system of equations with \texttt{treat} as covariate, and the restricted model is the system with no regression covariates, i.e., with only the constant term. To verify the value of the test use its algebraic expression. Recall that the test has a $\chi^{2}_{df}$ distribution with $df$ = number of restrictions.}
+\end{enumerate}
+
+\item (10 p) Test that the OPVs do not predict treatment assignment.  Spell out null and alternative hypotheses, comment on findings, and verify the test's value and p-value ``manually.'' Why would scientists carry out this test? \textcolor{gray}{\textbf{Hint:} Use a MLRM and the \textcolor{ForestGreen}{F-test for the overall significance of the regression}. \textbf{Programming guidance}: Use \texttt{summary()} after estimation, e.g., \texttt{summary(lm\_fit)\$fstatistic} returns the test's value and degrees of freedom. Use \href{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html}{\texttt{stats::pf()}} to verify the test's p-value.}\label{item:balance_test:predict_treat} 
+\end{enumerate}

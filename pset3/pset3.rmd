@@ -204,7 +204,6 @@ The p-value of this test is significant (p-value < 0.05). This result shows that
 
 3. Test that the OPVs do not predict treatment assignment.  Spell out null and alternative hypotheses, comment on findings, and verify the test's value and p-value ``manually.'' Why would scientists carry out this test? \textcolor{gray}{\textbf{Hint:} Use a MLRM and the \textcolor{ForestGreen}{F-test for the overall significance of the regression}. \textbf{Programming guidance}: Use \texttt{summary()} after estimation, e.g., \texttt{summary(lm\_fit)\$fstatistic} returns the test's value and degrees of freedom. Use \href{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html}{\texttt{stats::pf()}} to verify the test's p-value.}
 
-
     We want to test that, given the covariates, the treatment assignment is random. We can do this by testing that the coefficients of the covariates are zero in the regression of treatment assignment on the covariates. \newline
 
     Given $(Y, X^{OPV})$ where $Y$ represents the treatment assignment, and $X$ is a vector of our OPV covariates, we can test the following model: $Y = \beta'X^{OPV} + \epsilon$ with these hypotheses: \newline 
@@ -215,6 +214,7 @@ The p-value of this test is significant (p-value < 0.05). This result shows that
     \end{cases}
     \]
     In which $\beta$ is a vector of coefficients for the OPV covariates. Thus, we want $\beta = 0$, i.e the OPV covariates all have no correlation to the treatment $Y$.
+    
 ```{r}
 # create a list of formulas for each equation
 
@@ -262,3 +262,57 @@ summary(lm_fit)$fstatistic
 <!-- TODO: Intepret these results -->
 
 With a p-value of 0.994656, we conclude that there is not enough evidence to reject the null hypothesis that OPVs do not predict treatment assignment. This result implies that proper random assignment was carried out such that treatment was given randomly irrespective of the subjects' characteristics. Scientists carry out this test to ensure that the treatment and control groups are similar in all respects except for the treatment itself.
+
+\textbf{Part 3: Estimate the Effect of the Offer of Training}
+
+1. Implement specs 0 (3 p) and 1 (2 p). Describe your findings.
+
+```{r}
+stats::t.test(df1$re78, df2$re78)
+```
+
+```{r}
+spec1 = stats::lm(data=df, re78 ~ treat)
+summary(spec1)
+```
+
+
+2. Implement specs 2 through 4. 
+
+a. Report the estimates of the ATE and test $H_0$ that ATE is zero (3 p each spec). \textcolor{gray}{\textbf{Hint:} You consider spec 2 in light of the imbalance in educational attainment documented in Part 2. This approach to account for the presence of observable confounders (i.e., imbalance in OPVs) is called the \textcolor{ForestGreen}{regression adjustment approach}. Spec 3 has 11 regression covariates. Spec 4 has 12 regression covariates.}
+
+```{r}
+spec2 = stats::lm(data=df, re78 ~ treat + factor(nodegree) + edu)
+summary(spec2)
+```
+
+```{r}
+spec3 = stats::lm(data=df, re78 ~ treat + factor(nodegree) + edu + age + factor(black) + factor(hisp) + factor(married) + re74 + re75 + factor(u74) + factor(u75))
+summary(spec3)
+```
+
+```{r}
+df$age_dev = (df$age - mean(df$age))/sd(df$age)
+```
+
+```{r}
+spec4 = stats::lm(data=df, re78 ~ treat + factor(nodegree) + edu + age + factor(black) + factor(hisp) + factor(married) + re74 + re75 + factor(u74) + factor(u75) + age_dev * treat)
+
+summary(spec4)
+```
+
+
+b. Are there reasons to add OPVs as covariates when they are balanced across treatment and control groups? If so, what are they? Comment on the estimation results from specs 2 and 3.
+
+We can add additional OPVs even if they're balanced across the treatment and control groups because even with  no systematic differences between the groups, those variables may still possibly contribute some causal effect on the outcome. By regressing on those variables, we can remove some variance in the treatment effect that may be attributed to those OPVs. 
+
+c. With reference to spec 3, do you think that it is problematic to use lagged / past values of the dependent variable as regression covariates? Explain.
+
+No. It is common practice in time series analysis to regress on lagged values of the dependent variable. Though some assumptions must be upheld. In this case specifically, it seems alright as the past values of earnings show no significant effect on earnings in 1978 as a result of the t-test.
+
+d. Are there reasons to add interactions between OPVs and the treatment indicator? If so, what are they? With reference to spec 4, test the following two hypothesis: i) the ATE is zero; ii) the effect of the treatment does not vary by the age of the subject. \textbf{Note:} If additional assumptions are needed to carry out i) and ii), state them. \textcolor{gray}{\textbf{Programming Guidance}: Use \href{https://rdrr.io/cran/car/man/linearHypothesis.html}{\texttt{car::linearHypothesis()}}.}
+
+3. Brainstorm on the possible mechanisms for the estimated ATE of being offered training. \textcolor{gray}{\textbf{Hint:} Can you think of the possible pathways through which on-the-job training may cause an increase in post-intervention earnings?}\label{item:oot:ate-vs-ite}
+
+A potential mechanism for the estimated ATE of being offered training could be skill enhancement, enabling workers to secure better-paying positions that have more skill requirements. Additionally, training may facilitate the expansion of professional networks, offering opportunities for workers to forge connections that lead to more lucrative and desirable job opportunities.
+

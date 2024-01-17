@@ -479,4 +479,27 @@ the subjects' characteristics. Scientists carry out this test to ensure
 that the treatment and control groups are similar in all respects except
 for the treatment itself.
 
+\textbf{Part 3: Estimate the Effect of the Offer of Training}
+
+\begin{table}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Spec} & \textbf{Estimation Approach} & \textbf{Description} \\ \hline
+0 & T-test & Compute group-specific sample averages, take difference. \\ \hline
+1 & OLS & Estimate coefficient of SLRM. \\ \hline
+2 & OLS & Add to spec. 1 OPVs \texttt{nodegree} and \texttt{edu} in linear form. \\ \hline
+3 & OLS & Add to spec. 2 the other 8 OPVs in linear form. \\ \hline
+4 & OLS & Add to spec. 3 the interaction b/w \texttt{age} (in deviation from its sample mean) and \texttt{treat} \\ \hline
+\end{tabular}
+\caption{Specifications used to estimate the ATE of offer of training}
+\label{tab:ate-specs}
+\end{table}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Implement specs 0 (3 p) and 1 (2 p). Describe your findings.
+\end{enumerate}
+
 \end{document}

@@ -314,5 +314,5 @@ d. Are there reasons to add interactions between OPVs and the treatment indicato
 
 3. Brainstorm on the possible mechanisms for the estimated ATE of being offered training. \textcolor{gray}{\textbf{Hint:} Can you think of the possible pathways through which on-the-job training may cause an increase in post-intervention earnings?}\label{item:oot:ate-vs-ite}
 
-A potential mechanism for the estimated ATE of being offered training could be skill enhancement, enabling workers to secure better-paying positions that have more skill requirements. Additionally, training may facilitate the expansion of professional networks, offering opportunities for workers to forge connections that lead to more lucrative and desirable job opportunities.
+A potential mechanism for the estimated ATE of being offered training could be that if an individual who if offered training accepts and undergoes the training, they may received skill enhancement which will enable them to secure better-paying positions that have more skill requirements.
 

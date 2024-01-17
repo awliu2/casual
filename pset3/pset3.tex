@@ -458,8 +458,25 @@ characteristics.
 \NormalTok{lm\_fit }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\AttributeTok{formula =} \FunctionTok{formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"treat"}\NormalTok{, }\StringTok{"\textasciitilde{}"}\NormalTok{, }\FunctionTok{paste}\NormalTok{(vars, }\AttributeTok{collapse =} \StringTok{"+"}\NormalTok{))), }\AttributeTok{data =}\NormalTok{ df)}
 \CommentTok{\# summary(lm\_fit)}
 \CommentTok{\# summary(lm\_fit)$fstatistic}
+\NormalTok{f\_stat }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_fit)}\SpecialCharTok{$}\NormalTok{fstatistic[}\DecValTok{1}\NormalTok{]}
+\NormalTok{numdf }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_fit)}\SpecialCharTok{$}\NormalTok{fstatistic[}\DecValTok{2}\NormalTok{]}
+\NormalTok{dendf }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_fit)}\SpecialCharTok{$}\NormalTok{fstatistic[}\DecValTok{3}\NormalTok{]}
+\NormalTok{p\_val }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{pf}\NormalTok{(f\_stat,numdf,dendf)}
+
+\FunctionTok{sprintf}\NormalTok{(}\StringTok{"The p{-}value of the ftest is: \%f"}\NormalTok{, p\_val)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{verbatim}
+## [1] "The p-value of the ftest is: 0.994656"
+\end{verbatim}
+
+With a p-value of 0.994656, we conclude that there is not enough
+evidence to reject the null hypothesis that OPVs do not predict
+treatment assignment. This result implies that proper random assignment
+was carried out such that treatment was given randomly irrespective of
+the subjects' characteristics. Scientists carry out this test to ensure
+that the treatment and control groups are similar in all respects except
+for the treatment itself.
 
 \end{document}

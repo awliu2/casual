@@ -204,6 +204,7 @@ The p-value of this test is significant (p-value < 0.05). This result shows that
 
 3. Test that the OPVs do not predict treatment assignment.  Spell out null and alternative hypotheses, comment on findings, and verify the test's value and p-value ``manually.'' Why would scientists carry out this test? \textcolor{gray}{\textbf{Hint:} Use a MLRM and the \textcolor{ForestGreen}{F-test for the overall significance of the regression}. \textbf{Programming guidance}: Use \texttt{summary()} after estimation, e.g., \texttt{summary(lm\_fit)\$fstatistic} returns the test's value and degrees of freedom. Use \href{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html}{\texttt{stats::pf()}} to verify the test's p-value.}
 
+
     We want to test that, given the covariates, the treatment assignment is random. We can do this by testing that the coefficients of the covariates are zero in the regression of treatment assignment on the covariates. \newline
 
     Given $(Y, X^{OPV})$ where $Y$ represents the treatment assignment, and $X$ is a vector of our OPV covariates, we can test the following model: $Y = \beta'X^{OPV} + \epsilon$ with these hypotheses: \newline 
@@ -220,6 +221,13 @@ The p-value of this test is significant (p-value < 0.05). This result shows that
 lm_fit <- lm(formula = formula(paste("treat", "~", paste(vars, collapse = "+"))), data = df)
 # summary(lm_fit)
 # summary(lm_fit)$fstatistic
+f_stat <- summary(lm_fit)$fstatistic[1]
+numdf <- summary(lm_fit)$fstatistic[2]
+dendf <- summary(lm_fit)$fstatistic[3]
+p_val <- stats::pf(f_stat,numdf,dendf)
+
+sprintf("The p-value of the ftest is: %f", p_val)
+
 ```
 
 <!--
@@ -252,3 +260,5 @@ summary(lm_fit)$fstatistic
   -->
 
 <!-- TODO: Intepret these results -->
+
+With a p-value of 0.994656, we conclude that there is not enough evidence to reject the null hypothesis that OPVs do not predict treatment assignment. This result implies that proper random assignment was carried out such that treatment was given randomly irrespective of the subjects' characteristics. Scientists carry out this test to ensure that the treatment and control groups are similar in all respects except for the treatment itself.

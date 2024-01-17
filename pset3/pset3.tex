@@ -99,7 +99,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\usepackage{bookmark}
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
@@ -200,18 +200,283 @@ Sample Size                                             &&& 185         & 260   
 \textbf{Part 2: Test Balance}
 
 \begin{enumerate}
-\item (5 p) Test \textcolor{ForestGreen}{balance} for each of the 10 OPVs in Table (\ref{tab:Tab_NSW_1}), i.e.,  test that each variable's mean is the same in the control and treated groups. Do so by running 10 simple linear regressions (SLR) specifications. Use a 5\% significance level and look at the relevant 10 t-tests, comment on your findings. \textcolor{gray}{\textbf{Hint}: Each OPV is the dependent variable in its regression equation. All 10 SLR models have the same covariates.}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Test \textcolor{ForestGreen}{balance} for each of the 10 OPVs in Table
+  (\ref{tab:Tab_NSW_1}), i.e., test that each variable's mean is the
+  same in the control and treated groups. Do so by running 10 simple
+  linear regressions (SLR) specifications. Use a 5\% significance level
+  and look at the relevant 10 t-tests, comment on your findings.
+  \textcolor{gray}{\textbf{Hint}: Each OPV is the dependent variable in its regression equation. All 10 SLR models have the same covariates.}
+\end{enumerate}
 
-\item (40 p) Testing balance as done in Q1 suffers from the so called \href{https://en.wikipedia.org/wiki/Multiple_comparisons_problem}{\textcolor{ForestGreen}{``multiple comparisons''}} or \textcolor{ForestGreen}{``multiple testing'' problem} which occurs when one considers a set of statistical inferences simultaneously. The \href{https://explainxkcd.com/wiki/index.php/882:_Significant}{problem} emerges because as more variables are compared, it becomes more likely that the treatment and control groups appear to differ on at least one attribute \textit{by random chance alone}. To deal
-with this problem we use an estimation methodology called \textcolor{ForestGreen}{SUR estimation} and then test just one hypothesis, the \textit{joint} hypothesis that all OPVs are balanced, i.e., their means are the same in the two groups. SUR stands for \textcolor{ForestGreen}{seemingly unrelated regression} and it is a special case of \textcolor{ForestGreen}{feasible Generalized Least Squares (GLS) estimation}. Instead of estimating the coefficients \textit{equation-by-equation} by OLS (and done in Q1 you combine the 10 equations in a system of equations and estimate the coefficients present in all the equations jointly, accounting for the fact that the unobservables may be correlated across equations within an individual (we continue to assume that they are uncorrelated across units). After estimation, you use standard testing procedures to test the \textit{joint} hypothesis that the slope coefficients in all the equations of the SUR system are zero. This joint test is a test of covariate balance that does not suffer from the ``multiple testing'' problem.
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ols\_p\_values }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{ols\_coefficients }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{ols\_se }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{vars }\OtherTok{\textless{}{-}} \FunctionTok{names}\NormalTok{(df)[}\DecValTok{2}\SpecialCharTok{:}\DecValTok{12}\NormalTok{]}
+\ControlFlowTok{for}\NormalTok{ (var }\ControlFlowTok{in}\NormalTok{ vars) \{}
+\NormalTok{    formula }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(var, }\StringTok{"\textasciitilde{}treat"}\NormalTok{))}
+\NormalTok{    lm\_model }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\AttributeTok{formula =}\NormalTok{ formula, }\AttributeTok{data =}\NormalTok{ df)}
+\NormalTok{    ols\_p\_values[[var]] }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_model)}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{, }\DecValTok{4}\NormalTok{]}
+\NormalTok{    ols\_coefficients[[var]] }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_model)}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{]}
+\NormalTok{    ols\_se[[var]] }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_model)}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{]}
+\NormalTok{\}}
+\CommentTok{\# print(ols\_p\_values)}
+\CommentTok{\# print(ols\_coefficients)}
+\CommentTok{\# print(ols\_se)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+\centering
+\begin{tabular}{ccccc}
+\hline
+& \textbf{Variable} & \textbf{Coefficient} & \textbf{se} & \textbf{p-value} \\ \hline
+1 & \texttt{age} & 0.7623701 & 0.6827511 & 0.264764 \\
+2 & \texttt{edu} & 0.2574844 & 0.1721353 & 0.135411 \\
+3 & \texttt{nodegree} & -0.1265073 & 0.0393452 & 0.001398 \\
+4 & \texttt{black} & 0.01632017 & 0.03588617 & 0.649493 \\
+5 & \texttt{hisp} & -0.04823285& 0.0271632 & 0.076474 \\
+6 & \texttt{married} & 0.03534304 & 0.03604844 & 0.327408 \\
+7 & \texttt{u74} & -0.04189189& 0.0426221 & 0.326209 \\
+8 & \texttt{u75} & -0.08461538& 0.04582176 & 0.065469 \\
+9 & \texttt{re74} & -11.45296 & 516.478 & 0.982318 \\
+10 & \texttt{re75} & 265.1463 & 303.1555 & 0.382254 \\ \hline
+\end{tabular}
+\caption{Coefficients, standard errors, and p-values for the t-tests of balance for each OPV.}
+\end{table}
+
+Table 2 shows the p-values for the t-tests of balance for each OPV.
+\newline  We can see that for most of our variables, the p-value is
+greater than 0.05, so we fail to reject the null hypothesis that the
+means are the same in the control and treated groups. However, for
+\texttt{nodegree} we reject the null hypothesis that the means are the
+same in the control and treated groups, and we cannot claim that these
+groups are balanced for this variable.
+
+\newpage
 
 \begin{enumerate}
-\item (25 p) Estimate the SUR system. Are the estimated coefficients and their SEs different from those obtained in Q\textbf{\ref{item:balance_test:single_tests}}? Comment. \textcolor{gray}{\textbf{Hint}: In 2 situations there is no efficiency payoff to GLS versus OLS: 1) the unobservables are uncorrelated across equations within an individual; and 2) the equations have identical covariates.}
-
-\item (15 p) Test \textit{joint} balance by testing the \textcolor{ForestGreen}{joint hypothesis} that the coefficients of \texttt{treat} are zero in all the equations of the system. Spell out null and alternative hypotheses, comment on findings, and verify the test's value and p-value ``manually.'' \textcolor{gray}{\textbf{Hint}: Use the \href{https://en.wikipedia.org/wiki/Likelihood-ratio_test}{\textcolor{ForestGreen}{Likelihood Ratio (LR) test}} where the unrestricted model is the system of equations with \texttt{treat} as covariate, and the restricted model is the system with no regression covariates, i.e., with only the constant term. To verify the value of the test use its algebraic expression. Recall that the test has a $\chi^{2}_{df}$ distribution with $df$ = number of restrictions.}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Testing balance as done in Q1 suffers from the so called
+  \href{https://en.wikipedia.org/wiki/Multiple_comparisons_problem}{\textcolor{ForestGreen}{``multiple comparisons''}}
+  or \textcolor{ForestGreen}{``multiple testing'' problem} which occurs
+  when one considers a set of statistical inferences simultaneously. The
+  \href{https://explainxkcd.com/wiki/index.php/882:_Significant}{problem}
+  emerges because as more variables are compared, it becomes more likely
+  that the treatment and control groups appear to differ on at least one
+  attribute \textit{by random chance alone}. To deal with this problem
+  we use an estimation methodology called
+  \textcolor{ForestGreen}{SUR estimation} and then test just one
+  hypothesis, the \textit{joint} hypothesis that all OPVs are balanced,
+  i.e., their means are the same in the two groups. SUR stands for
+  \textcolor{ForestGreen}{seemingly unrelated regression} and it is a
+  special case of
+  \textcolor{ForestGreen}{feasible Generalized Least Squares (GLS) estimation}.
+  Instead of estimating the coefficients \textit{equation-by-equation}
+  by OLS (and done in Q1 you combine the 10 equations in a system of
+  equations and estimate the coefficients present in all the equations
+  jointly, accounting for the fact that the unobservables may be
+  correlated across equations within an individual (we continue to
+  assume that they are uncorrelated across units). After estimation, you
+  use standard testing procedures to test the \textit{joint} hypothesis
+  that the slope coefficients in all the equations of the SUR system are
+  zero. This joint test is a test of covariate balance that does not
+  suffer from the ``multiple testing'\,' problem.
 \end{enumerate}
 
-\item (10 p) Test that the OPVs do not predict treatment assignment.  Spell out null and alternative hypotheses, comment on findings, and verify the test's value and p-value ``manually.'' Why would scientists carry out this test? \textcolor{gray}{\textbf{Hint:} Use a MLRM and the \textcolor{ForestGreen}{F-test for the overall significance of the regression}. \textbf{Programming guidance}: Use \texttt{summary()} after estimation, e.g., \texttt{summary(lm\_fit)\$fstatistic} returns the test's value and degrees of freedom. Use \href{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html}{\texttt{stats::pf()}} to verify the test's p-value.}\label{item:balance_test:predict_treat} 
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\tightlist
+\item
+  Estimate the SUR system. Are the estimated coefficients and their SEs
+  different from those obtained in Q1? Comment.
+  \textcolor{gray}{\textbf{Hint}: In 2 situations there is no efficiency payoff to GLS versus OLS: 1) the unobservables are uncorrelated across equations within an individual; and 2) the equations have identical covariates.}
 \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# create a list of formulas for each equation}
+\NormalTok{formulas }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{vars }\OtherTok{\textless{}{-}} \FunctionTok{names}\NormalTok{(df)[}\DecValTok{2}\SpecialCharTok{:}\DecValTok{12}\NormalTok{]}
+\ControlFlowTok{for}\NormalTok{ (var }\ControlFlowTok{in}\NormalTok{ vars) \{}
+\NormalTok{  formulas[[var]] }\OtherTok{\textless{}{-}} \FunctionTok{formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(var, }\StringTok{"\textasciitilde{}treat"}\NormalTok{))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# estimate the SUR model}
+\NormalTok{sur\_fit }\OtherTok{\textless{}{-}}\NormalTok{ systemfit}\SpecialCharTok{::}\FunctionTok{systemfit}\NormalTok{(}\AttributeTok{formula =}\NormalTok{ formulas, }\AttributeTok{data =}\NormalTok{ df, }\AttributeTok{method =} \StringTok{"SUR"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# print the coefficients and SE of the SUR model}
+\NormalTok{i }\OtherTok{\textless{}{-}} \DecValTok{1}
+\ControlFlowTok{while}\NormalTok{ (i }\SpecialCharTok{\textless{}=} \DecValTok{11}\NormalTok{)\{}
+  \FunctionTok{print}\NormalTok{(}\FunctionTok{sprintf}\NormalTok{(}\StringTok{"\%s: \%f, \%f"}\NormalTok{,}
+\NormalTok{                vars[i],}
+                \FunctionTok{summary}\NormalTok{(sur\_fit)}\SpecialCharTok{$}\NormalTok{coefficients[i }\SpecialCharTok{*} \DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{],}
+                \FunctionTok{summary}\NormalTok{(sur\_fit)}\SpecialCharTok{$}\NormalTok{coefficients[i }\SpecialCharTok{*} \DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{]))}
+\NormalTok{  i }\OtherTok{\textless{}{-}}\NormalTok{ (i }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "age: 0.762370, 0.682751"
+## [1] "edu: 0.257484, 0.172135"
+## [1] "black: 0.016320, 0.035886"
+## [1] "hisp: -0.048233, 0.027163"
+## [1] "married: 0.035343, 0.036048"
+## [1] "nodegree: -0.126507, 0.039345"
+## [1] "re74: -11.452958, 516.477971"
+## [1] "re75: 265.146299, 303.155497"
+## [1] "re78: 1794.342382, 632.853392"
+## [1] "u74: -0.041892, 0.042622"
+## [1] "u75: -0.084615, 0.045822"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# print the coefficients and SE of the OLS model}
+\ControlFlowTok{for}\NormalTok{ (var }\ControlFlowTok{in}\NormalTok{ vars)}
+\NormalTok{\{}
+  \FunctionTok{print}\NormalTok{(}\FunctionTok{sprintf}\NormalTok{(}\StringTok{"\%s: \%f, \%f "}\NormalTok{, var, ols\_coefficients[var], ols\_se[var]))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "age: 0.762370, 0.682751 "
+## [1] "edu: 0.257484, 0.172135 "
+## [1] "black: 0.016320, 0.035886 "
+## [1] "hisp: -0.048233, 0.027163 "
+## [1] "married: 0.035343, 0.036048 "
+## [1] "nodegree: -0.126507, 0.039345 "
+## [1] "re74: -11.452958, 516.477971 "
+## [1] "re75: 265.146299, 303.155497 "
+## [1] "re78: 1794.342382, 632.853392 "
+## [1] "u74: -0.041892, 0.042622 "
+## [1] "u75: -0.084615, 0.045822 "
+\end{verbatim}
+
+The estimated coefficients and SEs are the same across OLS and GLS
+estimations for all the OPVs. This result may be due to the fact that
+the equations have the same covariate, i.e.~\texttt{treat}.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Test \textit{joint} balance by testing the
+  \textcolor{ForestGreen}{joint hypothesis} that the coefficients of
+  \texttt{treat} are zero in all the equations of the system. Spell out
+  null and alternative hypotheses, comment on findings, and verify the
+  test's value and p-value ``manually.'\,'
+  \textcolor{gray}{\textbf{Hint}: Use the \href{https://en.wikipedia.org/wiki/Likelihood-ratio_test}{\textcolor{ForestGreen}{Likelihood Ratio (LR) test}} where the unrestricted model is the system of equations with \texttt{treat} as covariate, and the restricted model is the system with no regression covariates, i.e., with only the constant term. To verify the value of the test use its algebraic expression. Recall that the test has a $\chi^{2}_{df}$ distribution with $df$ = number of restrictions.}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# create a list of formulas null\_system with only the constant}
+\NormalTok{null\_formulas }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (var }\ControlFlowTok{in}\NormalTok{ vars) \{}
+\NormalTok{  null\_formulas[[var]] }\OtherTok{\textless{}{-}} \FunctionTok{formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(var, }\StringTok{"\textasciitilde{}1"}\NormalTok{))}
+\NormalTok{\}}
+
+\CommentTok{\# pass the null\_system to systemfit}
+\NormalTok{null\_fit }\OtherTok{\textless{}{-}}\NormalTok{ systemfit}\SpecialCharTok{::}\FunctionTok{systemfit}\NormalTok{(}\AttributeTok{formula =}\NormalTok{ null\_formulas, }\AttributeTok{data =}\NormalTok{ df, }\AttributeTok{method =} \StringTok{"SUR"}\NormalTok{)}
+
+\CommentTok{\# calculate the LR test statistic}
+\NormalTok{lrtest\_obj }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{lrtest}\NormalTok{(null\_fit, sur\_fit)}
+\NormalTok{lr\_statistic }\OtherTok{\textless{}{-}}\NormalTok{ lrtest\_obj}\SpecialCharTok{$}\NormalTok{Chisq[}\DecValTok{2}\NormalTok{]}
+\NormalTok{lr\_df }\OtherTok{\textless{}{-}}\NormalTok{ lrtest\_obj}\SpecialCharTok{$}\NormalTok{Df[}\DecValTok{2}\NormalTok{]}
+
+\NormalTok{p\_value }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{pchisq}\NormalTok{(lr\_statistic, }\AttributeTok{df =}\NormalTok{ lr\_df, }\AttributeTok{lower.tail =} \ConstantTok{FALSE}\NormalTok{)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{sprintf}\NormalTok{(}\StringTok{"LR test statistic: \%f, p{-}value: \%f"}\NormalTok{, lr\_statistic, p\_value))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "LR test statistic: 27.021898, p-value: 0.004560"
+\end{verbatim}
+
+The null hypothesis is that the coefficients of \texttt{treat} are zero
+in all the equations of the system. The alternative hypothesis is that
+there is at least one equation with a nonzero coefficient, implying that
+the control and treatment froups have different means for an OPV.
+
+The p-value of this test is significant (p-value \textless{} 0.05). This
+result shows that we can reject null hypothesis that the coefficients of
+\texttt{treat} are zero in all the equations of the system, implying
+that the assignment of treatment did not balance all the subjects'
+characteristics.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\item
+  Test that the OPVs do not predict treatment assignment. Spell out null
+  and alternative hypotheses, comment on findings, and verify the test's
+  value and p-value ``manually.'\,' Why would scientists carry out this
+  test?
+  \textcolor{gray}{\textbf{Hint:} Use a MLRM and the \textcolor{ForestGreen}{F-test for the overall significance of the regression}. \textbf{Programming guidance}: Use \texttt{summary()} after estimation, e.g., \texttt{summary(lm\_fit)\$fstatistic} returns the test's value and degrees of freedom. Use \href{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html}{\texttt{stats::pf()}} to verify the test's p-value.}
+
+  We want to test that, given the covariates, the treatment assignment
+  is random. We can do this by testing that the coefficients of the
+  covariates are zero in the regression of treatment assignment on the
+  covariates. \newline
+
+  Given \((Y, X^{OPV})\) where \(Y\) represents the treatment
+  assignment, and \(X\) is a vector of our OPV covariates, we can test
+  the following model: \(Y = \beta'X^{OPV} + \epsilon\) with these
+  hypotheses: \newline  \[ 
+   \begin{cases}
+   H_0: \beta = 0 \\
+   H_1: \beta \neq 0 
+   \end{cases}
+   \] In which \(\beta\) is a vector of coefficients for the OPV
+  covariates. Thus, we want \(\beta = 0\), i.e the OPV covariates all
+  have no correlation to the treatment \(Y\).
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# create a list of formulas for each equation}
+
+\NormalTok{lm\_fit }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\AttributeTok{formula =} \FunctionTok{formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"treat"}\NormalTok{, }\StringTok{"\textasciitilde{}"}\NormalTok{, }\FunctionTok{paste}\NormalTok{(vars, }\AttributeTok{collapse =} \StringTok{"+"}\NormalTok{))), }\AttributeTok{data =}\NormalTok{ df)}
+\CommentTok{\# summary(lm\_fit)}
+\CommentTok{\# summary(lm\_fit)$fstatistic}
+\NormalTok{f\_stat }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_fit)}\SpecialCharTok{$}\NormalTok{fstatistic[}\DecValTok{1}\NormalTok{]}
+\NormalTok{numdf }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_fit)}\SpecialCharTok{$}\NormalTok{fstatistic[}\DecValTok{2}\NormalTok{]}
+\NormalTok{dendf }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(lm\_fit)}\SpecialCharTok{$}\NormalTok{fstatistic[}\DecValTok{3}\NormalTok{]}
+\NormalTok{p\_val }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{pf}\NormalTok{(f\_stat,numdf,dendf)}
+
+\FunctionTok{sprintf}\NormalTok{(}\StringTok{"The p{-}value of the ftest is: \%f"}\NormalTok{, p\_val)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "The p-value of the ftest is: 0.994656"
+\end{verbatim}
+
+With a p-value of 0.994656, we conclude that there is not enough
+evidence to reject the null hypothesis that OPVs do not predict
+treatment assignment. This result implies that proper random assignment
+was carried out such that treatment was given randomly irrespective of
+the subjects' characteristics. Scientists carry out this test to ensure
+that the treatment and control groups are similar in all respects except
+for the treatment itself.
 
 \end{document}

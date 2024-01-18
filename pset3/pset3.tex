@@ -254,8 +254,6 @@ means are the same in the control and treated groups. However, for
 same in the control and treated groups, and we cannot claim that these
 groups are balanced for this variable.
 
-\newpage
-
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{1}
@@ -599,7 +597,9 @@ In spec 3 we estimate the ATE to be \$1671. We reject \(H_0\) at
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{spec3 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(black) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(hisp) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(married) }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u74) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u75))}
+\NormalTok{spec3 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ age }
+                  \SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(black) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(hisp) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(married) }
+                  \SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u74) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u75))}
 \FunctionTok{summary}\NormalTok{(spec3)}
 \end{Highlighting}
 \end{Shaded}
@@ -648,7 +648,9 @@ In spec 4 we estimate the ATE to be \$1660. We reject \(H_0\) at
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{spec4 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(black) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(hisp) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(married) }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u74) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u75) }\SpecialCharTok{+}\NormalTok{ age\_dev }\SpecialCharTok{:}\NormalTok{ treat)}
+\NormalTok{spec4 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ age}
+                  \SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(black) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(hisp) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(married) }\SpecialCharTok{+}\NormalTok{ re74 }
+                  \SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u74) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u75) }\SpecialCharTok{+}\NormalTok{ age\_dev }\SpecialCharTok{:}\NormalTok{ treat)}
 
 \FunctionTok{summary}\NormalTok{(spec4)}
 \end{Highlighting}

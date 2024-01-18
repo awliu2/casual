@@ -129,8 +129,6 @@ for (var in vars) {
 
 Table 2 shows the p-values for the t-tests of balance for each OPV. \newline 
 We can see that for most of our variables, the p-value is greater than 0.05, so we fail to reject the null hypothesis that the means are the same in the control and treated groups. However, for \texttt{nodegree} we reject the null hypothesis that the means are the same in the control and treated groups, and we cannot claim that these groups are balanced for this variable.
-
-\newpage
      
 2. Testing balance as done in Q1 suffers from the so called \href{https://en.wikipedia.org/wiki/Multiple_comparisons_problem}{\textcolor{ForestGreen}{``multiple comparisons''}} or \textcolor{ForestGreen}{``multiple testing'' problem} which occurs when one considers a set of statistical inferences simultaneously. The \href{https://explainxkcd.com/wiki/index.php/882:_Significant}{problem} emerges because as more variables are compared, it becomes more likely that the treatment and control groups appear to differ on at least one attribute \textit{by random chance alone}. To deal
 with this problem we use an estimation methodology called \textcolor{ForestGreen}{SUR estimation} and then test just one hypothesis, the \textit{joint} hypothesis that all OPVs are balanced, i.e., their means are the same in the two groups. SUR stands for \textcolor{ForestGreen}{seemingly unrelated regression} and it is a special case of \textcolor{ForestGreen}{feasible Generalized Least Squares (GLS) estimation}. Instead of estimating the coefficients \textit{equation-by-equation} by OLS (and done in Q1 you combine the 10 equations in a system of equations and estimate the coefficients present in all the equations jointly, accounting for the fact that the unobservables may be correlated across equations within an individual (we continue to assume that they are uncorrelated across units). After estimation, you use standard testing procedures to test the \textit{joint} hypothesis that the slope coefficients in all the equations of the SUR system are zero. This joint test is a test of covariate balance that does not suffer from the ``multiple testing'' problem.
@@ -294,7 +292,9 @@ summary(spec2)
 In spec 3 we estimate the ATE to be \$1671. We reject $H_0$ at $\alpha = 0.01$. 
 
 ```{r}
-spec3 = stats::lm(data=df, re78 ~ treat + factor(nodegree) + edu + age + factor(black) + factor(hisp) + factor(married) + re74 + re75 + factor(u74) + factor(u75))
+spec3 = stats::lm(data=df, re78 ~ treat + factor(nodegree) + edu + age 
+                  + factor(black) + factor(hisp) + factor(married) 
+                  + re74 + re75 + factor(u74) + factor(u75))
 summary(spec3)
 ```
 
@@ -305,7 +305,9 @@ df$age_dev = (df$age - mean(df$age))/sd(df$age)
 ```
 
 ```{r}
-spec4 = stats::lm(data=df, re78 ~ treat + factor(nodegree) + edu + age + factor(black) + factor(hisp) + factor(married) + re74 + re75 + factor(u74) + factor(u75) + age_dev : treat)
+spec4 = stats::lm(data=df, re78 ~ treat + factor(nodegree) + edu + age
+                  + factor(black) + factor(hisp) + factor(married) + re74 
+                  + re75 + factor(u74) + factor(u75) + age_dev : treat)
 
 summary(spec4)
 ```

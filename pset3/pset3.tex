@@ -749,10 +749,10 @@ how the treatment effect changes among individuals with different
 covariates. It may allow us to capture heterogenous effects of the
 treatment.
 
-An additional assumption needed for ii) is homoskedasticity. The
-variance of the unobserved should be constant across different levels of
-age. If this assumption is violated, it can lead to incorrect
-conclusions about the interaction effect.
+An additional assumption we need is homoskedasticity. The variance of
+the unobserved should be constant across different levels of age. If
+this assumption is violated, it can lead to incorrect conclusions about
+the interaction effect.
 
 Here is the test for (i), we find significance at level of
 \(\alpha = 0.01\) and we can claim to reject the null hypothesis that
@@ -836,34 +836,69 @@ training.
 \setcounter{enumi}{3}
 \tightlist
 \item
-  Starting with Hint 1, we express \((y_{1i}^o, y_{0i}^o)\) in terms of
-  \((y_{1i}, y_{0i})\). First, recognize that individuals that are not
-  offered training, cannot take up training. This means that the
-  earnings of individuals not offered training, are a subset of the
-  group of individuals that do not take up training. We can assert that
-  \(y_{0i}^o = y_{0i}\) by recognizing this relationship.
-
-  \par\medskip
-
-  Then, recognize that individuals that are offered training, have a 0.5
-  probability of accepting or rejecting the offer of training.
-  Individuals who accept the offer compose the group of individuals that
-  receive training. Individuals who reject the offer are part of the a
-  subset of the group of individuals that do not take up training. This
-  can be expressed as \begin{align*}
-   y_{1i}^o &= \mathbb{P}[\text{accept offer}]y_{1i} + \mathbb{P}[\text{reject offer}]y_{0i}\\ 
-   &= \frac{1}{2}y_{1i} + \frac{1}{2}y_{0i}.
-  \end{align*} We then find the following relationship between \(ATE\)
-  and \(ATE^o\): \begin{align*}
-   ATE^o &= \mathbb{E}[y_{1i}^o - y_{0i}^o]\\
-   &= \mathbb{E}[(\frac{1}{2}y_{1i} + \frac{1}{2}y_{0i}) - y_{0i}] \text{, by definition, }\\
-   &= \mathbb{E}[\frac{1}{2}y_{1i} - \frac{1}{2}y_{0i}]\\
-   &= \frac{1}{2}\mathbb{E}[y_{1i} - y_{0i}] \text{, by linearity, }\\
-   &= \frac{1}{2}ATE.
-  \end{align*} Using this model we have shown that the two average
-  treatment effects are different. Particularly that the Intent to Treat
-  effect is of captured as a proportion of the Average Treatment Effect
-  of receiving training, specifically \(\frac{1}{2}\) in this case..
+  In this question you brainstorm on why the ATE of the offer of
+  training may be different from the ATE of undergoing training.
+  Terminology-wise, the ATE of the offer of training is called an
+  \textcolor{ForestGreen}{Intent to Treat Effect} (ITT). To think about
+  the relationship between these two treatment effects in a systematic
+  way you consider the following setup. Let \(Z_{i}\) denote a binary
+  variable that takes the value 1 if individual \(i\) is offered
+  training, and zero otherwise. Let \(D_{i}\) be a binary variable that
+  takes the value 1 if individual \(i\) undergoes training, and zero
+  otherwise. Thus, for instance, and individual who is offered training
+  but does not take it up has \$( Z\_\{i\},D\_\{i\}) = (1,0) \$. Assume:
+  1) when an individual receives an offer of training he flips a coin,
+  if it comes up Head he enrolls in the training program while if it
+  comes up Tail he does not; 2) individuals not offered training cannot
+  take it up; 3) the offer of training does not \textit{per se} affect
+  future
+  earnings.\footnote{This assumption rules out e.g., a case in which, by virtue of receiving a training offer, an individual becomes more optimistic about his future labor market prospects and searches for a well paying job harder than he would have had he not received the offer.}
+  Each individual has \textbf{two pairs} of potential outcomes, one pair
+  is associated with treatment defined as
+  \underline{being offered training} and the other pair is associated
+  with treatment defined as \underline{undergoing training}.
+  Specifically, let \$( y\_\{1i\},y\_\{0i\}) \$ denote potential 1978
+  earnings \textit{with} training and \textit{without} training.
+  Similarly, let \$( y\_\{1i\}\textsuperscript{\{o\},y\_\{0i\}}\{o\}) \$
+  denote potential 1978 earnings
+  \textit{with, and respectively without, the offer of training in hands}.
+  In
+  Q\textbf{\ref{item:oot:two-ways}}-Q\textbf{\ref{item:oot:ate-vs-ite}}
+  your goal was to estimate the ATE of being offered training, let us
+  denote it by \(ATE^{o}\equiv E[ y_{1i}^{o}-y_{0i}^{o}]\) (which is the
+  ITT effect). In this question you are asked to compare \(ATE^{o}\) to
+  \(ATE\equiv E[ y_{1i}-y_{0i}]\), and show/discuss why they may be
+  different.
+  \textcolor{gray}{\textbf{Hint \#1}:To answer this question start by relating the two pairs of potential outcomes, specifically, express $( y_{1i}^{o},y_{0i}^{o})$ in terms of $( y_{1i},y_{0i})$. Go from there. \textbf{Hint \#2}: You have all the information necessary to obtain an exact relationship b/w $ATE^{o}$ and $ATE$. \textbf{Hint \#3}: The key lesson to take from this question is that $ATE^{o}$ is typically different from $ATE$ even in the absence of self-selection into the training program.}
 \end{enumerate}
+
+Starting with Hint 1, we express \((y_{1i}^o, y_{0i}^o)\) in terms of
+\((y_{1i}, y_{0i})\). First, recognize that individuals that are not
+offered training, cannot take up training. This means that the earnings
+of individuals not offered training, are a subset of the group of
+individuals that do not take up training. We can assert that
+\(y_{0i}^o = y_{0i}\) by recognizing this relationship.
+
+\par\medskip
+
+Then, recognize that individuals that are offered training, have a 0.5
+probability of accepting or rejecting the offer of training. Individuals
+who accept the offer compose the group of individuals that receive
+training. Individuals who reject the offer are part of the a subset of
+the group of individuals that do not take up training. This can be
+expressed as \begin{align*}
+    y_{1i}^o &= \mathbb{P}[\text{accept offer}]y_{1i} + \mathbb{P}[\text{reject offer}]y_{0i}\\ 
+    &= \frac{1}{2}y_{1i} + \frac{1}{2}y_{0i}.
+\end{align*} We then find the following relationship between \(ATE\) and
+\(ATE^o\): \begin{align*}
+    ATE^o &= \mathbb{E}[y_{1i}^o - y_{0i}^o]\\
+    &= \mathbb{E}[(\frac{1}{2}y_{1i} + \frac{1}{2}y_{0i}) - y_{0i}] \text{, by definition, }\\
+    &= \mathbb{E}[\frac{1}{2}y_{1i} - \frac{1}{2}y_{0i}]\\
+    &= \frac{1}{2}\mathbb{E}[y_{1i} - y_{0i}] \text{, by linearity, }\\
+    &= \frac{1}{2}ATE.
+\end{align*} Using this model we have shown that the two average
+treatment effects are different. Particularly that the Intent to Treat
+effect is of captured as a proportion of the Average Treatment Effect of
+receiving training, specifically \(\frac{1}{2}\) in this case..
 
 \end{document}

@@ -196,7 +196,7 @@ lr_df <- lrtest_obj$Df[2]
 p_value <- stats::pchisq(lr_statistic, df = lr_df, lower.tail = FALSE)
 print(sprintf("LR test statistic: %f, p-value: %f", lr_statistic, p_value))
 ```
-The null hypothesis is that the coefficients of \texttt{treat} are zero in all the equations of the system. The alternative hypothesis is that there is at least one equation with a nonzero coefficient, implying that the control and treatment froups have different means for an OPV. 
+The null hypothesis is that the coefficients of \texttt{treat} are zero in all the equations of the system. The alternative hypothesis is that there is at least one equation with a nonzero coefficient, implying that the control and treatment groups have different means for an OPV. 
 
 The p-value of this test is significant (p-value < 0.05). This result shows that we can reject null hypothesis that the coefficients of \texttt{treat} are zero in all the equations of the system, implying that the assignment of treatment did not balance all the subjects' characteristics. 
 
@@ -304,7 +304,7 @@ summary(spec4)
 
 b. Are there reasons to add OPVs as covariates when they are balanced across treatment and control groups? If so, what are they? Comment on the estimation results from specs 2 and 3.
 
-We can add additional OPVs even if they're balanced across the treatment and control groups because even with  no systematic differences between the groups, those variables may still possibly contribute some causal effect on the outcome. By regressing on those variables, we can remove some variance in the treatment effect that may be attributed to those OPVs. 
+We can add additional OPVs even if they're balanced across the treatment and control groups because even with no systematic differences between the groups, those variables may still possibly contribute some causal effect on the outcome. By regressing on those variables, we can remove some variance in the treatment effect that may be attributed to those OPVs. Additionally, even in randomized experiments, some imbalance can occur purely by chance. In spec 2, the p-value is not as significant as the p-value in spec 3. 
 
 c. With reference to spec 3, do you think that it is problematic to use lagged / past values of the dependent variable as regression covariates? Explain.
 
@@ -314,5 +314,29 @@ d. Are there reasons to add interactions between OPVs and the treatment indicato
 
 3. Brainstorm on the possible mechanisms for the estimated ATE of being offered training. \textcolor{gray}{\textbf{Hint:} Can you think of the possible pathways through which on-the-job training may cause an increase in post-intervention earnings?}\label{item:oot:ate-vs-ite}
 
-A potential mechanism for the estimated ATE of being offered training could be that if an individual who if offered training accepts and undergoes the training, they may received skill enhancement which will enable them to secure better-paying positions that have more skill requirements.
+A potential mechanism for the estimated ATE of being offered training could be that if an individual who if offered training accepts and undergoes the training, they may received skill enhancement which will enable them to secure better-paying positions that have more skill requirements. Another possible mechanism for the estimated ATE of being offered training is suggested by the footnote, that an individual might become more optimistic about their prospects and therefore works harder to land a well-paying job, even without actually going through the training.
+
+4. Starting with Hint 1, we express $(y_{1i}^o, y_{0i}^o)$ in terms of $(y_{1i}, y_{0i})$.
+First, recognize that individuals that are not offered training, cannot take up training. 
+This means that the earnings of individuals not offered training, are a subset of the group of individuals that do not take up training. 
+We can assert that $y_{0i}^o = y_{0i}$ by recognizing this relationship.\par\medskip
+Then, recognize that individuals that are offered training, have a 0.5 probability of accepting or rejecting the offer of training. 
+Individuals who accept the offer compose the group of individuals that recieve training. 
+Individuals who reject the offer are part of the a subset of the group of individuals that do not take up training. 
+This can be expressed as 
+\begin{align*}
+    y_{1i}^o &= \mathbb{P}[\text{accept offer}]y_{1i} + \mathbb{P}[\text{reject offer}]y_{0i}\\ 
+    &= \frac{1}{2}y_{1i} + \frac{1}{2}y_{0i}.
+\end{align*}
+We then find the following relationship between $ATE$ and $ATE^o$: 
+\begin{align*}
+    ATE^o &= \mathbb{E}[y_{1i}^o - y_{0i}^o]\\
+    &= \mathbb{E}[(\frac{1}{2}y_{1i} + \frac{1}{2}y_{0i}) - y_{0i}] \text{, by definition, }\\
+    &= \mathbb{E}[\frac{1}{2}y_{1i} - \frac{1}{2}y_{0i}]\\
+    &= \frac{1}{2}\mathbb{E}[y_{1i} - y_{0i}] \text{, by linearity, }\\
+    &= \frac{1}{2}ATE.
+\end{align*}
+Using this model we have shown that the two average treatment effects are different.
+Particularly that the Intent to Treat effect is of captured as a proportion of the Average Treatement Effect of recieving training. 
+
 

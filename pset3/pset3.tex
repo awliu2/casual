@@ -415,7 +415,7 @@ the equations have the same covariate, i.e.~\texttt{treat}.
 The null hypothesis is that the coefficients of \texttt{treat} are zero
 in all the equations of the system. The alternative hypothesis is that
 there is at least one equation with a nonzero coefficient, implying that
-the control and treatment froups have different means for an OPV.
+the control and treatment groups have different means for an OPV.
 
 The p-value of this test is significant (p-value \textless{} 0.05). This
 result shows that we can reject null hypothesis that the coefficients of
@@ -481,25 +481,298 @@ for the treatment itself.
 
 \textbf{Part 3: Estimate the Effect of the Offer of Training}
 
-\begin{table}
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Spec} & \textbf{Estimation Approach} & \textbf{Description} \\ \hline
-0 & T-test & Compute group-specific sample averages, take difference. \\ \hline
-1 & OLS & Estimate coefficient of SLRM. \\ \hline
-2 & OLS & Add to spec. 1 OPVs \texttt{nodegree} and \texttt{edu} in linear form. \\ \hline
-3 & OLS & Add to spec. 2 the other 8 OPVs in linear form. \\ \hline
-4 & OLS & Add to spec. 3 the interaction b/w \texttt{age} (in deviation from its sample mean) and \texttt{treat} \\ \hline
-\end{tabular}
-\caption{Specifications used to estimate the ATE of offer of training}
-\label{tab:ate-specs}
-\end{table}
-
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
   Implement specs 0 (3 p) and 1 (2 p). Describe your findings.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{stats}\SpecialCharTok{::}\FunctionTok{t.test}\NormalTok{(df1}\SpecialCharTok{$}\NormalTok{re78, df2}\SpecialCharTok{$}\NormalTok{re78)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Welch Two Sample t-test
+## 
+## data:  df1$re78 and df2$re78
+## t = -2.6741, df = 307.13, p-value = 0.007893
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -3114.6743  -474.0105
+## sample estimates:
+## mean of x mean of y 
+##  4554.801  6349.144
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spec1 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat)}
+\FunctionTok{summary}\NormalTok{(spec1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## stats::lm(formula = re78 ~ treat, data = df)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -6349  -4555  -1829   2917  53959 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)   4554.8      408.0  11.162  < 2e-16 ***
+## treat         1794.3      632.9   2.835  0.00479 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 6580 on 443 degrees of freedom
+## Multiple R-squared:  0.01782,    Adjusted R-squared:  0.01561 
+## F-statistic: 8.039 on 1 and 443 DF,  p-value: 0.004788
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Implement specs 2 through 4.
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\tightlist
+\item
+  Report the estimates of the ATE and test \(H_0\) that ATE is zero (3 p
+  each spec).
+  \textcolor{gray}{\textbf{Hint:} You consider spec 2 in light of the imbalance in educational attainment documented in Part 2. This approach to account for the presence of observable confounders (i.e., imbalance in OPVs) is called the \textcolor{ForestGreen}{regression adjustment approach}. Spec 3 has 11 regression covariates. Spec 4 has 12 regression covariates.}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spec2 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu)}
+\FunctionTok{summary}\NormalTok{(spec2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## stats::lm(formula = re78 ~ treat + factor(nodegree) + edu, data = df)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -7570  -4762  -1708   3129  53900 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(>|t|)  
+## (Intercept)         1741.4     2889.8   0.603   0.5471  
+## treat               1645.9      638.0   2.580   0.0102 *
+## factor(nodegree)1   -518.3      984.0  -0.527   0.5987  
+## edu                  321.8      224.9   1.431   0.1533  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 6554 on 441 degrees of freedom
+## Multiple R-squared:  0.02988,    Adjusted R-squared:  0.02328 
+## F-statistic: 4.527 on 3 and 441 DF,  p-value: 0.003862
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spec3 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(black) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(hisp) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(married) }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u74) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u75))}
+\FunctionTok{summary}\NormalTok{(spec3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## stats::lm(formula = re78 ~ treat + factor(nodegree) + edu + age + 
+##     factor(black) + factor(hisp) + factor(married) + re74 + re75 + 
+##     factor(u74) + factor(u75), data = df)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -9612  -4355  -1572   3054  53119 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)        2.567e+02  3.522e+03   0.073  0.94193   
+## treat              1.671e+03  6.411e+02   2.606  0.00948 **
+## factor(nodegree)1 -1.518e+01  1.006e+03  -0.015  0.98797   
+## edu                4.008e+02  2.288e+02   1.751  0.08058 . 
+## age                5.357e+01  4.581e+01   1.170  0.24284   
+## factor(black)1    -2.037e+03  1.174e+03  -1.736  0.08331 . 
+## factor(hisp)1      4.258e+02  1.565e+03   0.272  0.78562   
+## factor(married)1  -1.463e+02  8.823e+02  -0.166  0.86834   
+## re74               1.234e-01  8.784e-02   1.405  0.16080   
+## re75               1.974e-02  1.503e-01   0.131  0.89554   
+## factor(u74)1       1.380e+03  1.188e+03   1.162  0.24590   
+## factor(u75)1      -1.071e+03  1.025e+03  -1.045  0.29651   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 6517 on 433 degrees of freedom
+## Multiple R-squared:  0.05822,    Adjusted R-squared:  0.0343 
+## F-statistic: 2.433 on 11 and 433 DF,  p-value: 0.005974
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{age\_dev }\OtherTok{=}\NormalTok{ (df}\SpecialCharTok{$}\NormalTok{age }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{age))}\SpecialCharTok{/}\FunctionTok{sd}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{age)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spec4 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(black) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(hisp) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(married) }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u74) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u75) }\SpecialCharTok{+}\NormalTok{ age\_dev }\SpecialCharTok{*}\NormalTok{ treat)}
+
+\FunctionTok{summary}\NormalTok{(spec4)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## stats::lm(formula = re78 ~ treat + factor(nodegree) + edu + age + 
+##     factor(black) + factor(hisp) + factor(married) + re74 + re75 + 
+##     factor(u74) + factor(u75) + age_dev * treat, data = df)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -9655  -4340  -1549   2979  52961 
+## 
+## Coefficients: (1 not defined because of singularities)
+##                     Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)        1.079e+03  3.624e+03   0.298  0.76612   
+## treat              1.660e+03  6.413e+02   2.588  0.00998 **
+## factor(nodegree)1  4.570e+00  1.006e+03   0.005  0.99638   
+## edu                4.070e+02  2.289e+02   1.778  0.07616 . 
+## age                1.837e+01  5.858e+01   0.314  0.75394   
+## factor(black)1    -1.988e+03  1.175e+03  -1.692  0.09138 . 
+## factor(hisp)1      4.807e+02  1.566e+03   0.307  0.75900   
+## factor(married)1  -1.740e+02  8.828e+02  -0.197  0.84386   
+## re74               1.230e-01  8.785e-02   1.400  0.16218   
+## re75               1.281e-02  1.505e-01   0.085  0.93222   
+## factor(u74)1       1.359e+03  1.188e+03   1.144  0.25321   
+## factor(u75)1      -1.124e+03  1.026e+03  -1.095  0.27402   
+## age_dev                   NA         NA      NA       NA   
+## treat:age_dev      6.079e+02  6.307e+02   0.964  0.33563   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 6517 on 432 degrees of freedom
+## Multiple R-squared:  0.06024,    Adjusted R-squared:  0.03414 
+## F-statistic: 2.308 on 12 and 432 DF,  p-value: 0.007352
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Are there reasons to add OPVs as covariates when they are balanced
+  across treatment and control groups? If so, what are they? Comment on
+  the estimation results from specs 2 and 3.
+\end{enumerate}
+
+We can add additional OPVs even if they're balanced across the treatment
+and control groups because even with no systematic differences between
+the groups, those variables may still possibly contribute some causal
+effect on the outcome. By regressing on those variables, we can remove
+some variance in the treatment effect that may be attributed to those
+OPVs. Additionally, even in randomized experiments, some imbalance can
+occur purely by chance. In spec 2, the p-value is not as significant as
+the p-value in spec 3.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  With reference to spec 3, do you think that it is problematic to use
+  lagged / past values of the dependent variable as regression
+  covariates? Explain.
+\end{enumerate}
+
+No.~It is common practice in time series analysis to regress on lagged
+values of the dependent variable. Though some assumptions must be
+upheld. In this case specifically, it seems alright as the past values
+of earnings show no significant effect on earnings in 1978 as a result
+of the t-test.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Are there reasons to add interactions between OPVs and the treatment
+  indicator? If so, what are they? With reference to spec 4, test the
+  following two hypothesis: i) the ATE is zero; ii) the effect of the
+  treatment does not vary by the age of the subject. \textbf{Note:} If
+  additional assumptions are needed to carry out i) and ii), state them.
+  \textcolor{gray}{\textbf{Programming Guidance}: Use \href{https://rdrr.io/cran/car/man/linearHypothesis.html}{\texttt{car::linearHypothesis()}}.}
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Brainstorm on the possible mechanisms for the estimated ATE of being
+  offered training.
+  \textcolor{gray}{\textbf{Hint:} Can you think of the possible pathways through which on-the-job training may cause an increase in post-intervention earnings?}\label{item:oot:ate-vs-ite}
+\end{enumerate}
+
+A potential mechanism for the estimated ATE of being offered training
+could be that if an individual who if offered training accepts and
+undergoes the training, they may received skill enhancement which will
+enable them to secure better-paying positions that have more skill
+requirements. Another possible mechanism for the estimated ATE of being
+offered training is suggested by the footnote, that an individual might
+become more optimistic about their prospects and therefore works harder
+to land a well-paying job, even without actually going through the
+training.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Starting with Hint 1, we express \((y_{1i}^o, y_{0i}^o)\) in terms of
+  \((y_{1i}, y_{0i})\). First, recognize that individuals that are not
+  offered training, cannot take up training. This means that the
+  earnings of individuals not offered training, are a subset of the
+  group of individuals that do not take up training. We can assert that
+  \(y_{0i}^o = y_{0i}\) by recognizing this relationship.
+
+  \par\medskip
+
+  Then, recognize that individuals that are offered training, have a 0.5
+  probability of accepting or rejecting the offer of training.
+  Individuals who accept the offer compose the group of individuals that
+  recieve training. Individuals who reject the offer are part of the a
+  subset of the group of individuals that do not take up training. This
+  can be expressed as \begin{align*}
+   y_{1i}^o &= \mathbb{P}[\text{accept offer}]y_{1i} + \mathbb{P}[\text{reject offer}]y_{0i}\\ 
+   &= \frac{1}{2}y_{1i} + \frac{1}{2}y_{0i}.
+  \end{align*} We then find the following relationship between \(ATE\)
+  and \(ATE^o\): \begin{align*}
+   ATE^o &= \mathbb{E}[y_{1i}^o - y_{0i}^o]\\
+   &= \mathbb{E}[(\frac{1}{2}y_{1i} + \frac{1}{2}y_{0i}) - y_{0i}] \text{, by definition, }\\
+   &= \mathbb{E}[\frac{1}{2}y_{1i} - \frac{1}{2}y_{0i}]\\
+   &= \frac{1}{2}\mathbb{E}[y_{1i} - y_{0i}] \text{, by linearity, }\\
+   &= \frac{1}{2}ATE.
+  \end{align*} Using this model we have shown that the two average
+  treatment effects are different. Particularly that the Intent to Treat
+  effect is of captured as a proportion of the Average Treatement Effect
+  of recieving training.
 \end{enumerate}
 
 \end{document}

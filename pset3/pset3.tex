@@ -5,20 +5,21 @@
 %
 \documentclass[
 ]{article}
+\title{Problem Set 3}
+\author{Tessie Dong, Derek Li, Andi Liu}
+\date{Due Jan 18th, 2024}
+
 \usepackage{amsmath,amssymb}
+\usepackage{lmodern}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math} % this also loads fontspec
+  \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
-\fi
-\usepackage{lmodern}
-\ifPDFTeX\else
-  % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -37,6 +38,18 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Problem Set 3},
+  pdfauthor={Tessie Dong, Derek Li, Andi Liu},
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=1in]{geometry}
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -49,13 +62,13 @@
 \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
 \newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
 \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
 \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
 \newcommand{\BuiltInTok}[1]{#1}
 \newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
 \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
 \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
 \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
@@ -63,7 +76,7 @@
 \newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
 \newcommand{\ExtensionTok}[1]{#1}
 \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\ImportTok}[1]{#1}
 \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
@@ -72,7 +85,7 @@
 \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
 \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
 \newcommand{\RegionMarkerTok}[1]{#1}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
@@ -99,22 +112,6 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same}
-\hypersetup{
-  pdftitle={Problem Set 3},
-  pdfauthor={Tessie Dong, Derek Li, Andi Liu},
-  colorlinks=true,
-  linkcolor={Maroon},
-  filecolor={Maroon},
-  citecolor={Blue},
-  urlcolor={Blue},
-  pdfcreator={LaTeX via pandoc}}
-
-\title{Problem Set 3}
-\author{Tessie Dong, Derek Li, Andi Liu}
-\date{Due Jan 18th, 2024}
 
 \begin{document}
 \maketitle
@@ -488,6 +485,11 @@ for the treatment itself.
   Implement specs 0 (3 p) and 1 (2 p). Describe your findings.
 \end{enumerate}
 
+We find in the implementation of spec 0 that with the relevant t-test
+between sample means the result is significant for \(\alpha = 0.01\)
+with a p-value of 0.007893. This means we reject the null hypothesis
+that the means of the two populations are the same.
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{stats}\SpecialCharTok{::}\FunctionTok{t.test}\NormalTok{(df1}\SpecialCharTok{$}\NormalTok{re78, df2}\SpecialCharTok{$}\NormalTok{re78)}
@@ -507,6 +509,12 @@ for the treatment itself.
 ## mean of x mean of y 
 ##  4554.801  6349.144
 \end{verbatim}
+
+We find in the implementation of spec 1 an estimated slope coefficient
+of 1794.3 for the treatment variable in the Simple Linear Regression
+model. Both the intercept and slope are significant at
+\(\alpha = 0.01\), which suggests a significant impact of the predictor
+variable (treatment) from the response variable (earnings).
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -553,6 +561,9 @@ for the treatment itself.
   \textcolor{gray}{\textbf{Hint:} You consider spec 2 in light of the imbalance in educational attainment documented in Part 2. This approach to account for the presence of observable confounders (i.e., imbalance in OPVs) is called the \textcolor{ForestGreen}{regression adjustment approach}. Spec 3 has 11 regression covariates. Spec 4 has 12 regression covariates.}
 \end{enumerate}
 
+In spec 2 we estimate the ATE to be \$1645.9. We reject \(H_0\) at
+\(\alpha = 0.05\).
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{spec2 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu)}
@@ -582,6 +593,9 @@ for the treatment itself.
 ## Multiple R-squared:  0.02988,    Adjusted R-squared:  0.02328 
 ## F-statistic: 4.527 on 3 and 441 DF,  p-value: 0.003862
 \end{verbatim}
+
+In spec 3 we estimate the ATE to be \$1671. We reject \(H_0\) at
+\(\alpha = 0.01\).
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -623,6 +637,9 @@ for the treatment itself.
 ## F-statistic: 2.433 on 11 and 433 DF,  p-value: 0.005974
 \end{verbatim}
 
+In spec 4 we estimate the ATE to be \$1660. We reject \(H_0\) at
+\(\alpha = 0.01\).
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{df}\SpecialCharTok{$}\NormalTok{age\_dev }\OtherTok{=}\NormalTok{ (df}\SpecialCharTok{$}\NormalTok{age }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{age))}\SpecialCharTok{/}\FunctionTok{sd}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{age)}
@@ -631,7 +648,7 @@ for the treatment itself.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{spec4 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(black) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(hisp) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(married) }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u74) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u75) }\SpecialCharTok{+}\NormalTok{ age\_dev }\SpecialCharTok{*}\NormalTok{ treat)}
+\NormalTok{spec4 }\OtherTok{=}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{lm}\NormalTok{(}\AttributeTok{data=}\NormalTok{df, re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(nodegree) }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(black) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(hisp) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(married) }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u74) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(u75) }\SpecialCharTok{+}\NormalTok{ age\_dev }\SpecialCharTok{:}\NormalTok{ treat)}
 
 \FunctionTok{summary}\NormalTok{(spec4)}
 \end{Highlighting}
@@ -642,13 +659,13 @@ for the treatment itself.
 ## Call:
 ## stats::lm(formula = re78 ~ treat + factor(nodegree) + edu + age + 
 ##     factor(black) + factor(hisp) + factor(married) + re74 + re75 + 
-##     factor(u74) + factor(u75) + age_dev * treat, data = df)
+##     factor(u74) + factor(u75) + age_dev:treat, data = df)
 ## 
 ## Residuals:
 ##    Min     1Q Median     3Q    Max 
 ##  -9655  -4340  -1549   2979  52961 
 ## 
-## Coefficients: (1 not defined because of singularities)
+## Coefficients:
 ##                     Estimate Std. Error t value Pr(>|t|)   
 ## (Intercept)        1.079e+03  3.624e+03   0.298  0.76612   
 ## treat              1.660e+03  6.413e+02   2.588  0.00998 **
@@ -662,7 +679,6 @@ for the treatment itself.
 ## re75               1.281e-02  1.505e-01   0.085  0.93222   
 ## factor(u74)1       1.359e+03  1.188e+03   1.144  0.25321   
 ## factor(u75)1      -1.124e+03  1.026e+03  -1.095  0.27402   
-## age_dev                   NA         NA      NA       NA   
 ## treat:age_dev      6.079e+02  6.307e+02   0.964  0.33563   
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -688,8 +704,10 @@ the groups, those variables may still possibly contribute some causal
 effect on the outcome. By regressing on those variables, we can remove
 some variance in the treatment effect that may be attributed to those
 OPVs. Additionally, even in randomized experiments, some imbalance can
-occur purely by chance. In spec 2, the p-value is not as significant as
-the p-value in spec 3.
+occur purely by chance. We notice that in spec 2, the p-value is
+significant at a lower \(\alpha\) level when compared to the p-value in
+spec 3. Though the standard error for the estimated ATE is slightly
+higher for spec 3 compared to spec 2.
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
@@ -702,9 +720,9 @@ the p-value in spec 3.
 \end{enumerate}
 
 No.~It is common practice in time series analysis to regress on lagged
-values of the dependent variable. Though some assumptions must be
-upheld. In this case specifically, it seems alright as the past values
-of earnings show no significant effect on earnings in 1978 as a result
+values of the dependent variable. Though some assumptions may be
+required. In this case specifically, it does not seem problematic as the
+past earnings show no significant effect on earnings in 1978 as a result
 of the t-test.
 
 \begin{enumerate}
@@ -719,6 +737,69 @@ of the t-test.
   additional assumptions are needed to carry out i) and ii), state them.
   \textcolor{gray}{\textbf{Programming Guidance}: Use \href{https://rdrr.io/cran/car/man/linearHypothesis.html}{\texttt{car::linearHypothesis()}}.}
 \end{enumerate}
+
+Yes there are reasons to add interactions into the regression
+specification. Interactions with the treatment effect allow us to see
+how the treatment effect changes among individuals with different
+covariates. It may allow us to capture heterogenous effects of the
+treatment.
+
+Here is the test for (i), we find significance at level of
+\(\alpha = 0.01\) and we can claim to reject the null hypothesis that
+the ATE is 0.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{linearHypothesis}\NormalTok{(spec4, }\FunctionTok{c}\NormalTok{(}\StringTok{"treat=0"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Linear hypothesis test
+## 
+## Hypothesis:
+## treat = 0
+## 
+## Model 1: restricted model
+## Model 2: re78 ~ treat + factor(nodegree) + edu + age + factor(black) + 
+##     factor(hisp) + factor(married) + re74 + re75 + factor(u74) + 
+##     factor(u75) + age_dev:treat
+## 
+##   Res.Df        RSS Df Sum of Sq      F   Pr(>F)   
+## 1    433 1.8634e+10                                
+## 2    432 1.8349e+10  1 284471777 6.6973 0.009981 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+Here is the test for (ii), we find that the test result is not
+significant thus we fail to to reject the null hypothesis that the
+effect of the treatment does not vary by the age of the subject.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{linearHypothesis}\NormalTok{(spec4, }\FunctionTok{c}\NormalTok{(}\StringTok{"treat:age\_dev=0"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Linear hypothesis test
+## 
+## Hypothesis:
+## treat:age_dev = 0
+## 
+## Model 1: restricted model
+## Model 2: re78 ~ treat + factor(nodegree) + edu + age + factor(black) + 
+##     factor(hisp) + factor(married) + re74 + re75 + factor(u74) + 
+##     factor(u75) + age_dev:treat
+## 
+##   Res.Df        RSS Df Sum of Sq      F Pr(>F)
+## 1    433 1.8389e+10                           
+## 2    432 1.8349e+10  1  39465057 0.9291 0.3356
+\end{verbatim}
+
+Both test results can also be witnessed in the summary of spec 4 that we
+originally ran.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -757,7 +838,7 @@ training.
   Then, recognize that individuals that are offered training, have a 0.5
   probability of accepting or rejecting the offer of training.
   Individuals who accept the offer compose the group of individuals that
-  recieve training. Individuals who reject the offer are part of the a
+  receive training. Individuals who reject the offer are part of the a
   subset of the group of individuals that do not take up training. This
   can be expressed as \begin{align*}
    y_{1i}^o &= \mathbb{P}[\text{accept offer}]y_{1i} + \mathbb{P}[\text{reject offer}]y_{0i}\\ 
@@ -771,8 +852,8 @@ training.
    &= \frac{1}{2}ATE.
   \end{align*} Using this model we have shown that the two average
   treatment effects are different. Particularly that the Intent to Treat
-  effect is of captured as a proportion of the Average Treatement Effect
-  of recieving training.
+  effect is of captured as a proportion of the Average Treatment Effect
+  of receiving training, specifically \(\frac{1}{2}\) in this case..
 \end{enumerate}
 
 \end{document}

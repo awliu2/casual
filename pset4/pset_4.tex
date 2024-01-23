@@ -143,22 +143,39 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{summary\_cps }\OtherTok{\textless{}{-}}\NormalTok{ nswcps\_treat0 }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{summarise\_all}\NormalTok{(}\FunctionTok{list}\NormalTok{(mean))}
-\NormalTok{summary\_psid }\OtherTok{\textless{}{-}}\NormalTok{ nswpsid\_treat0 }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{summarise\_all}\NormalTok{(}\FunctionTok{list}\NormalTok{(mean))}
+\NormalTok{summary\_cps }\OtherTok{\textless{}{-}} \FunctionTok{summarise\_all}\NormalTok{(nswcps\_treat0, }\FunctionTok{list}\NormalTok{(mean))}
+\NormalTok{summary\_psid }\OtherTok{\textless{}{-}} \FunctionTok{summarise\_all}\NormalTok{(nswpsid\_treat0, }\FunctionTok{list}\NormalTok{(mean))}
 \end{Highlighting}
 \end{Shaded}
 
   \input{figures/table_descriptive_stats.tex}
 \item
   Briefly comment on the completed Table \ref{tab:descriptive-stats}.
-  \textcolor{gray}{\textbf{Hint}: Are the PSID-1 and CPS-1 samples ``good'' control groups?}
+  \textcolor{gray}{\textbf{Hint}: Are the PSID-1 and CPS-1 samples "good" control groups?}
+
+  I would argue that these samples are not the best control groups -
+  this is mostly because many of the OPV covariates from the PSID and
+  CPS exhibit large differences from the characteristics of the NSW
+  sample. For example, the average age of the NSW sample is 25.82, while
+  the average age of the PSID sample is 34.5, and there are large
+  differences in income across the three samples. This suggests that the
+  populations from which PSID and CPS were drawn are not very similar to
+  the population of the NSW sample - making comparisons between treated
+  individuals in the NSW sample and ``untreated'' individuals in the
+  PSID and CPS samples less reliable, in our opinion.
 \item
   Why do you think that Dehajia and Wahba constructed their
-  ``observational datasets'\,' by pulling together the treated sample
-  from NSW and a sample of individuals drawn from either the PSID or the
-  CPS data?
+  ``observational datasets'' by pulling together the treated sample from
+  NSW and a sample of individuals drawn from either the PSID or the CPS
+  data?
   \textcolor{gray}{\textbf{Hint:} Both PSID and CPS include information on whether an individual enrolled in a training course during the previous 12 months. Thus, Dehajia and Wahba could have exploited exclusively observational variation in whether an individual enrolled in a training program. Why do you think that they chose not to follow this approach?}
-  \textbackslash end\{enumerate\}
+
+  We believe that Dehajia and Wahba chose to pool the NSW and PSID/CPS
+  datasets because they wanted to have a larger sample size to work
+  with. This is because the NSW sample is relatively small, and the
+  PSID/CPS samples are much larger. By pooling the NSW and PSID/CPS
+  samples, Dehajia and Wahba are able to increase the sample size of
+  their dataset.
 \end{enumerate}
 
 \end{document}

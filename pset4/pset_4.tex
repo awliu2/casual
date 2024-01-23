@@ -99,7 +99,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\usepackage{bookmark}
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
@@ -175,7 +175,9 @@
   with. This is because the NSW sample is relatively small, and the
   PSID/CPS samples are much larger. By pooling the NSW and PSID/CPS
   samples, Dehajia and Wahba are able to increase the sample size of
-  their dataset.
+  their dataset. In addition, by analyzing samples drawn from different
+  distributions (i.e.~PSID/CPS datasets), they could increase the
+  generalizability of their results to the population.
 \end{enumerate}
 
 \end{document}

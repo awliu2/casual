@@ -1,0 +1,46 @@
+---
+title: "Problem Set 4"
+author: "Tessie Dong, Derek Li, Andi Liu"
+date: Due Jan 26th, 2024
+output:
+    pdf_document:
+        keep_tex: true
+        extra_dependencies: ['amsmath']
+    html_document: default
+colorlinks: true
+---
+
+
+<!-- R library setup -->
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rmarkdown::pandoc_available()
+library(tidyverse)
+library(utils)
+library(systemfit)
+```
+
+\begin{center}
+{\LARGE Part 1: Describe the Data (10 p)}
+\end{center}
+
+1. Fill Table \ref{tab:descriptive-stats}'s columns 5 and 6 using, respectively, the data in \texttt{nswpsid.csv} and in \texttt{nswcps.csv}. \textcolor{Gray}{\textbf{Notes}: You want to limit attention to observations with \texttt{treat=0}. You filled columns 3 and 4 in PSet 3.}
+    ```{r, message=FALSE, results=FALSE}
+    # Load data
+    nswpsid <- read_csv("nswpsid.csv")
+    nswcps <- read_csv("nswcps.csv")
+    nswpsid_treat0 <- nswpsid %>% filter(treat == 0)
+    nswcps_treat0 <- nswcps %>% filter(treat == 0)
+    ```
+    ```{r}
+    summary_cps <- nswcps_treat0 %>% dplyr::summarise_all(list(mean))
+    summary_psid <- nswpsid_treat0 %>% dplyr::summarise_all(list(mean))
+    ```
+    <!-- Table imported from `table_descriptive_stats.tex` -->
+    \input{table_descriptive_stats.tex}
+    
+
+2. Briefly comment on the completed Table \ref{tab:descriptive-stats}.  \textcolor{gray}{\textbf{Hint}: Are the PSID-1 and CPS-1 samples ``good'' control groups?}
+
+3. Why do you think that Dehajia and Wahba constructed their ``observational datasets'' by pulling together the treated sample from NSW and a sample of individuals drawn from either the PSID or the CPS data? \textcolor{gray}{\textbf{Hint:} Both PSID and CPS include information on whether an individual enrolled in a training course during the previous 12 months. Thus, Dehajia and Wahba could have exploited exclusively observational variation in whether an individual enrolled in a training program. Why do you think that they chose not to follow this approach?}
+\end{enumerate}

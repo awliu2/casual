@@ -1,0 +1,332 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ECMA 31360 PSet 4: Observation data 
+% Author: Melissa Tartari
+% Created: 10/06/2023
+% Last Updated: 1/18/2024
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{booktabs,siunitx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{listings}
+
+\setcounter{MaxMatrixCols}{10}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+
+\textwidth=7.6in
+\textheight=9.9in
+\topmargin=-1.2in
+\headheight=0in
+\headsep=.5in
+\hoffset  -1.25in
+
+\newcommand{\psetyear}{2023}
+\newcommand{\psetnum}{4}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy} 
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[R]{\color{Gray}{ECMA 31360 PSet \psetnum, Page \thepage}}
+
+\usepackage{lineno}
+\linenumbers
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\title{ECMA 31360, PSet \psetnum: Causal Inference with Observational Data}
+\date{}
+\author{Melissa Tartari, University of Chicago}
+\maketitle
+\thispagestyle{fancy}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: In Pset3 you estimated the ATE of the offer of training on post-training earnings using NSW experimental data. The Treatment-Control difference in sample averages indicates that the offer of training causes an additional \$1,794 in terms of 1978 earnings. Variation in the cause/treatment is often observational in nature, instead of resulting from an RCT. In this Pset you utilize methods developed to estimate the effect of the offer of training using \textcolor{ForestGreen}{``observational data''} and apply them to two datasets that Dehajia and Wahba constructed to \underline{mimic} observational data.}\\
+
+\noindent \textcolor{Maroon}{\textbf{Background}: Consider the files \texttt{nswcps.csv} and \texttt{nswpsid.csv}. Each file contains a dataset. Each dataset combines two samples: 1) the treated sample from the Dehajia and Wahba's NSW data (i.e., 185 males offered NSW training in 1976-1977)\footnote{Dehejia and Wahba (1999) Causal Effects in Nonexperimental Studies: reevaluating the Evaluation of Training Programs, \textit{JASA}, pp. 1053-1062. Dehejia and Wahba (2002) Propensity-score Matching Methods for Nonexperimental Causal Studies, \textit{ReStat}, pp. 151-161.}; and 2) a sample extracted from a large survey: a) in \texttt{nswcps.csv}, such sample is the Current Population Survey (\href{https://www.census.gov/cps/data/}{CPS}); b) in \texttt{nswpsid.csv}, such sample is the Panel Study of Income Dynamics (\href{https://psidonline.isr.umich.edu/}{PSID}). The samples in 2) contain data on a \textcolor{ForestGreen}{comparison group}, that is, on subjects who (as far as we know) did not receive the NSW offer of training.\footnote{When working with observational data the \textcolor{ForestGreen}{untreated} sample is more properly called a \textcolor{ForestGreen}{comparison group}. Nevertheless it is common to use the terms \textcolor{ForestGreen}{control} and \textcolor{ForestGreen}{comparison} interchangeably, irrespective of whether the variation in the treatment indicator is induced by RA or not.} Specifically, the PSID sample (called \textbf{PSID-1}) consists of 2,490 male household heads under the age of 55 who are not retired; and, the CPS sample (called \textbf{CPS-1}) consists of 15,992 male household heads under the age of 55 who are not retired. The file \texttt{nswcps.csv} (respectively, \texttt{nswpsid.csv}) contains the treated individuals (from NSW-treated) along with the PSID (respectively, CPS) comparison individuals. The treatment indicator variable \texttt{treat} equals 1 for individuals in the NSW-treated sample and zero for the PSID (respectively, CPS) comparison individuals.}  
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Premise
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+{\LARGE Part 1: Describe the Data (10 p)}
+\end{center}
+
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt]
+
+\item (4 p) Fill Table \ref{tab:descriptive-stats}'s columns 5 and 6 using, respectively, the data in \texttt{nswpsid.csv} and in \texttt{nswcps.csv}. \textcolor{Gray}{\textbf{Notes}: You want to limit attention to observations with \texttt{treat=0}. You filled columns 3 and 4 in PSet 3.}
+
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{cccccc}
+\hline
+\textbf{Variable} & \textbf{Definition} & \multicolumn{2}{c}{\textbf{NSW}}    & \textbf{PSID-1}  & \textbf{CPS-1}   \\ \cline{3-6} 
+\textbf{}         & \textbf{}           & \textbf{Treated} & \textbf{Control} & \textbf{Control} & \textbf{Control} \\ 
+\hline
+[1] & [2] & [3] & [4] & [5] & [6] \\ \hline
+\texttt{age}      & Age in years                     & 25.82 & 25.05 &       &        \\
+\texttt{edu}      & Education in years               & 10.35 & 10.09 &       &        \\
+\texttt{nodegree} & 1 if education $<12$             & 0.71  & 0.83  &       &        \\
+\texttt{black}    & 1 if Black                       & 0.84  & 0.83  &       &        \\
+\texttt{hisp}     & 1 if Hispanic                    & 0.06  & 0.11  &       &        \\
+\texttt{married}  & 1 if married                     & 0.19  & 0.15  &       &        \\
+\texttt{u74}      & 1 if unemployed in '74           & 0.71  & 0.75  &       &        \\
+\texttt{u75}      & 1 if unemployed in '75           & 0.60  & 0.68  &       &        \\
+\texttt{re74}     & Real earnings in '74 (in '82 \$) & 2,096 & 2,107 &       &        \\
+\texttt{re75}     & Real earnings in '75 (in '82 \$) & 1,532 & 1,267 &       &        \\
+\hline
+\texttt{re78}     & Real earnings in '78 (in '82 \$) & 6,349 & 4,555 &       &        \\
+\texttt{treat}    & 1 if received offer of training  & 1     & 0     &       &        \\ \hline
+Sample Size                        &                                  & 185   & 260   & 2,490 & 15,992 \\ \hline
+\end{tabular}
+\caption{Sample averages for the NSW data (treated and control groups), PSID-1 data, and CPI-1 data.}
+\label{tab:descriptive-stats}
+\end{table}
+
+\item (4 p) Briefly comment on the completed Table \ref{tab:descriptive-stats}.  \textcolor{gray}{\textbf{Hint}: Are the PSID-1 and CPS-1 samples ``good'' control groups?}
+
+\item (2 p) Why do you think that Dehajia and Wahba constructed their ``observational datasets'' by pulling together the treated sample from NSW and a sample of individuals drawn from either the PSID or the CPS data? \textcolor{gray}{\textbf{Hint:} Both PSID and CPS include information on whether an individual enrolled in a training course during the previous 12 months. Thus, Dehajia and Wahba could have exploited exclusively observational variation in whether an individual enrolled in a training program. Why do you think that they chose not to follow this approach?}
+\end{enumerate}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{center}
+{\LARGE Part 2: Regression-based Estimation of TEs (90 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: You use the \texttt{nswpsid.csv} dataset to estimate the treatment effect (TE) of the offer of training via \textcolor{ForestGreen}{regression-based approaches} associated with the following three specifications of the outcome equation:
+\begin{eqnarray}
+re78_{i} &=&\alpha +\rho D_{i}+u_{i}\text{, }i=1,...,2675\text{,}
+\label{TCcomp} \\
+re78_{i} &=&\alpha +\rho D_{i}+\mathbf{x}_{i}^{\prime }\mathbf{\beta }+u_{i}\text{, }i=1,...,2675\text{,}  \label{CFnc} \\
+re78_{i} &=&\rho D_{i}+g(\mathbf{x}_{i})+u_{i}\text{, }i=1,...,2675\text{,}  \label{PLR} 
+\end{eqnarray}
+\noindent Subscript $i$ denotes an individual.  Also: 1) $re78_{i}$ represents the data field \texttt{re78}; 2) $D_{i}$ represents the data field \texttt{treat}; 3) $\mathbf{x}_{i}$ represents a $K\times 1$ vector of observed pre-determined variables (OPVs); and, 4) $g(\cdot)$ is an unknown and possibly non-linear function (i.e., a generalization of $\alpha + \beta' \mathbf{x}_{i}$). Table \ref{tab:reg-specs}'s column [1] references the regression specification. Column [2] gives the name of the approach. Column [3] indicates the regression coefficient of interest. You complete columns [4] and [5] with the estimate of the regression coefficient and its standard error (SE).}
+
+%\definecolor{maroon(html/css)}{rgb}{0.5, 0.0, 0.0}{}
+\colorlet{lightmaroon}{Maroon!10}
+\begin{table}[ht!]
+\centering
+\colorbox{lightmaroon}{
+{\color{Maroon}
+\begin{tabular}{ccccc}
+\hline
+\textbf{Reference} & \multicolumn{1}{c}{\textbf{Name of the }} & \textbf{Parameter} & \multicolumn{1}{c}{\textbf{Estimate}} & \textbf{SE} \\
+\textbf{Model} & \multicolumn{1}{c}{\textbf{Estimation Approach}}            & \textbf{of Interest} &  &  \\ \hline
+[1] & [2] & [3] & [4] & [5]  \\ \hline
+expression (\ref{TCcomp})                 & Treatment-Control Comparison (TCC)                    & $\rho$             &   &   \\
+expression (\ref{CFnc})                 & Regression-Adjusted Treatment-Control Comparison (Adj. TCC) & $\rho$             &  &  \\
+expression (\ref{PLR})                 & Double Machine Learning (DML) & $\rho$             &  &  \\
+\hline
+\end{tabular}}}
+\caption{\textcolor{Maroon}{Treatment Effect Estimates Based on Three Regression-Based Approaches Applied to Observational Data.}}
+\label{tab:reg-specs}
+\end{table}
+
+
+
+\noindent \textcolor{Maroon}{\textbf{Background: Heteroschedasticity-Robust Standard Errors}. In econometrics, the conditional variance is called the \textcolor{ForestGreen}{skedastic function}. \textcolor{ForestGreen}{Homoschedasticity} obtains when the unobservable in a regression specification has the same conditional variance for all values of the explanatory variable(s). For example, in specification (\ref{TCcomp}) there is only one explanatory variable $D_i$, and it takes only two values, therefore homoshedasticity obtains if $Var[u_i|D_i=1]=Var[u_i|D_i=0]$. If this assumption fails, we say that the model exhibits \textcolor{ForestGreen}{heteroschedasticity}. As a rule, we are better off reporting \textcolor{ForestGreen}{heteroschedasticity-robust} SEs, i.e.,  SEs computed in a way that allows for heteroschedasticity, because they are valid whether or not homoschedasticity holds.}\\
+
+\noindent \textcolor{Maroon}{\textbf{Background: \textcolor{ForestGreen}{``Partialling-Out'' Interpretation} of OLS in a MLRM}. Simple linear-in-parameter regression models (SLRM) are of the form 
+\begin{equation}\label{eq:slrm}
+y_i=\alpha+\beta x_i + u_i 
+\end{equation}
+where $x_i$ is a single regression covariate. MLRMs are of the form:
+\begin{equation}\label{eq:mlrm}
+y_i=\alpha+\beta_1 x_{1,i} + \dots + \beta_K x_{K,i} +u_i \text{ with } K>1.
+\end{equation}
+\noindent In PSet1 you derived the form of the OLS estimator of the slope coefficient in SLRM (\ref{eq:slrm}), namely 
+\begin{equation}\label{eq:slrm_slope_a}
+\hat{\beta}=\frac{\sum_{i=1}^{n}(x_i-\bar{x})y_i}{\sum_{i=1}^{n}(x_i-\bar{x})^2} \underbrace{=}_{\text{also equivalent to}} \frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}{\sum_{i=1}^{n}(x_i-\bar{x})^2}.
+\end{equation}
+Note that if you regress $x_i$ on a constant, the \textcolor{ForestGreen}{fitted value} is $\hat{x}_i=\bar{x}$, thus the \textcolor{ForestGreen}{regression residuals} are $\hat{r}_i \equiv x_i-\hat{x}_i=x_i-\bar{x}$. Similarly, if you regress $y_i$ on a constant, the fitted value is $\hat{y}_i=\bar{y}$, thus the regression residuals are $\hat{v}_i \equiv y_i-\hat{y}_i=y_i-\bar{y}$. Accordingly, we can rewrite $\hat{\beta}$ in expression (\ref{eq:slrm_slope_a}) as:
+\begin{equation}\label{eq:slrm_slope_b}
+\hat{\beta}=\frac{\sum_{i=1}^{n}\hat{r}_i y_i}{\sum_{i=1}^{n}\hat{r}_i^2} \underbrace{=}_{\text{also equivalent to}} \frac{\sum_{i=1}^{n}\hat{r}_i \hat{v}_i}{\sum_{i=1}^{n}\hat{r}_i^2}.
+\end{equation}
+Similar steps yield a very compact representation of the OLS estimator of the slope coefficient\textbf{s} in a MLRM. For example, the OLS estimator of $\beta_1$ in MLRM (\ref{eq:mlrm}) can be written as: 
+\begin{equation}\label{eq:mlrm_slope_b}
+\hat{\beta}_1=\frac{\sum_{i=1}^{n}\hat{r}_{1,i}y_i}{\sum_{i=1}^{n}\hat{r}_{1,i}^2} \underbrace{=}_{\text{also equivalent to}} \frac{\sum_{i=1}^{n}\hat{r}_{1,i}\hat{v}_{1,i}}{\sum_{i=1}^{n}\hat{r}_{1,i}^2},
+\end{equation}
+where $\hat{r}_{1,i}$ denotes the residuals from regressing $x_{1,i}$ on a constant and all remaining regression covariates, i.e., $\{x_{2,i},\ldots,x_{K,i} \}$ and $\hat{v}_{1,i}$ denotes the residuals from regressing $y_{i}$ on a constant and all remaining regression covariates, i.e., $\{x_{2,i},\ldots,x_{K,i} \}$. Similar expressions hold for $\hat{\beta}_2$, $\hat{\beta}_3$, etc.}
+
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{-10pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+
+
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt, resume]
+%%%%%%%%%%%%%%%%%%%%%%
+% Treatment Control Comparison Approach
+%%%%%%%%%%%%%%%%%%%%%%
+\item (30 p) These questions pertain to the specification in expression (\ref{TCcomp}) thus you obtain the \textcolor{ForestGreen}{Treatment-Control Comparison (TCC) Estimator} of the treatment effect of the offer of training.\label{item:TCcomp} 
+\begin{enumerate}
+
+%%%%%%%%%
+\item (8 p) Estimate $\rho$. \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{stats::lm( )}. Say that your linear model is \texttt{m1 $<$- lm(re78 $\sim$ treat, data = df)}. View the SEs of estimator $\hat{\rho}$ by using \texttt{summary(m1)\$coefficients["treat", c("Estimate", "Std. Error"]}. View all SEs by using \texttt{lmtest::coeftest(m1, vcov. = vcov(m1))} which runs t-tests for each of the coefficients using the variance-covariance matrix estimated assuming \textcolor{ForestGreen}{homoschedasticity}. Package \href{https://cran.r-project.org/web/packages/lmtest/lmtest.pdf}{\texttt{lmtest}} allows you to perform z and t tests on estimated coefficients from, among others, method \texttt{lm( )}. It returns a coefficient matrix with columns containing the estimates, associated SEs, test statistics, and p-values.}\label{item:TCcomp-rho} 
+
+%%%%%%%%%
+\item (10 p) Compute \textcolor{ForestGreen}{heteroschedasticity-robust} SEs. \textcolor{gray}{\textbf{Programming Guidance:} There are multiple R packages to estimate the variance-covariance matrix of $(\hat{\alpha},\hat{\rho})$ under general heteroschedasticity. Here are two ways. Option 1: Use \href{https://www.rdocumentation.org/packages/sandwich/versions/2.5-1/topics/vcovHC}{\texttt{sandwich::vcovHC(m1, type = ``HC0")}} from package \href{https://cran.r-project.org/web/packages/sandwich/sandwich.pdf}{\texttt{sandwich}}. Option 2: Use \href{https://www.rdocumentation.org/packages/car/versions/3.0-6/topics/hccm}{\texttt{car::hccm(m1, type = ``hc0")}} from package \href{https://cran.r-project.org/web/packages/car/car.pdf}{\texttt{car}}. In both cases, the argument \texttt{type = "hc0"} (or \texttt{"HC0"}) tells R that you want to use the variance covariance matrix estimated using White's (1980) estimator, often referred to as HCE (heteroscedasticity-consistent estimator).\footnote{To dive deeper, read \href{https://en.wikipedia.org/wiki/Heteroscedasticity-consistent_standard_errors}{wikipedia page} or \href{https://mixtape.scunning.com/02-probability\_and\_regression\#robust-standard-errors}{Mixtape Section 2.26}.} Display robust SEs by typing, e.g., \texttt{lmtest::coeftest(m1, vcov. = sandwich::vcovHC(m1, type = "HC0"))}.}\label{item:TCcomp-ses}
+
+%%%%%%%%%
+\item (2 p) Verify that $\hat{\rho}$ in \textbf{\ref{item:TCcomp-rho}} equals $(\overline{re78}^{D=1}-\overline{re78}^{D=0})$, i.e., the difference between the average post-training earnings of the treated and of the control individuals. This fact explains the name of the estimator, and is consistent with what you derived in previous Psets.\label{item:TCcomp-diff}
+
+%%%%%%%%%
+\item (10 p) Intuitively explain why the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest. \textcolor{gray}{\textbf{Hint}: Use the result in  \textbf{\ref{item:TCcomp-diff}} to think about what this approach uses to proxy for the missing data, i.e., for the control units' mean of the potential outcome w/ treatment, and for the treated units' mean of the potential outcome w/out treatment.}
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%% 
+%Control Fnc Approach
+%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\item (20 p) These questions pertain to the specification in expression (\ref{CFnc}) thus you obtain the \textcolor{ForestGreen}{Regression-Adjusted Treatment-Control Comparison (Adj. TCC) Estimator} of the treatment effect of the offer of training. \label{item:CFnc}
+
+%%%%%%%%%%
+\begin{enumerate}
+
+\item (10 p) Add to the model estimated in \textbf{\ref{item:TCcomp}} the following OPVs as regression covariates: \texttt{age}, \texttt{agesq}, \texttt{edu}, \texttt{nodegree}, \texttt{black}, \texttt{hisp}, \texttt{re74}, and \texttt{re75}. Report $\hat{\rho}$ and its heteroschedasticity-robust SE. \textcolor{gray}{\textbf{Programming Guidance:} Add column \texttt{agesq} (\texttt{age} squared) to your dataframe using, e.g., \texttt{dplyr::mutate( )}.}\label{item:CFnc-rho}
+
+\item (10 p) Intuitively explain why the Adj. TCC approach may be regarded as an improvement over the TCC approach when it comes to credible identification/estimation of average treatment effects.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Partialling out
+%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%%%%%%%%%
+\item (20 p) Consider again the specification in expression (\ref{CFnc}) estimated in \textbf{\textbf{\ref{item:CFnc}}}. Here you implement two procedures, as detailed below, to verify the \textcolor{ForestGreen}{``partialling-out'' interpretation} of OLS coefficients in MLRM.\label{item:CFnc-po}
+
+\begin{enumerate}
+
+%%%%%%%%%%
+\item (8 p) Procedure A:\label{item:CFnc-po-procA} 
+
+\begin{enumerate}
+
+\item (4 p) First Stage: Regress \texttt{treat} on a constant and the OPVs listed in \textbf{\ref{item:CFnc-rho}}; obtain the residuals. \textcolor{gray}{\textbf{Programming Guidance:} If you run \texttt{s1 $<$- lm(treat $\sim$ x1 + x2, data = dt)}, retrieve the residuals as \texttt{s1\$residuals}.}\label{item:CFnc-po-1ststep}  
+
+%%%%%%%%%%
+\item (4 p) Second Stage: Regress \texttt{re78} on a constant and the residuals from \textbf{\ref{item:CFnc-po-1ststep}}.\label{item:CFnc-po-2ndstep}
+
+\end{enumerate}
+
+%%%%%%%%%%
+\item (8 p) Procedure B:\label{item:CFnc-po-procB}  
+
+\begin{enumerate}
+%%%%%%%%%%
+\item (0 p) First Stage: Same as \textbf{\ref{item:CFnc-po-1ststep}}.\label{item:CFnc-po-1ststep-bis}
+
+\item (4 p) First Stage: Regress \texttt{re78} on a constant and the OPVs listed in \textbf{\textbf{\ref{item:CFnc-rho}}}; obtain the residuals.\label{item:CFnc-po-3rdstep}
+
+%%%%%%%%%%
+\item (4 p) Second Stage: Regress the residuals from \textbf{\ref{item:CFnc-po-3rdstep}} on the residuals from \textbf{\ref{item:CFnc-po-1ststep-bis}}.\label{item:CFnc-po-4thstep}
+
+\end{enumerate}
+
+\item (4 p) Verify that the estimates of the slope coefficient from \textbf{\ref{item:CFnc-po-2ndstep}} and \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to $\hat{\rho}$ obtained in \textbf{\ref{item:CFnc-rho}}. Use this fact to give meaning to the expression ``partialling-out'' interpretation of OLS in a MLRM. \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
+
+\end{enumerate}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% DoubleML
+%%%%%%%%%%%%%%%%%%%%%%%% 
+\item (20 p) Consider the \textcolor{ForestGreen}{partially-linear specification} in expression (\ref{PLR}). Here you estimate $\rho$ via the the \textcolor{ForestGreen}{Double Machine Learning (DML)} estimation procedure of Robinson (1988)\footnote{Robinson, P. M. (1988). Root-N-consistent semi-parametric regression. Econometrica 56, 931-54. \href{https://doi.org/10.2307/1912705}{doi:10.2307/1912705}}, as detailed below.\label{item:DML}
+\begin{enumerate}
+\item (2 p) Install four R packages: \href{https://docs.doubleml.org/stable/intro/install.html#r-installing-doubleml}{\texttt{DoubleML}}, \href{https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html}{\texttt{data.table}}, \href{https://mlr3.mlr-org.com/}{\texttt{mlr3}}, and \href{https://mlr3learners.mlr-org.com/}{\texttt{mlr3learners}}.
+\item (2 p) If your data is not already a \texttt{data.table} object convert it. \textcolor{gray}{\textbf{Programming Guidance:} Assuming that your dataframe is called \texttt{df}, use \texttt{dt <- data.table::as.data.table(df)}. \texttt{data.table} is an extension of \texttt{data.frame} and allows for fast manipulation of very large data.}
+\item (2 p) Collect all the original OPVs in a list named, for example, \texttt{pretreat\_colnames}. Note: Henceforth when we refer to these OPVs in mathematical expressions we use the notation $\mathbf{x}_{i}$.
+\item (2 p) Specify data and variables for the causal model by running the script:\label{item:dml-data}
+\begin{lstlisting}[language=R]
+dml_data_psid <- DoubleML::DoubleMLData$new(dt,
+                            y_col = "re78",
+                            d_cols = "treat",
+                            x_cols = pretreat_colnames)
+\end{lstlisting}
+Look at the resulting object.
+%%%%%%%%%%
+\item (2 p) Suppress messages from the \texttt{mlr3} package by adding \texttt{lgr::get\_logger("mlr3")\$set\_threshold("warn")} to your script.
+%%%%%%%%%%
+\item (2 p) Here you mimic the first stage of Procedure B in \textbf{\ref{item:CFnc-po-procB}}. Namely, you specify the model for the two regression functions $l(\mathbf{x})=E[\texttt{re78}_i|\mathbf{x}_{i}=\mathbf{x}]$ and $m(\mathbf{x})=E[\texttt{treat}_i|\mathbf{x}_{i}=\mathbf{x}]$. In \textbf{\ref{item:CFnc-po-procB}} you used a linear-in-parameter model and a priori decided which OPVs to include and which transformations to apply to the OPVs to include (e.g., you excluded \texttt{u74}, you used both \texttt{age} and \texttt{agesq}, you left as-is the other included OPVs). Instead here you do not a priori exclude any OPVs, and you use flexible models, which accommodate complex non-linearities. Run the script:\label{item:dml-first-stage-models}
+\begin{lstlisting}[language=R]
+# Specify a RF model as the learner model for l(x)=E[re78|X=x]
+ml_l_rf <- mlr3::lrn("regr.ranger")
+
+# Specify a RF model as the learner model for m(x)=E[treat|X=x]
+ml_m_rf <- mlr3::lrn("classif.ranger")
+\end{lstlisting}
+The above script uses a \textcolor{ForestGreen}{Random Forest (RF) model} for both conditional expectations functions.\footnote{You do not need to know what a RFM is. Think of this approach as a way to flexibly estimate the form of a function of many variables. If you want to learn more about these approaches consider taking ECMA 31350 in Winter 2024.}
+%%%%%%%%%%%%
+\item (2 p) Here you initialize \& parametrize the model object which you later use to perform estimation. Run the script:
+\begin{lstlisting}[language=R]
+# Set seeds for cross-fitting
+set.seed(3141)
+
+# Set the DML specification
+obj_dml_plr <- DoubleML::DoubleMLPLR$new(dml_data_psid, 
+                                         ml_l = ml_l_rf, ml_m = ml_m_rf, 
+                                         n_folds = 2,
+                                         score = "partialling out",
+                                         apply_cross_fitting = TRUE)
+\end{lstlisting}
+The above script: (i) utilizes the data object generated in \textbf{\ref{item:dml-data}}, namely \texttt{dml\_data\_psid}; (ii) utilizes the models for the first stage regressions picked in \textbf{\ref{item:dml-first-stage-models}}, namely \texttt{ml\_l\_rf} and \texttt{ml\_m\_rf}; (iii) specifies that we want to split the sample into 2 parts (\texttt{n\_folds = 2}), and (iv) that we want to use the ``partialling out'' approach to estimate causal impacts (\texttt{score = "partialling out"}), and (v) that we want to apply \textcolor{ForestGreen}{cross-fitting} (\texttt{apply\_cross\_fitting = TRUE}).\label{item:dml-model}
+%%%%%%%%%%%%%
+\item (2 p) Here you fit the DML model defined in \textbf{\ref{item:dml-model}}. Run the script:
+\begin{lstlisting}[language=R]
+obj_dml_plr$fit()
+obj_dml_plr
+\end{lstlisting}
+At a high level the above script implements all of the following operations: (i) fits the two models for the first stage selected in \textbf{\ref{item:dml-first-stage-models}}, (ii) gets residuals, (iii) regresses the residuals for the outcome variables onto the residuals for the treatment indicator to obtain the DML estimate of $\rho$ in expression (\ref{PLR}). Note: You specified \texttt{n\_folds = 2} and requested \texttt{apply\_cross\_fitting = TRUE} in \textbf{\ref{item:dml-model}} thus the 2-stage estimation procedure proceed as follows. First the entire data is split into two sub-samples, call them A and B (hence the term ``2 folds''). Sample A is used to fit the 1st stage models. These fitted models are used to compute residuals in sample B and these residuals are used to fit the 2nd stage model using only data in sample B. Denote the resulting estimate $\hat{\rho}_{AB}$. Then the samples are swapped (hence the term ``cross fitting'').\footnote{Cross-fitting is implemented to eliminate the bias from \textcolor{ForestGreen}{overfitting} resulting from the fact that the two conditional mean functions $l(\cdot)$ and $m(\cdot)$ are estimated via ML models, in our case the RF models specified in \textbf{\ref{item:dml-first-stage-models}}.} That is, sample B is used to fit the 1st stage models. Sample A is used to fit the 2nd stage model. Denote the resulting estimate $\hat{\rho}_{BA}$. The DML estimate is the average of $\hat{\rho}_{AB}$ and $\hat{\rho}_{BA}$. 
+
+%%%%%%%%%%%%
+\item (4 p) Take a look at the output, i.e., at the object \texttt{obj\_dml\_plr}. How does the DML estimate of average treatment effect compare to the estimates based on specifications (\ref{TCcomp}) and (\ref{CFnc})?
+\end{enumerate}
+
+ 
+
+
+\end{enumerate}
+
+
+
+\end{document}

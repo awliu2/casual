@@ -27,8 +27,8 @@ library(systemfit)
 1. Fill Table \ref{tab:descriptive-stats}'s columns 5 and 6 using, respectively, the data in \texttt{nswpsid.csv} and in \texttt{nswcps.csv}. \textcolor{Gray}{\textbf{Notes}: You want to limit attention to observations with \texttt{treat=0}. You filled columns 3 and 4 in PSet 3.}
     ```{r, message=FALSE, results=FALSE}
     # Load data
-    nswpsid <- read_csv("nswpsid.csv")
-    nswcps <- read_csv("nswcps.csv")
+    nswpsid <- read_csv("starter-files/nswpsid.csv")
+    nswcps <- read_csv("starter-files/nswcps.csv")
     nswpsid_treat0 <- nswpsid %>% filter(treat == 0)
     nswcps_treat0 <- nswcps %>% filter(treat == 0)
     ```
@@ -36,8 +36,8 @@ library(systemfit)
     summary_cps <- nswcps_treat0 %>% dplyr::summarise_all(list(mean))
     summary_psid <- nswpsid_treat0 %>% dplyr::summarise_all(list(mean))
     ```
-    <!-- Table imported from `table_descriptive_stats.tex` -->
-    \input{table_descriptive_stats.tex}
+    <!-- Table imported from `figures/table_descriptive_stats.tex` -->
+    \input{figures/table_descriptive_stats.tex}
     
 
 2. Briefly comment on the completed Table \ref{tab:descriptive-stats}.  \textcolor{gray}{\textbf{Hint}: Are the PSID-1 and CPS-1 samples ``good'' control groups?}

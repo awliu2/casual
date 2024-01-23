@@ -134,8 +134,8 @@
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# Load data}
-\NormalTok{nswpsid }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"nswpsid.csv"}\NormalTok{)}
-\NormalTok{nswcps }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"nswcps.csv"}\NormalTok{)}
+\NormalTok{nswpsid }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"starter{-}files/nswpsid.csv"}\NormalTok{)}
+\NormalTok{nswcps }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"starter{-}files/nswcps.csv"}\NormalTok{)}
 \NormalTok{nswpsid\_treat0 }\OtherTok{\textless{}{-}}\NormalTok{ nswpsid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
 \NormalTok{nswcps\_treat0 }\OtherTok{\textless{}{-}}\NormalTok{ nswcps }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
 \end{Highlighting}
@@ -148,7 +148,7 @@
 \end{Highlighting}
 \end{Shaded}
 
-  \input{table_descriptive_stats.tex}
+  \input{figures/table_descriptive_stats.tex}
 \item
   Briefly comment on the completed Table \ref{tab:descriptive-stats}.
   \textcolor{gray}{\textbf{Hint}: Are the PSID-1 and CPS-1 samples ``good'' control groups?}

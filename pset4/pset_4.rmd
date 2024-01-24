@@ -89,12 +89,51 @@ library(knitr)
     
 a. See table below for estimate of $\rho$
 
+# Combine into a data frame
+result_df <- data.frame(Estimate = test_stats[,"Estimate"],
+                        Std_Error = test_stats[,"Std. Error"],
+                        t_value = test_stats[2, "t value"],
+                        Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                    format = "e",
+                                    digits = 3))
+
+# Create a table using kable
+knitr::kable(result_df)
+```
+b. See table below for the heteroschedasticity-robust SEs.
+```{r}
+# Calculate robust standard errors
+robust_se <- lmtest::coeftest(m1, vcov. = sandwich::vcovHC(m1, type = "HC0"))
+
+# Create a data frame for the table
+result_df2 <- data.frame(Estimate = robust_se[,"Estimate"],
+                        Robust_Std_Error = robust_se[,"Std. Error"],
+                        t_value = robust_se[,"t value"],
+                        Pr = formatC(robust_se[2, "Pr(>|t|)"],
+                                    format = "e",
+                                    digits = 3))
+
+# Generate the table using kable
+kable(result_df2)
+```
+c. See verification below.
+
+```{r}
+
+nswpsid_treat1 = nswpsid %>% filter(treat == 1)
+
+estimate = mean(nswpsid_treat1$re78) - mean(nswpsid_treat0$re78)
+
+```
+
+The result in Q4a is -15204.78 which is equal to the difference between the average post-training earnings of the treated and of the control individuals, which is also equal to -15204.78.
+
+d. The TCC approach uses the control group as a proxy for the missing potential outcome of the treatment group if they had not been treated, and vice versa. However, if the control group is not comparable with the treated group (i.e. the samples are drawn from different distributions), the proxy is invalid. For instance, from the summary statistics provided, we can see that there are differences in characteristics such as age, education, and race between the treated and control groups. These differences suggest that the groups may not be comparable and thus the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest.
 
 \pagebreak
 
 5. (20 p) These questions pertain to the specification in expression (\ref{CFnc}) thus you obtain the \textcolor{ForestGreen}{Regression-Adjusted Treatment-Control Comparison (Adj. TCC) Estimator} of the treatment effect of the offer of training. \label{item:CFnc}
     a. (10 p) Add to the model estimated in \textbf{\ref{item:TCcomp}} the following OPVs as regression covariates: \texttt{age}, \texttt{agesq}, \texttt{edu}, \texttt{nodegree}, \texttt{black}, \texttt{hisp}, \texttt{re74}, and \texttt{re75}. Report $\hat{\rho}$ and its heteroschedasticity-robust SE. \textcolor{gray}{\textbf{Programming Guidance:} Add column \texttt{agesq} (\texttt{age} squared) to your dataframe using, e.g., \texttt{dplyr::mutate( )}.}\label{item:CFnc-rho}
-<<<<<<< HEAD
         ```{r}
             # add age squared to the dataframe
             nswpsid <- nswpsid %>% mutate(agesq = age^2)
@@ -111,10 +150,6 @@ a. See table below for estimate of $\rho$
                                                 digits = 3))
             knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
         ```
-=======
-    
-
->>>>>>> main
     b. (10 p) Intuitively explain why the Adj. TCC approach may be regarded as an improvement over the TCC approach when it comes to credible identification/estimation of average treatment effects.
 
 

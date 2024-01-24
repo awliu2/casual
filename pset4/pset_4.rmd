@@ -19,7 +19,6 @@ library(tidyverse)
 library(utils)
 library(systemfit)
 library(knitr)
-library(stargazer)
 ```
 
 \begin{center}

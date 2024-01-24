@@ -57,40 +57,60 @@ library(knitr)
 
 
 4. (30 p) These questions pertain to the specification in expression (\ref{TCcomp}) thus you obtain the \textcolor{ForestGreen}{Treatment-Control Comparison (TCC) Estimator} of the treatment effect of the offer of training.\label{item:TCcomp} 
-    a. (8 p) Estimate $\rho$.
+    a. (8 p) Estimate $\rho$.  
+        ```{r}
+        # Run the regression
+        m1 <- lm(re78 ~ treat, data = nswpsid)
+
+        # Extract coefficients
+        coefficients <- summary(m1)$coefficients["treat", c("Estimate", "Std. Error")]
+
+        # Get additional test statistics
+        test_stats <- lmtest::coeftest(m1, vcov. = vcov(m1))
+
+        # Combine into a data frame
+        result_df <- data.frame(Estimate = coefficients["Estimate"],
+                                Std_Error = coefficients["Std. Error"],
+                                t_value = test_stats[2, "t value"],
+                                Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                            format = "e",
+                                            digits = 3))
+
+        # Create a table using kable
+        knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
+        ```
     b. (10 p) Compute \textcolor{ForestGreen}{heteroschedasticity-robust} SEs.
+        ```{r}
+        hetero_robust_se <- car::hccm(m1, type = "hc0")
+        lmtest::coeftest(m1, vcov. = hetero_robust_se)
+        ```
     c. (2 p) Verify that $\hat{\rho}$ in \textbf{\ref{item:TCcomp-rho}} equals $(\overline{re78}^{D=1}-\overline{re78}^{D=0})$, i.e., the difference between the average post-training earnings of the treated and of the control individuals. This fact explains the name of the estimator, and is consistent with what you derived in previous Psets.\label{item:TCcomp-diff}
     d. (10 p) Intuitively explain why the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest. \textcolor{gray}{\textbf{Hint}: Use the result in  \textbf{\ref{item:TCcomp-diff}} to think about what this approach uses to proxy for the missing data, i.e., for the control units' mean of the potential outcome w/ treatment, and for the treated units' mean of the potential outcome w/out treatment.}\label{item:TCcomp-rho} 
     
 a. See table below for estimate of $\rho$
-    
-```{r}
 
-# Run the regression
-m1 <- lm(re78 ~ treat, data = nswpsid)
-
-# Extract coefficients
-coefficients <- summary(m1)$coefficients["treat", c("Estimate", "Std. Error")]
-
-# Get additional test statistics
-test_stats <- lmtest::coeftest(m1, vcov. = vcov(m1))
-
-# Combine into a data frame
-result_df <- data.frame(Estimate = coefficients["Estimate"],
-                        Std_Error = coefficients["Std. Error"],
-                        t_value = test_stats[2, "t value"],
-                        Pr = test_stats[2, "Pr(>|t|)"])
-
-# Create a table using kable
-knitr::kable(result_df)
-```
 
 
 \pagebreak
 
 5. (20 p) These questions pertain to the specification in expression (\ref{CFnc}) thus you obtain the \textcolor{ForestGreen}{Regression-Adjusted Treatment-Control Comparison (Adj. TCC) Estimator} of the treatment effect of the offer of training. \label{item:CFnc}
     a. (10 p) Add to the model estimated in \textbf{\ref{item:TCcomp}} the following OPVs as regression covariates: \texttt{age}, \texttt{agesq}, \texttt{edu}, \texttt{nodegree}, \texttt{black}, \texttt{hisp}, \texttt{re74}, and \texttt{re75}. Report $\hat{\rho}$ and its heteroschedasticity-robust SE. \textcolor{gray}{\textbf{Programming Guidance:} Add column \texttt{agesq} (\texttt{age} squared) to your dataframe using, e.g., \texttt{dplyr::mutate( )}.}\label{item:CFnc-rho}
-
+        ```{r}
+            # add age squared to the dataframe
+            nswpsid <- nswpsid %>% mutate(agesq = age^2)
+            m2 <- lm(re78 ~ treat + age + agesq + edu + 
+                     nodegree + black + hisp + re74 + re75, 
+                     data = nswpsid)
+            coeff <- summary(m2)$coefficients["treat", c("Estimate", "Std. Error")]
+            test_stats <- lmtest::coeftest(m2, vcov. = vcov(m2))
+            result_df <- data.frame(Estimate = coeff["Estimate"],
+                                    Std_Error = coeff["Std. Error"],
+                                    t_value = test_stats[2, "t value"],
+                                    Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                                format = "e",
+                                                digits = 3))
+            knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
+        ```
     b. (10 p) Intuitively explain why the Adj. TCC approach may be regarded as an improvement over the TCC approach when it comes to credible identification/estimation of average treatment effects.
 
 \pagebreak
@@ -98,18 +118,63 @@ knitr::kable(result_df)
 6. (20 p) Consider again the specification in expression (\ref{CFnc}) estimated in \textbf{\textbf{\ref{item:CFnc}}}. Here you implement two procedures, as detailed below, to verify the \textcolor{ForestGreen}{``partialling-out'' interpretation} of OLS coefficients in MLRM.\label{item:CFnc-po}
     a. (8 p) Procedure A:
         i. (4 p) First Stage: Regress \texttt{treat} on a constant and the OPVs listed in \textbf{\ref{item:CFnc-rho}}; obtain the residuals. \textcolor{gray}{\textbf{Programming Guidance:} If you run \texttt{s1 $<$- lm(treat $\sim$ x1 + x2, data = dt)}, retrieve the residuals as \texttt{s1\$residuals}.}\label{item:CFnc-po-1ststep}  
+            ```{r}
+            nswpsid_const <- nswpsid %>% mutate(constant = 1)
+            # regress treat on a constant and the OPVs listed in 5a
+            m2 <- lm(treat ~ constant + age + agesq +
+                             edu + nodegree + black + 
+                             hisp + re74 + re75, 
+                     data = nswpsid_const)
+            # get residuals
+            resid_m2 <- m2$residuals
+            ```
         
         ii. (4 p) Second Stage: Regress \texttt{re78} on a constant and the residuals from \textbf{\ref{item:CFnc-po-1ststep}}.\label{item:CFnc-po-2ndstep}
+            ```{r}
+            # regress re78 on a constant and the residuals from 6a
+            m3 <- lm(re78 ~ resid_m2, data = nswpsid)
+            # get coefficients
+            coeff <- summary(m3)$coefficients["resid_m2", c("Estimate", "Std. Error")]
+            test_stats <- lmtest::coeftest(m3, vcov. = vcov(m3))
+            result_df <- data.frame(Estimate = coeff["Estimate"],
+                                    Std_Error = coeff["Std. Error"],
+                                    t_value = test_stats[2, "t value"],
+                                    Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                                format = "e",
+                                                digits = 3))
+            knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
+            ```
     
     b. (8 p) Procedure B:\label{item:CFnc-po-procB}  
         i. First Stage: Same as \textbf{\ref{item:CFnc-po-1ststep}}.\label{item:CFnc-po-1ststep-bis}
         
         ii. (4 p) First Stage: Regress \texttt{re78} on a constant and the OPVs listed in \textbf{\textbf{\ref{item:CFnc-rho}}}; obtain the residuals.\label{item:CFnc-po-3rdstep}
-
+            ```{r}
+            # regress re78 on a constant and the OPVs listed in 5a
+            m3 <- lm(re78 ~ constant + age + agesq +
+                             edu + nodegree + black + 
+                             hisp + re74 + re75, 
+                     data = nswpsid_const)
+            # get residuals
+            resid_m3 <- m3$residuals
+            ```
         iii. (4 p) Second Stage: Regress the residuals from \textbf{\ref{item:CFnc-po-3rdstep}} on the residuals from \textbf{\ref{item:CFnc-po-1ststep-bis}}.\label{item:CFnc-po-4thstep}
-    
-    c. (4 p) Verify that the estimates of the slope coefficient from \textbf{\ref{item:CFnc-po-2ndstep}} and \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to $\hat{\rho}$ obtained in \textbf{\ref{item:CFnc-rho}}. Use this fact to give meaning to the expression ``partialling-out'' interpretation of OLS in a MLRM. \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
-
+                ```{r}
+                # regress residuals from 6b on residuals from 6a
+                m4 <- lm(resid_m3 ~ resid_m2)
+                # get coefficients
+                coeff <- summary(m4)$coefficients["resid_m2", c("Estimate", "Std. Error")]
+                test_stats <- lmtest::coeftest(m4, vcov. = vcov(m4))
+                result_df <- data.frame(Estimate = coeff["Estimate"],
+                                        Std_Error = coeff["Std. Error"],
+                                        t_value = test_stats[2, "t value"],
+                                        Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                                    format = "e",
+                                                    digits = 3))
+                knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
+                ```
+    c. (4 p) Verify that the estimates of the slope coefficient from \textbf{\ref{item:CFnc-po-2ndstep}} and \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to $\hat{\rho}$ obtained in \textbf{\ref{item:CFnc-rho}}. Use this fact to give meaning to the expression "partialling-out" interpretation of OLS in a MLRM. \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
+    **Answer: TODO**
 \pagebreak
 
 7.  (20 p) Consider the \textcolor{ForestGreen}{partially-linear specification} in expression (\ref{PLR}). Here you estimate $\rho$ via the the \textcolor{ForestGreen}{Double Machine Learning (DML)} estimation procedure of Robinson (1988), as detailed below.\label{item:DML}

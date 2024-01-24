@@ -18,6 +18,7 @@ rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
 library(systemfit)
+library(knitr)
 ```
 
 \begin{center}
@@ -60,6 +61,30 @@ library(systemfit)
     b. (10 p) Compute \textcolor{ForestGreen}{heteroschedasticity-robust} SEs.
     c. (2 p) Verify that $\hat{\rho}$ in \textbf{\ref{item:TCcomp-rho}} equals $(\overline{re78}^{D=1}-\overline{re78}^{D=0})$, i.e., the difference between the average post-training earnings of the treated and of the control individuals. This fact explains the name of the estimator, and is consistent with what you derived in previous Psets.\label{item:TCcomp-diff}
     d. (10 p) Intuitively explain why the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest. \textcolor{gray}{\textbf{Hint}: Use the result in  \textbf{\ref{item:TCcomp-diff}} to think about what this approach uses to proxy for the missing data, i.e., for the control units' mean of the potential outcome w/ treatment, and for the treated units' mean of the potential outcome w/out treatment.}\label{item:TCcomp-rho} 
+    
+a. See table below for estimate of $\rho$
+    
+```{r}
+
+# Run the regression
+m1 <- lm(re78 ~ treat, data = nswpsid)
+
+# Extract coefficients
+coefficients <- summary(m1)$coefficients["treat", c("Estimate", "Std. Error")]
+
+# Get additional test statistics
+test_stats <- lmtest::coeftest(m1, vcov. = vcov(m1))
+
+# Combine into a data frame
+result_df <- data.frame(Estimate = coefficients["Estimate"],
+                        Std_Error = coefficients["Std. Error"],
+                        t_value = test_stats[2, "t value"],
+                        Pr = test_stats[2, "Pr(>|t|)"])
+
+# Create a table using kable
+knitr::kable(result_df)
+```
+
 
 \pagebreak
 

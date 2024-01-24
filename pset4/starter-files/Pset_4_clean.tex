@@ -279,7 +279,6 @@ where $\hat{r}_{1,i}$ denotes the residuals from regressing $x_{1,i}$ on a const
 \item (2 p) Specify data and variables for the causal model by running the script:\label{item:dml-data}
 \begin{lstlisting}[language=R]
 dml_data_psid <- DoubleML::DoubleMLData$new(dt,
-                            y_col = "re78",
                             d_cols = "treat",
                             x_cols = pretreat_colnames)
 \end{lstlisting}
@@ -319,7 +318,7 @@ obj_dml_plr
 At a high level the above script implements all of the following operations: (i) fits the two models for the first stage selected in \textbf{\ref{item:dml-first-stage-models}}, (ii) gets residuals, (iii) regresses the residuals for the outcome variables onto the residuals for the treatment indicator to obtain the DML estimate of $\rho$ in expression (\ref{PLR}). Note: You specified \texttt{n\_folds = 2} and requested \texttt{apply\_cross\_fitting = TRUE} in \textbf{\ref{item:dml-model}} thus the 2-stage estimation procedure proceed as follows. First the entire data is split into two sub-samples, call them A and B (hence the term ``2 folds''). Sample A is used to fit the 1st stage models. These fitted models are used to compute residuals in sample B and these residuals are used to fit the 2nd stage model using only data in sample B. Denote the resulting estimate $\hat{\rho}_{AB}$. Then the samples are swapped (hence the term ``cross fitting'').\footnote{Cross-fitting is implemented to eliminate the bias from \textcolor{ForestGreen}{overfitting} resulting from the fact that the two conditional mean functions $l(\cdot)$ and $m(\cdot)$ are estimated via ML models, in our case the RF models specified in \textbf{\ref{item:dml-first-stage-models}}.} That is, sample B is used to fit the 1st stage models. Sample A is used to fit the 2nd stage model. Denote the resulting estimate $\hat{\rho}_{BA}$. The DML estimate is the average of $\hat{\rho}_{AB}$ and $\hat{\rho}_{BA}$. 
 
 %%%%%%%%%%%%
-\item (4 p) Take a look at the output, i.e., at the object \texttt{obj\_dml\_plr}. How does the DML estimate of average treatment effect compare to the estimates based on specifications (\ref{TCcomp}) and (\ref{CFnc})?
+0
 \end{enumerate}
 
  

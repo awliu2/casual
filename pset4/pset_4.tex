@@ -247,25 +247,101 @@
 \NormalTok{test\_stats }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m1, }\AttributeTok{vcov. =} \FunctionTok{vcov}\NormalTok{(m1))}
 
 \CommentTok{\# Combine into a data frame}
-\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ coefficients[}\StringTok{"Estimate"}\NormalTok{],}
-                        \AttributeTok{Std\_Error =}\NormalTok{ coefficients[}\StringTok{"Std. Error"}\NormalTok{],}
+\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ test\_stats[,}\StringTok{"Estimate"}\NormalTok{],}
+                        \AttributeTok{Std\_Error =}\NormalTok{ test\_stats[,}\StringTok{"Std. Error"}\NormalTok{],}
                         \AttributeTok{t\_value =}\NormalTok{ test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
-                        \AttributeTok{Pr =}\NormalTok{ test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{])}
+                        \AttributeTok{Pr =} \FunctionTok{formatC}\NormalTok{(test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{],}
+                                    \AttributeTok{format =} \StringTok{"e"}\NormalTok{,}
+                                    \AttributeTok{digits =} \DecValTok{3}\NormalTok{))}
 
 \CommentTok{\# Create a table using kable}
 \NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(result\_df)}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{longtable}[]{@{}lrrrr@{}}
+\begin{longtable}[]{@{}lrrrl@{}}
 \toprule\noalign{}
 & Estimate & Std\_Error & t\_value & Pr \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Estimate & -15204.78 & 1154.614 & -13.16871 & 0 \\
+(Intercept) & 21553.92 & 303.6414 & -13.16871 & 2.033e-38 \\
+treat & -15204.78 & 1154.6143 & -13.16871 & 2.033e-38 \\
 \end{longtable}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  See table below for the heteroschedasticity-robust SEs.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Calculate robust standard errors}
+\NormalTok{robust\_se }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m1, }\AttributeTok{vcov. =}\NormalTok{ sandwich}\SpecialCharTok{::}\FunctionTok{vcovHC}\NormalTok{(m1, }\AttributeTok{type =} \StringTok{"HC0"}\NormalTok{))}
+
+\CommentTok{\# Create a data frame for the table}
+\NormalTok{result\_df2 }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ robust\_se[,}\StringTok{"Estimate"}\NormalTok{],}
+                        \AttributeTok{Robust\_Std\_Error =}\NormalTok{ robust\_se[,}\StringTok{"Std. Error"}\NormalTok{],}
+                        \AttributeTok{t\_value =}\NormalTok{ robust\_se[,}\StringTok{"t value"}\NormalTok{],}
+                        \AttributeTok{Pr =} \FunctionTok{formatC}\NormalTok{(robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{],}
+                                    \AttributeTok{format =} \StringTok{"e"}\NormalTok{,}
+                                    \AttributeTok{digits =} \DecValTok{3}\NormalTok{))}
+
+\CommentTok{\# Generate the table using kable}
+\FunctionTok{kable}\NormalTok{(result\_df2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}lrrrl@{}}
+\toprule\noalign{}
+& Estimate & Robust\_Std\_Error & t\_value & Pr \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+(Intercept) & 21553.92 & 311.6684 & 69.15658 & 1.506e-108 \\
+treat & -15204.78 & 655.6691 & -23.18971 & 1.506e-108 \\
+\end{longtable}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  See verification below.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nswpsid\_treat1 }\OtherTok{=}\NormalTok{ nswpsid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{estimate }\OtherTok{=} \FunctionTok{mean}\NormalTok{(nswpsid\_treat1}\SpecialCharTok{$}\NormalTok{re78) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(nswpsid\_treat0}\SpecialCharTok{$}\NormalTok{re78)}
+\end{Highlighting}
+\end{Shaded}
+
+The result in Q4a is -15204.78 which is equal to the difference between
+the average post-training earnings of the treated and of the control
+individuals, which is also equal to -15204.78.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  The TCC approach uses the control group as a proxy for the missing
+  potential outcome of the treatment group if they had not been treated,
+  and vice versa. However, if the control group is not comparable with
+  the treated group, the proxy is invalid. For instance, from the
+  summary statistics provided, we can see that there are differences in
+  characteristics such as age, education, and race between the treated
+  and control groups. These differences suggest that the groups may not
+  be comparable and thus the TCC approach may not deliver a credible
+  estimate of the average effect of the treatment of interest.
+\end{enumerate}
 
 \pagebreak
 

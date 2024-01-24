@@ -19,7 +19,6 @@ library(tidyverse)
 library(utils)
 library(systemfit)
 library(knitr)
-library(stargazer)
 ```
 
 \begin{center}
@@ -58,72 +57,81 @@ library(stargazer)
 
 
 4. (30 p) These questions pertain to the specification in expression (\ref{TCcomp}) thus you obtain the \textcolor{ForestGreen}{Treatment-Control Comparison (TCC) Estimator} of the treatment effect of the offer of training.\label{item:TCcomp} 
-    a. (8 p) Estimate $\rho$.
+    a. (8 p) Estimate $\rho$. See table below for estimate of $\rho$
+    ```{r}
+    # Run the regression
+    m1 <- lm(re78 ~ treat, data = nswpsid)
+
+    # Extract coefficients
+    coefficients <- summary(m1)$coefficients["treat", c("Estimate", "Std. Error")]
+
+    # Get additional test statistics
+    test_stats <- lmtest::coeftest(m1, vcov. = vcov(m1))
+
+    # Combine into a data frame
+    result_df <- data.frame(Estimate = test_stats[,"Estimate"],
+                            Std_Error = test_stats[,"Std. Error"],
+                            t_value = test_stats[2, "t value"],
+                            Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                        format = "e",
+                                        digits = 3))
+
+    # Create a table using kable
+    knitr::kable(result_df)
+    ```
     b. (10 p) Compute \textcolor{ForestGreen}{heteroschedasticity-robust} SEs.
+    ```{r}
+    # Calculate robust standard errors
+    robust_se <- lmtest::coeftest(m1, vcov. = sandwich::vcovHC(m1, type = "HC0"))
+
+    # Create a data frame for the table
+    result_df2 <- data.frame(Estimate = robust_se[,"Estimate"],
+                            Robust_Std_Error = robust_se[,"Std. Error"],
+                            t_value = robust_se[,"t value"],
+                            Pr = formatC(robust_se[2, "Pr(>|t|)"],
+                                        format = "e",
+                                        digits = 3))
+
+    # Generate the table using kable
+    kable(result_df2)
+    ```
     c. (2 p) Verify that $\hat{\rho}$ in \textbf{\ref{item:TCcomp-rho}} equals $(\overline{re78}^{D=1}-\overline{re78}^{D=0})$, i.e., the difference between the average post-training earnings of the treated and of the control individuals. This fact explains the name of the estimator, and is consistent with what you derived in previous Psets.\label{item:TCcomp-diff}
+        ```{r}
+
+        nswpsid_treat1 = nswpsid %>% filter(treat == 1)
+
+        estimate = mean(nswpsid_treat1$re78) - mean(nswpsid_treat0$re78)
+
+        ```
+
+        The result in Q4a is -15204.78 which is equal to the difference between the average post-training earnings of the treated and of the control individuals, which is also equal to -15204.78.
+
     d. (10 p) Intuitively explain why the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest. \textcolor{gray}{\textbf{Hint}: Use the result in  \textbf{\ref{item:TCcomp-diff}} to think about what this approach uses to proxy for the missing data, i.e., for the control units' mean of the potential outcome w/ treatment, and for the treated units' mean of the potential outcome w/out treatment.}\label{item:TCcomp-rho} 
     
-a. See table below for estimate of $\rho$
-    
-```{r}
-
-# Run the regression
-m1 <- lm(re78 ~ treat, data = nswpsid)
-
-# Extract coefficients
-coefficients <- summary(m1)$coefficients["treat", c("Estimate", "Std. Error")]
-
-# Get additional test statistics
-test_stats <- lmtest::coeftest(m1, vcov. = vcov(m1))
-
-# Combine into a data frame
-result_df <- data.frame(Estimate = test_stats[,"Estimate"],
-                        Std_Error = test_stats[,"Std. Error"],
-                        t_value = test_stats[2, "t value"],
-                        Pr = formatC(test_stats[2, "Pr(>|t|)"],
-                                    format = "e",
-                                    digits = 3))
-
-# Create a table using kable
-knitr::kable(result_df)
-```
-b. See table below for the heteroschedasticity-robust SEs.
-```{r}
-# Calculate robust standard errors
-robust_se <- lmtest::coeftest(m1, vcov. = sandwich::vcovHC(m1, type = "HC0"))
-
-# Create a data frame for the table
-result_df2 <- data.frame(Estimate = robust_se[,"Estimate"],
-                        Robust_Std_Error = robust_se[,"Std. Error"],
-                        t_value = robust_se[,"t value"],
-                        Pr = formatC(robust_se[2, "Pr(>|t|)"],
-                                    format = "e",
-                                    digits = 3))
-
-# Generate the table using kable
-kable(result_df2)
-```
-c. See verification below.
-
-```{r}
-
-nswpsid_treat1 = nswpsid %>% filter(treat == 1)
-
-estimate = mean(nswpsid_treat1$re78) - mean(nswpsid_treat0$re78)
-
-```
-
-The result in Q4a is -15204.78 which is equal to the difference between the average post-training earnings of the treated and of the control individuals, which is also equal to -15204.78.
-
-d. The TCC approach uses the control group as a proxy for the missing potential outcome of the treatment group if they had not been treated, and vice versa. However, if the control group is not comparable with the treated group (i.e. the samples are drawn from different distributions), the proxy is invalid. For instance, from the summary statistics provided, we can see that there are differences in characteristics such as age, education, and race between the treated and control groups. These differences suggest that the groups may not be comparable and thus the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest.
+        **Answer:** The TCC approach uses the control group as a proxy for the missing potential outcome of the treatment group if they had not been treated, and vice versa. However, if the control group is not comparable with the treated group (i.e. the samples are drawn from different distributions), the proxy is invalid. For instance, from the summary statistics provided, we can see that there are differences in characteristics such as age, education, and race between the treated and control groups. These differences suggest that the groups may not be comparable and thus the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest.
 
 \pagebreak
 
 5. (20 p) These questions pertain to the specification in expression (\ref{CFnc}) thus you obtain the \textcolor{ForestGreen}{Regression-Adjusted Treatment-Control Comparison (Adj. TCC) Estimator} of the treatment effect of the offer of training. \label{item:CFnc}
     a. (10 p) Add to the model estimated in \textbf{\ref{item:TCcomp}} the following OPVs as regression covariates: \texttt{age}, \texttt{agesq}, \texttt{edu}, \texttt{nodegree}, \texttt{black}, \texttt{hisp}, \texttt{re74}, and \texttt{re75}. Report $\hat{\rho}$ and its heteroschedasticity-robust SE. \textcolor{gray}{\textbf{Programming Guidance:} Add column \texttt{agesq} (\texttt{age} squared) to your dataframe using, e.g., \texttt{dplyr::mutate( )}.}\label{item:CFnc-rho}
-    
-
+        ```{r}
+            # add age squared to the dataframe
+            nswpsid <- nswpsid %>% mutate(agesq = age^2)
+            m2 <- lm(re78 ~ treat + age + agesq + edu + 
+                     nodegree + black + hisp + re74 + re75, 
+                     data = nswpsid)
+            coeff <- summary(m2)$coefficients["treat", c("Estimate", "Std. Error")]
+            test_stats <- lmtest::coeftest(m2, vcov. = vcov(m2))
+            result_df <- data.frame(Estimate = coeff["Estimate"],
+                                    Std_Error = coeff["Std. Error"],
+                                    t_value = test_stats[2, "t value"],
+                                    Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                                format = "e",
+                                                digits = 3))
+            knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
+        ```
     b. (10 p) Intuitively explain why the Adj. TCC approach may be regarded as an improvement over the TCC approach when it comes to credible identification/estimation of average treatment effects.
+        **TODO**
 
 
 \pagebreak
@@ -131,45 +139,90 @@ d. The TCC approach uses the control group as a proxy for the missing potential 
 6. (20 p) Consider again the specification in expression (\ref{CFnc}) estimated in \textbf{\textbf{\ref{item:CFnc}}}. Here you implement two procedures, as detailed below, to verify the \textcolor{ForestGreen}{``partialling-out'' interpretation} of OLS coefficients in MLRM.\label{item:CFnc-po}
     a. (8 p) Procedure A:
         i. (4 p) First Stage: Regress \texttt{treat} on a constant and the OPVs listed in \textbf{\ref{item:CFnc-rho}}; obtain the residuals. \textcolor{gray}{\textbf{Programming Guidance:} If you run \texttt{s1 $<$- lm(treat $\sim$ x1 + x2, data = dt)}, retrieve the residuals as \texttt{s1\$residuals}.}\label{item:CFnc-po-1ststep}  
+            ```{r}
+            nswpsid_const <- nswpsid %>% mutate(constant = 1)
+            # regress treat on a constant and the OPVs listed in 5a
+            m2 <- lm(treat ~ constant + age + agesq +
+                             edu + nodegree + black + 
+                             hisp + re74 + re75, 
+                     data = nswpsid_const)
+            # get residuals
+            resid_m2 <- m2$residuals
+            ```
         
 
         
         ii. (4 p) Second Stage: Regress \texttt{re78} on a constant and the residuals from \textbf{\ref{item:CFnc-po-1ststep}}.\label{item:CFnc-po-2ndstep}
+            ```{r}
+            # regress re78 on a constant and the residuals from 6a
+            m3 <- lm(re78 ~ resid_m2, data = nswpsid)
+            # get coefficients
+            coeff <- summary(m3)$coefficients["resid_m2", c("Estimate", "Std. Error")]
+            test_stats <- lmtest::coeftest(m3, vcov. = vcov(m3))
+            result_df <- data.frame(Estimate = coeff["Estimate"],
+                                    Std_Error = coeff["Std. Error"],
+                                    t_value = test_stats[2, "t value"],
+                                    Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                                format = "e",
+                                                digits = 3))
+            knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
+            ```
     
     b. (8 p) Procedure B:\label{item:CFnc-po-procB}  
         i. First Stage: Same as \textbf{\ref{item:CFnc-po-1ststep}}.\label{item:CFnc-po-1ststep-bis}
         
         ii. (4 p) First Stage: Regress \texttt{re78} on a constant and the OPVs listed in \textbf{\textbf{\ref{item:CFnc-rho}}}; obtain the residuals.\label{item:CFnc-po-3rdstep}
-
+            ```{r}
+            # regress re78 on a constant and the OPVs listed in 5a
+            m3 <- lm(re78 ~ constant + age + agesq +
+                             edu + nodegree + black + 
+                             hisp + re74 + re75, 
+                     data = nswpsid_const)
+            # get residuals
+            resid_m3 <- m3$residuals
+            ```
         iii. (4 p) Second Stage: Regress the residuals from \textbf{\ref{item:CFnc-po-3rdstep}} on the residuals from \textbf{\ref{item:CFnc-po-1ststep-bis}}.\label{item:CFnc-po-4thstep}
-    
-    c. (4 p) Verify that the estimates of the slope coefficient from \textbf{\ref{item:CFnc-po-2ndstep}} and \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to $\hat{\rho}$ obtained in \textbf{\ref{item:CFnc-rho}}. Use this fact to give meaning to the expression ``partialling-out'' interpretation of OLS in a MLRM. \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
-
+                ```{r}
+                # regress residuals from 6b on residuals from 6a
+                m4 <- lm(resid_m3 ~ resid_m2)
+                # get coefficients
+                coeff <- summary(m4)$coefficients["resid_m2", c("Estimate", "Std. Error")]
+                test_stats <- lmtest::coeftest(m4, vcov. = vcov(m4))
+                result_df <- data.frame(Estimate = coeff["Estimate"],
+                                        Std_Error = coeff["Std. Error"],
+                                        t_value = test_stats[2, "t value"],
+                                        Pr = formatC(test_stats[2, "Pr(>|t|)"],
+                                                    format = "e",
+                                                    digits = 3))
+                knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
+                ```
+    c. (4 p) Verify that the estimates of the slope coefficient from \textbf{\ref{item:CFnc-po-2ndstep}} and \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to $\hat{\rho}$ obtained in \textbf{\ref{item:CFnc-rho}}. Use this fact to give meaning to the expression "partialling-out" interpretation of OLS in a MLRM. \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
+    **Answer: TODO**
 \pagebreak
 
 7.  (20 p) Consider the \textcolor{ForestGreen}{partially-linear specification} in expression (\ref{PLR}). Here you estimate $\rho$ via the the \textcolor{ForestGreen}{Double Machine Learning (DML)} estimation procedure of Robinson (1988), as detailed below.\label{item:DML}
 
     a. (2 p) Install four R packages: \href{https://docs.doubleml.org/stable/intro/install.html#r-installing-doubleml}{\texttt{DoubleML}}, \href{https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html}{\texttt{data.table}}, \href{https://mlr3.mlr-org.com/}{\texttt{mlr3}}, and \href{https://mlr3learners.mlr-org.com/}{\texttt{mlr3learners}}.
     
-```{r}
-library("DoubleML")
-library("data.table")
-library("mlr3")
-library("mlr3learners")
-```
+    ```{r, message=FALSE}
+    library("DoubleML")
+    library("data.table")
+    library("mlr3")
+    library("mlr3learners")
+    ```
     
     b. (2 p) If your data is not already a \texttt{data.table} object convert it. 
         \textcolor{gray}{\textbf{Programming Guidance:} Assuming that your dataframe is called \texttt{df}, use \texttt{dt <- data.table::as.data.table(df)}. \texttt{data.table} is an extension of \texttt{data.frame} and allows for fast manipulation of very large data.}
         
-```{r}
-dt = data.table::as.data.table(nswpsid)
-```
+        ```{r}
+        dt = data.table::as.data.table(nswpsid)
+        ```
 
     c. (2 p) Collect all the original OPVs in a list named, for example, \texttt{pretreat\_colnames}.
          Note: Henceforth when we refer to these OPVs in mathematical expressions we use the notation $\mathbf{x}_{i}$.
-```{r}
-pretreat_colnames = colnames(dt)[-c(1,9)] 
-```
+        ```{r}
+        pretreat_colnames = colnames(dt)[-c(1,9)] 
+        ```
 
 
     d. (2 p) Specify data and variables for the causal model by running the script:\label{item:dml-data}
@@ -180,16 +233,17 @@ pretreat_colnames = colnames(dt)[-c(1,9)]
                                 d_cols = "treat",
                                 x_cols = pretreat_colnames)
         ```
-```{r}
-dml_data_psid <- DoubleML::DoubleMLData$new(dt,
-                                            y_col = "re78",
-                                            d_cols = "treat",
-                                            x_cols = pretreat_colnames)
-```
+        and look at the following object.
+        ```{r}
+        dml_data_psid <- DoubleML::DoubleMLData$new(dt,
+                                                    y_col = "re78",
+                                                    d_cols = "treat",
+                                                    x_cols = pretreat_colnames)
+        ```
 
-```{r}
-dml_data_psid
-```
+        ```{r}
+        dml_data_psid
+        ```
 
     e. (2 p) Suppress messages from the \texttt{mlr3} package by adding 
 
@@ -197,9 +251,9 @@ dml_data_psid
         
         to your script.
 
-```{r}
-lgr::get_logger("mlr3")$set_threshold("warn")
-```
+        ```{r, message=FALSE}
+        lgr::get_logger("mlr3")$set_threshold("warn")
+        ```
 
     f. (2 p) Here you mimic the first stage of Procedure B in \textbf{\ref{item:CFnc-po-procB}}. Namely, you specify the model for the two regression functions $l(\mathbf{x})=E[\texttt{re78}_i|\mathbf{x}_{i}=\mathbf{x}]$ and $m(\mathbf{x})=E[\texttt{treat}_i|\mathbf{x}_{i}=\mathbf{x}]$. In \textbf{\ref{item:CFnc-po-procB}} you used a linear-in-parameter model and a priori decided which OPVs to include and which transformations to apply to the OPVs to include (e.g., you excluded \texttt{u74}, you used both \texttt{age} and \texttt{agesq}, you left as-is the other included OPVs). Instead here you do not a priori exclude any OPVs, and you use flexible models, which accommodate complex non-linearities. Run the script:\label{item:dml-first-stage-models}
         
@@ -213,10 +267,10 @@ lgr::get_logger("mlr3")$set_threshold("warn")
         
     The above script uses a \textcolor{ForestGreen}{Random Forest (RF) model} for both conditional expectations functions.
 
-```{r}
-ml_l_rf <- mlr3::lrn("regr.ranger")
-ml_m_rf <- mlr3::lrn("classif.ranger")
-```
+    ```{r}
+    ml_l_rf <- mlr3::lrn("regr.ranger")
+    ml_m_rf <- mlr3::lrn("classif.ranger")
+    ```
 
     g. (2 p) Here you initialize \& parametrize the model object which you later use to perform estimation. Run the script:
     
@@ -233,15 +287,15 @@ ml_m_rf <- mlr3::lrn("classif.ranger")
         ```
     The above script: (i) utilizes the data object generated in \textbf{\ref{item:dml-data}}, namely \texttt{dml\_data\_psid}; (ii) utilizes the models for the first stage regressions picked in \textbf{\ref{item:dml-first-stage-models}}, namely \texttt{ml\_l\_rf} and \texttt{ml\_m\_rf}; (iii) specifies that we want to split the sample into 2 parts (\texttt{n\_folds = 2}), and (iv) that we want to use the ``partialling out'' approach to estimate causal impacts (\texttt{score = "partialling out"}), and (v) that we want to apply \textcolor{ForestGreen}{cross-fitting} (\texttt{apply\_cross\_fitting = TRUE}).\label{item:dml-model}
 
-```{r}
-set.seed(3141)
+    ```{r}
+    set.seed(3141)
 
-obj_dml_plr <- DoubleML::DoubleMLPLR$new(dml_data_psid,
-                                         ml_l = ml_l_rf, ml_m = ml_m_rf,
-                                         n_folds = 2,
-                                         score = "partialling out",
-                                         apply_cross_fitting = TRUE)
-```
+    obj_dml_plr <- DoubleML::DoubleMLPLR$new(dml_data_psid,
+                                            ml_l = ml_l_rf, ml_m = ml_m_rf,
+                                            n_folds = 2,
+                                            score = "partialling out",
+                                            apply_cross_fitting = TRUE)
+    ```
 
     h. (2 p) Here you fit the DML model defined in \textbf{\ref{item:dml-model}}. Run the script:
     
@@ -250,11 +304,12 @@ obj_dml_plr <- DoubleML::DoubleMLPLR$new(dml_data_psid,
         obj_dml_plr
         ```
     
-    At a high level the above script implements all of the following operations: (i) fits the two models for the first stage selected in \textbf{\ref{item:dml-first-stage-models}}, (ii) gets residuals, (iii) regresses the residuals for the outcome variables onto the residuals for the treatment indicator to obtain the DML estimate of $\rho$ in expression (\ref{PLR}). Note: You specified \texttt{n\_folds = 2} and requested \texttt{apply\_cross\_fitting = TRUE} in \textbf{\ref{item:dml-model}} thus the 2-stage estimation procedure proceed as follows. First the entire data is split into two sub-samples, call them A and B (hence the term ``2 folds''). Sample A is used to fit the 1st stage models. These fitted models are used to compute residuals in sample B and these residuals are used to fit the 2nd stage model using only data in sample B. Denote the resulting estimate $\hat{\rho}_{AB}$. Then the samples are swapped (hence the term ``cross fitting''). That is, sample B is used to fit the 1st stage models. Sample A is used to fit the 2nd stage model. Denote the resulting estimate $\hat{\rho}_{BA}$. The DML estimate is the average of $\hat{\rho}_{AB}$ and $\hat{\rho}_{BA}$. 
+    At a high level the above script implements all of the following operations: (i) fits the two models for the first stage selected in \textbf{\ref{item:dml-first-stage-models}}, (ii) gets residuals, (iii) regresses the residuals for the outcome variables onto the residuals for the treatment indicator to obtain the DML estimate of $\rho$ in expression (\ref{PLR}). Note: You specified \texttt{n\_folds = 2} and requested \texttt{apply\_cross\_fitting = TRUE} in \textbf{\ref{item:dml-model}} thus the 2-stage estimation procedure proceed as follows. First the entire data is split into two sub-samples, call them A and B (hence the term "2 folds"). Sample A is used to fit the 1st stage models. These fitted models are used to compute residuals in sample B and these residuals are used to fit the 2nd stage model using only data in sample B. Denote the resulting estimate $\hat{\rho}_{AB}$. Then the samples are swapped (hence the term ``cross fitting''). That is, sample B is used to fit the 1st stage models. Sample A is used to fit the 2nd stage model. Denote the resulting estimate $\hat{\rho}_{BA}$. The DML estimate is the average of $\hat{\rho}_{AB}$ and $\hat{\rho}_{BA}$. 
 
-```{r}
-obj_dml_plr$fit()
-obj_dml_plr
-```
+    ```{r}
+    obj_dml_plr$fit()
+    obj_dml_plr
+    ```
 
     i. (4 p) Take a look at the output, i.e., at the object \texttt{obj\_dml\_plr}. How does the DML estimate of average treatment effect compare to the estimates based on specifications (\ref{TCcomp}) and (\ref{CFnc})?
+        **TODO**

@@ -109,7 +109,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
@@ -209,31 +209,8 @@
   \def\labelenumii{\alph{enumii}.}
   \tightlist
   \item
-    (8 p) Estimate \(\rho\).
-  \item
-    (10 p) Compute \textcolor{ForestGreen}{heteroschedasticity-robust}
-    SEs.
-  \item
-    (2 p) Verify that \(\hat{\rho}\) in \textbf{\ref{item:TCcomp-rho}}
-    equals \((\overline{re78}^{D=1}-\overline{re78}^{D=0})\), i.e., the
-    difference between the average post-training earnings of the treated
-    and of the control individuals. This fact explains the name of the
-    estimator, and is consistent with what you derived in previous
-    Psets.\label{item:TCcomp-diff}
-  \item
-    (10 p) Intuitively explain why the TCC approach may not deliver a
-    credible estimate of the average effect of the treatment of
-    interest.
-    \textcolor{gray}{\textbf{Hint}: Use the result in  \textbf{\ref{item:TCcomp-diff}} to think about what this approach uses to proxy for the missing data, i.e., for the control units' mean of the potential outcome w/ treatment, and for the treated units' mean of the potential outcome w/out treatment.}\label{item:TCcomp-rho}
+    (8 p) Estimate \(\rho\). See table below for estimate of \(\rho\)
   \end{enumerate}
-\end{enumerate}
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\tightlist
-\item
-  See table below for estimate of \(\rho\)
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -259,24 +236,25 @@
 \end{Highlighting}
 \end{Shaded}
 
-\begin{longtable}[]{@{}lrrrl@{}}
-\toprule\noalign{}
-& Estimate & Std\_Error & t\_value & Pr \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-(Intercept) & 21553.92 & 303.6414 & -13.16871 & 2.033e-38 \\
-treat & -15204.78 & 1154.6143 & -13.16871 & 2.033e-38 \\
-\end{longtable}
+  \begin{longtable}[]{@{}lrrrl@{}}
+  \toprule\noalign{}
+  & Estimate & Std\_Error & t\_value & Pr \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  (Intercept) & 21553.92 & 303.6414 & -13.16871 & 2.033e-38 \\
+  treat & -15204.78 & 1154.6143 & -13.16871 & 2.033e-38 \\
+  \end{longtable}
 
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{1}
-\tightlist
-\item
-  See table below for the heteroschedasticity-robust SEs.
-\end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    (10 p) Compute \textcolor{ForestGreen}{heteroschedasticity-robust}
+    SEs.
+  \end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -296,24 +274,27 @@ treat & -15204.78 & 1154.6143 & -13.16871 & 2.033e-38 \\
 \end{Highlighting}
 \end{Shaded}
 
-\begin{longtable}[]{@{}lrrrl@{}}
-\toprule\noalign{}
-& Estimate & Robust\_Std\_Error & t\_value & Pr \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-(Intercept) & 21553.92 & 311.6684 & 69.15658 & 1.506e-108 \\
-treat & -15204.78 & 655.6691 & -23.18971 & 1.506e-108 \\
-\end{longtable}
+  \begin{longtable}[]{@{}lrrrl@{}}
+  \toprule\noalign{}
+  & Estimate & Robust\_Std\_Error & t\_value & Pr \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  (Intercept) & 21553.92 & 311.6684 & 69.15658 & 1.506e-108 \\
+  treat & -15204.78 & 655.6691 & -23.18971 & 1.506e-108 \\
+  \end{longtable}
 
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
-\item
-  See verification below.
-\end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{2}
+  \item
+    (2 p) Verify that \(\hat{\rho}\) in \textbf{\ref{item:TCcomp-rho}}
+    equals \((\overline{re78}^{D=1}-\overline{re78}^{D=0})\), i.e., the
+    difference between the average post-training earnings of the treated
+    and of the control individuals. This fact explains the name of the
+    estimator, and is consistent with what you derived in previous
+    Psets.\label{item:TCcomp-diff}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -323,24 +304,27 @@ treat & -15204.78 & 655.6691 & -23.18971 & 1.506e-108 \\
 \end{Highlighting}
 \end{Shaded}
 
-The result in Q4a is -15204.78 which is equal to the difference between
-the average post-training earnings of the treated and of the control
-individuals, which is also equal to -15204.78.
+    The result in Q4a is -15204.78 which is equal to the difference
+    between the average post-training earnings of the treated and of the
+    control individuals, which is also equal to -15204.78.
+  \item
+    (10 p) Intuitively explain why the TCC approach may not deliver a
+    credible estimate of the average effect of the treatment of
+    interest.
+    \textcolor{gray}{\textbf{Hint}: Use the result in  \textbf{\ref{item:TCcomp-diff}} to think about what this approach uses to proxy for the missing data, i.e., for the control units' mean of the potential outcome w/ treatment, and for the treated units' mean of the potential outcome w/out treatment.}\label{item:TCcomp-rho}
 
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{3}
-\tightlist
-\item
-  The TCC approach uses the control group as a proxy for the missing
-  potential outcome of the treatment group if they had not been treated,
-  and vice versa. However, if the control group is not comparable with
-  the treated group, the proxy is invalid. For instance, from the
-  summary statistics provided, we can see that there are differences in
-  characteristics such as age, education, and race between the treated
-  and control groups. These differences suggest that the groups may not
-  be comparable and thus the TCC approach may not deliver a credible
-  estimate of the average effect of the treatment of interest.
+    \textbf{Answer:} The TCC approach uses the control group as a proxy
+    for the missing potential outcome of the treatment group if they had
+    not been treated, and vice versa. However, if the control group is
+    not comparable with the treated group (i.e.~the samples are drawn
+    from different distributions), the proxy is invalid. For instance,
+    from the summary statistics provided, we can see that there are
+    differences in characteristics such as age, education, and race
+    between the treated and control groups. These differences suggest
+    that the groups may not be comparable and thus the TCC approach may
+    not deliver a credible estimate of the average effect of the
+    treatment of interest.
+  \end{enumerate}
 \end{enumerate}
 
 \pagebreak
@@ -364,10 +348,45 @@ individuals, which is also equal to -15204.78.
     \texttt{hisp}, \texttt{re74}, and \texttt{re75}. Report
     \(\hat{\rho}\) and its heteroschedasticity-robust SE.
     \textcolor{gray}{\textbf{Programming Guidance:} Add column \texttt{agesq} (\texttt{age} squared) to your dataframe using, e.g., \texttt{dplyr::mutate( )}.}\label{item:CFnc-rho}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+    \CommentTok{\# add age squared to the dataframe}
+\NormalTok{    nswpsid }\OtherTok{\textless{}{-}}\NormalTok{ nswpsid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{agesq =}\NormalTok{ age}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\NormalTok{    m2 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ agesq }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+} 
+\NormalTok{             nodegree }\SpecialCharTok{+}\NormalTok{ black }\SpecialCharTok{+}\NormalTok{ hisp }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75, }
+             \AttributeTok{data =}\NormalTok{ nswpsid)}
+\NormalTok{    coeff }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(m2)}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{"treat"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"Estimate"}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{)]}
+\NormalTok{    test\_stats }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m2, }\AttributeTok{vcov. =} \FunctionTok{vcov}\NormalTok{(m2))}
+\NormalTok{    result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ coeff[}\StringTok{"Estimate"}\NormalTok{],}
+                            \AttributeTok{Std\_Error =}\NormalTok{ coeff[}\StringTok{"Std. Error"}\NormalTok{],}
+                            \AttributeTok{t\_value =}\NormalTok{ test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
+                            \AttributeTok{Pr =} \FunctionTok{formatC}\NormalTok{(test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{],}
+                                        \AttributeTok{format =} \StringTok{"e"}\NormalTok{,}
+                                        \AttributeTok{digits =} \DecValTok{3}\NormalTok{))}
+\NormalTok{    knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(result\_df, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"OLS Regression Results"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+    \begin{longtable}[]{@{}lrrrl@{}}
+    \caption{OLS Regression Results}\tabularnewline
+    \toprule\noalign{}
+    & Estimate & Std\_Error & t\_value & Pr \\
+    \midrule\noalign{}
+    \endfirsthead
+    \toprule\noalign{}
+    & Estimate & Std\_Error & t\_value & Pr \\
+    \midrule\noalign{}
+    \endhead
+    \bottomrule\noalign{}
+    \endlastfoot
+    Estimate & 217.944 & 866.197 & 0.252 & 8.014e-01 \\
+    \end{longtable}
   \item
     (10 p) Intuitively explain why the Adj. TCC approach may be regarded
     as an improvement over the TCC approach when it comes to credible
     identification/estimation of average treatment effects.
+    \textbf{TODO}
   \end{enumerate}
 \end{enumerate}
 
@@ -376,7 +395,6 @@ individuals, which is also equal to -15204.78.
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{5}
-\tightlist
 \item
   (20 p) Consider again the specification in expression (\ref{CFnc})
   estimated in \textbf{\textbf{\ref{item:CFnc}}}. Here you implement two
@@ -396,10 +414,55 @@ individuals, which is also equal to -15204.78.
       (4 p) First Stage: Regress \texttt{treat} on a constant and the
       OPVs listed in \textbf{\ref{item:CFnc-rho}}; obtain the residuals.
       \textcolor{gray}{\textbf{Programming Guidance:} If you run \texttt{s1 $<$- lm(treat $\sim$ x1 + x2, data = dt)}, retrieve the residuals as \texttt{s1\$residuals}.}\label{item:CFnc-po-1ststep}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nswpsid\_const }\OtherTok{\textless{}{-}}\NormalTok{ nswpsid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{constant =} \DecValTok{1}\NormalTok{)}
+\CommentTok{\# regress treat on a constant and the OPVs listed in 5a}
+\NormalTok{m2 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(treat }\SpecialCharTok{\textasciitilde{}}\NormalTok{ constant }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ agesq }\SpecialCharTok{+}
+\NormalTok{                 edu }\SpecialCharTok{+}\NormalTok{ nodegree }\SpecialCharTok{+}\NormalTok{ black }\SpecialCharTok{+} 
+\NormalTok{                 hisp }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75, }
+         \AttributeTok{data =}\NormalTok{ nswpsid\_const)}
+\CommentTok{\# get residuals}
+\NormalTok{resid\_m2 }\OtherTok{\textless{}{-}}\NormalTok{ m2}\SpecialCharTok{$}\NormalTok{residuals}
+\end{Highlighting}
+\end{Shaded}
     \item
       (4 p) Second Stage: Regress \texttt{re78} on a constant and the
       residuals from
       \textbf{\ref{item:CFnc-po-1ststep}}.\label{item:CFnc-po-2ndstep}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# regress re78 on a constant and the residuals from 6a}
+\NormalTok{m3 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ resid\_m2, }\AttributeTok{data =}\NormalTok{ nswpsid)}
+\CommentTok{\# get coefficients}
+\NormalTok{coeff }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(m3)}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{"resid\_m2"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"Estimate"}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{)]}
+\NormalTok{test\_stats }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m3, }\AttributeTok{vcov. =} \FunctionTok{vcov}\NormalTok{(m3))}
+\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ coeff[}\StringTok{"Estimate"}\NormalTok{],}
+                        \AttributeTok{Std\_Error =}\NormalTok{ coeff[}\StringTok{"Std. Error"}\NormalTok{],}
+                        \AttributeTok{t\_value =}\NormalTok{ test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
+                        \AttributeTok{Pr =} \FunctionTok{formatC}\NormalTok{(test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{],}
+                                    \AttributeTok{format =} \StringTok{"e"}\NormalTok{,}
+                                    \AttributeTok{digits =} \DecValTok{3}\NormalTok{))}
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(result\_df, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"OLS Regression Results"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+      \begin{longtable}[]{@{}lrrrl@{}}
+      \caption{OLS Regression Results}\tabularnewline
+      \toprule\noalign{}
+      & Estimate & Std\_Error & t\_value & Pr \\
+      \midrule\noalign{}
+      \endfirsthead
+      \toprule\noalign{}
+      & Estimate & Std\_Error & t\_value & Pr \\
+      \midrule\noalign{}
+      \endhead
+      \bottomrule\noalign{}
+      \endlastfoot
+      Estimate & 217.944 & 1344.279 & 0.162 & 8.712e-01 \\
+      \end{longtable}
     \end{enumerate}
   \item
     (8 p) Procedure B:\label{item:CFnc-po-procB}
@@ -413,27 +476,65 @@ individuals, which is also equal to -15204.78.
       (4 p) First Stage: Regress \texttt{re78} on a constant and the
       OPVs listed in \textbf{\textbf{\ref{item:CFnc-rho}}}; obtain the
       residuals.\label{item:CFnc-po-3rdstep}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# regress re78 on a constant and the OPVs listed in 5a}
+\NormalTok{m3 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ constant }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ agesq }\SpecialCharTok{+}
+\NormalTok{                 edu }\SpecialCharTok{+}\NormalTok{ nodegree }\SpecialCharTok{+}\NormalTok{ black }\SpecialCharTok{+} 
+\NormalTok{                 hisp }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75, }
+         \AttributeTok{data =}\NormalTok{ nswpsid\_const)}
+\CommentTok{\# get residuals}
+\NormalTok{resid\_m3 }\OtherTok{\textless{}{-}}\NormalTok{ m3}\SpecialCharTok{$}\NormalTok{residuals}
+\end{Highlighting}
+\end{Shaded}
     \item
       (4 p) Second Stage: Regress the residuals from
       \textbf{\ref{item:CFnc-po-3rdstep}} on the residuals from
       \textbf{\ref{item:CFnc-po-1ststep-bis}}.\label{item:CFnc-po-4thstep}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# regress residuals from 6b on residuals from 6a}
+\NormalTok{m4 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(resid\_m3 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ resid\_m2)}
+\CommentTok{\# get coefficients}
+\NormalTok{coeff }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(m4)}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{"resid\_m2"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"Estimate"}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{)]}
+\NormalTok{test\_stats }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m4, }\AttributeTok{vcov. =} \FunctionTok{vcov}\NormalTok{(m4))}
+\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ coeff[}\StringTok{"Estimate"}\NormalTok{],}
+                        \AttributeTok{Std\_Error =}\NormalTok{ coeff[}\StringTok{"Std. Error"}\NormalTok{],}
+                        \AttributeTok{t\_value =}\NormalTok{ test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
+                        \AttributeTok{Pr =} \FunctionTok{formatC}\NormalTok{(test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{],}
+                                    \AttributeTok{format =} \StringTok{"e"}\NormalTok{,}
+                                    \AttributeTok{digits =} \DecValTok{3}\NormalTok{))}
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(result\_df, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"OLS Regression Results"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+      \begin{longtable}[]{@{}lrrrl@{}}
+      \caption{OLS Regression Results}\tabularnewline
+      \toprule\noalign{}
+      & Estimate & Std\_Error & t\_value & Pr \\
+      \midrule\noalign{}
+      \endfirsthead
+      \toprule\noalign{}
+      & Estimate & Std\_Error & t\_value & Pr \\
+      \midrule\noalign{}
+      \endhead
+      \bottomrule\noalign{}
+      \endlastfoot
+      Estimate & 217.944 & 864.9 & 0.252 & 8.011e-01 \\
+      \end{longtable}
     \end{enumerate}
   \item
     (4 p) Verify that the estimates of the slope coefficient from
     \textbf{\ref{item:CFnc-po-2ndstep}} and
     \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to
     \(\hat{\rho}\) obtained in \textbf{\ref{item:CFnc-rho}}. Use this
-    fact to give meaning to the expression ``partialling-out'\,'
+    fact to give meaning to the expression ``partialling-out''
     interpretation of OLS in a MLRM.
     \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
+    \textbf{Answer: TODO} \pagebreak
   \end{enumerate}
-\end{enumerate}
-
-\pagebreak
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{6}
 \item
   (20 p) Consider the
   \textcolor{ForestGreen}{partially-linear specification} in expression
@@ -443,21 +544,48 @@ individuals, which is also equal to -15204.78.
 
   \begin{enumerate}
   \def\labelenumii{\alph{enumii}.}
+  \tightlist
   \item
     (2 p) Install four R packages:
     \href{https://docs.doubleml.org/stable/intro/install.html#r-installing-doubleml}{\texttt{DoubleML}},
     \href{https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html}{\texttt{data.table}},
     \href{https://mlr3.mlr-org.com/}{\texttt{mlr3}}, and
     \href{https://mlr3learners.mlr-org.com/}{\texttt{mlr3learners}}.
+  \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(}\StringTok{"DoubleML"}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(}\StringTok{"data.table"}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(}\StringTok{"mlr3"}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(}\StringTok{"mlr3learners"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
   \item
     (2 p) If your data is not already a \texttt{data.table} object
     convert it.
     \textcolor{gray}{\textbf{Programming Guidance:} Assuming that your dataframe is called \texttt{df}, use \texttt{dt <- data.table::as.data.table(df)}. \texttt{data.table} is an extension of \texttt{data.frame} and allows for fast manipulation of very large data.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dt }\OtherTok{=}\NormalTok{ data.table}\SpecialCharTok{::}\FunctionTok{as.data.table}\NormalTok{(nswpsid)}
+\end{Highlighting}
+\end{Shaded}
   \item
     (2 p) Collect all the original OPVs in a list named, for example,
     \texttt{pretreat\_colnames}. Note: Henceforth when we refer to these
     OPVs in mathematical expressions we use the notation
     \(\mathbf{x}_{i}\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pretreat\_colnames }\OtherTok{=} \FunctionTok{colnames}\NormalTok{(dt)[}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{9}\NormalTok{)] }
+\end{Highlighting}
+\end{Shaded}
   \item
     (2 p) Specify data and variables for the causal model by running the
     script:\label{item:dml-data}
@@ -468,12 +596,47 @@ dml_data_psid <- DoubleML::DoubleMLData$new(dt,
                         d_cols = "treat",
                         x_cols = pretreat_colnames)
 \end{verbatim}
+
+    and look at the following object.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dml\_data\_psid }\OtherTok{\textless{}{-}}\NormalTok{ DoubleML}\SpecialCharTok{::}\NormalTok{DoubleMLData}\SpecialCharTok{$}\FunctionTok{new}\NormalTok{(dt,}
+                                            \AttributeTok{y\_col =} \StringTok{"re78"}\NormalTok{,}
+                                            \AttributeTok{d\_cols =} \StringTok{"treat"}\NormalTok{,}
+                                            \AttributeTok{x\_cols =}\NormalTok{ pretreat\_colnames)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dml\_data\_psid}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## ================= DoubleMLData Object ==================
+## 
+## 
+## ------------------ Data summary      ------------------
+## Outcome variable: re78
+## Treatment variable(s): treat
+## Covariates: age, edu, black, hisp, married, re74, re75, u74, u75, nodegree, agesq
+## Instrument(s): 
+## No. Observations: 2675
+\end{verbatim}
   \item
     (2 p) Suppress messages from the \texttt{mlr3} package by adding
 
     \texttt{lgr::get\textbackslash{}\_logger("mlr3")\textbackslash{}\$set\textbackslash{}\_threshold("warn")}
 
     to your script.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lgr}\SpecialCharTok{::}\FunctionTok{get\_logger}\NormalTok{(}\StringTok{"mlr3"}\NormalTok{)}\SpecialCharTok{$}\FunctionTok{set\_threshold}\NormalTok{(}\StringTok{"warn"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
   \item
     (2 p) Here you mimic the first stage of Procedure B in
     \textbf{\ref{item:CFnc-po-procB}}. Namely, you specify the model for
@@ -501,6 +664,13 @@ ml_m_rf <- mlr3::lrn("classif.ranger")
   The above script uses a
   \textcolor{ForestGreen}{Random Forest (RF) model} for both conditional
   expectations functions.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ml\_l\_rf }\OtherTok{\textless{}{-}}\NormalTok{ mlr3}\SpecialCharTok{::}\FunctionTok{lrn}\NormalTok{(}\StringTok{"regr.ranger"}\NormalTok{)}
+\NormalTok{ml\_m\_rf }\OtherTok{\textless{}{-}}\NormalTok{ mlr3}\SpecialCharTok{::}\FunctionTok{lrn}\NormalTok{(}\StringTok{"classif.ranger"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
   \begin{enumerate}
   \def\labelenumii{\alph{enumii}.}
@@ -531,6 +701,23 @@ obj_dml_plr <- DoubleML::DoubleMLPLR$new(dml_data_psid,
     estimate causal impacts (\texttt{score = "partialling out"}), and
     (v) that we want to apply \textcolor{ForestGreen}{cross-fitting}
     (\texttt{apply\_cross\_fitting = TRUE}).\label{item:dml-model}
+  \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{3141}\NormalTok{)}
+
+\NormalTok{obj\_dml\_plr }\OtherTok{\textless{}{-}}\NormalTok{ DoubleML}\SpecialCharTok{::}\NormalTok{DoubleMLPLR}\SpecialCharTok{$}\FunctionTok{new}\NormalTok{(dml\_data\_psid,}
+                                        \AttributeTok{ml\_l =}\NormalTok{ ml\_l\_rf, }\AttributeTok{ml\_m =}\NormalTok{ ml\_m\_rf,}
+                                        \AttributeTok{n\_folds =} \DecValTok{2}\NormalTok{,}
+                                        \AttributeTok{score =} \StringTok{"partialling out"}\NormalTok{,}
+                                        \AttributeTok{apply\_cross\_fitting =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{7}
   \item
     (2 p) Here you fit the DML model defined in
     \textbf{\ref{item:dml-model}}. Run the script:
@@ -550,12 +737,52 @@ obj_dml_plr
   requested \texttt{apply\_cross\_fitting = TRUE} in
   \textbf{\ref{item:dml-model}} thus the 2-stage estimation procedure
   proceed as follows. First the entire data is split into two
-  sub-samples, call them A and B (hence the term
-  \texttt{2\ folds\textquotesingle{}\textquotesingle{}).\ Sample\ A\ is\ used\ to\ fit\ the\ 1st\ stage\ models.\ These\ fitted\ models\ are\ used\ to\ compute\ residuals\ in\ sample\ B\ and\ these\ residuals\ are\ used\ to\ fit\ the\ 2nd\ stage\ model\ using\ only\ data\ in\ sample\ B.\ Denote\ the\ resulting\ estimate\ \$\textbackslash{}hat\{\textbackslash{}rho\}\_\{AB\}\$.\ Then\ the\ samples\ are\ swapped\ (hence\ the\ term}cross
-  fitting'\,'). That is, sample B is used to fit the 1st stage models.
-  Sample A is used to fit the 2nd stage model. Denote the resulting
-  estimate \(\hat{\rho}_{BA}\). The DML estimate is the average of
-  \(\hat{\rho}_{AB}\) and \(\hat{\rho}_{BA}\).
+  sub-samples, call them A and B (hence the term ``2 folds''). Sample A
+  is used to fit the 1st stage models. These fitted models are used to
+  compute residuals in sample B and these residuals are used to fit the
+  2nd stage model using only data in sample B. Denote the resulting
+  estimate \(\hat{\rho}_{AB}\). Then the samples are swapped (hence the
+  term ``cross fitting'\,'). That is, sample B is used to fit the 1st
+  stage models. Sample A is used to fit the 2nd stage model. Denote the
+  resulting estimate \(\hat{\rho}_{BA}\). The DML estimate is the
+  average of \(\hat{\rho}_{AB}\) and \(\hat{\rho}_{BA}\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{obj\_dml\_plr}\SpecialCharTok{$}\FunctionTok{fit}\NormalTok{()}
+\NormalTok{obj\_dml\_plr}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## ================= DoubleMLPLR Object ==================
+## 
+## 
+## ------------------ Data summary      ------------------
+## Outcome variable: re78
+## Treatment variable(s): treat
+## Covariates: age, edu, black, hisp, married, re74, re75, u74, u75, nodegree, agesq
+## Instrument(s): 
+## No. Observations: 2675
+## 
+## ------------------ Score & algorithm ------------------
+## Score function: partialling out
+## DML algorithm: dml2
+## 
+## ------------------ Machine learner   ------------------
+## ml_l: regr.ranger
+## ml_m: classif.ranger
+## 
+## ------------------ Resampling        ------------------
+## No. folds: 2
+## No. repeated sample splits: 1
+## Apply cross-fitting: TRUE
+## 
+## ------------------ Fit summary       ------------------
+##  Estimates and significance testing of the effect of target variables
+##       Estimate. Std. Error t value Pr(>|t|)
+## treat    -603.6     1146.0  -0.527    0.598
+\end{verbatim}
 
   \begin{enumerate}
   \def\labelenumii{\roman{enumii}.}
@@ -564,7 +791,7 @@ obj_dml_plr
     (4 p) Take a look at the output, i.e., at the object
     \texttt{obj\_dml\_plr}. How does the DML estimate of average
     treatment effect compare to the estimates based on specifications
-    (\ref{TCcomp}) and (\ref{CFnc})?
+    (\ref{TCcomp}) and (\ref{CFnc})? \textbf{TODO}
   \end{enumerate}
 \end{enumerate}
 

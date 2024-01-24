@@ -1,0 +1,62 @@
+
+\begin{center}
+{\LARGE Part 2: Regression-based Estimation of TEs (90 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: You use the \texttt{nswpsid.csv} dataset to estimate the treatment effect (TE) of the offer of training via \textcolor{ForestGreen}{regression-based approaches} associated with the following three specifications of the outcome equation:
+\begin{eqnarray}
+re78_{i} &=&\alpha +\rho D_{i}+u_{i}\text{, }i=1,...,2675\text{,}
+\label{TCcomp} \\
+re78_{i} &=&\alpha +\rho D_{i}+\mathbf{x}_{i}^{\prime }\mathbf{\beta }+u_{i}\text{, }i=1,...,2675\text{,}  \label{CFnc} \\
+re78_{i} &=&\rho D_{i}+g(\mathbf{x}_{i})+u_{i}\text{, }i=1,...,2675\text{,}  \label{PLR} 
+\end{eqnarray}
+\noindent Subscript $i$ denotes an individual.  Also: 1) $re78_{i}$ represents the data field \texttt{re78}; 2) $D_{i}$ represents the data field \texttt{treat}; 3) $\mathbf{x}_{i}$ represents a $K\times 1$ vector of observed pre-determined variables (OPVs); and, 4) $g(\cdot)$ is an unknown and possibly non-linear function (i.e., a generalization of $\alpha + \beta' \mathbf{x}_{i}$). Table \ref{tab:reg-specs}'s column [1] references the regression specification. Column [2] gives the name of the approach. Column [3] indicates the regression coefficient of interest. You complete columns [4] and [5] with the estimate of the regression coefficient and its standard error (SE).}
+
+\definecolor{maroon(html/css)}{rgb}{0.5, 0.0, 0.0}{}
+\colorlet{lightmaroon}{Maroon!10}
+\begin{table}[ht]
+\centering
+\colorbox{lightmaroon}{
+{\color{Maroon}
+\begin{tabular}{ccccc}
+\hline
+\textbf{Reference} & \multicolumn{1}{c}{\textbf{Name of the }} & \textbf{Parameter} & \multicolumn{1}{c}{\textbf{Estimate}} & \textbf{SE} \\
+\textbf{Model} & \multicolumn{1}{c}{\textbf{Estimation Approach}}            & \textbf{of Interest} &  &  \\ \hline
+[1] & [2] & [3] & [4] & [5]  \\ \hline
+exp. (\ref{TCcomp})                 & Treatment-Control Comparison (TCC)                    & $\rho$             &   &   \\
+exp. (\ref{CFnc})                 & Reg-Adj. Treatment-Control Comparison (Adj. TCC) & $\rho$             &  &  \\
+exp. (\ref{PLR})                 & Double Machine Learning (DML) & $\rho$             &  &  \\
+\hline
+\end{tabular}}}
+\caption{\textcolor{Maroon}{Treatment Effect Estimates Based on Three Regression-Based Approaches Applied to Observational Data.}}
+\label{tab:reg-specs}
+\end{table}
+
+\noindent \textcolor{Maroon}{\textbf{Background: Heteroschedasticity-Robust Standard Errors}. In econometrics, the conditional variance is called the \textcolor{ForestGreen}{skedastic function}. \textcolor{ForestGreen}{Homoschedasticity} obtains when the unobservable in a regression specification has the same conditional variance for all values of the explanatory variable(s). For example, in specification (\ref{TCcomp}) there is only one explanatory variable $D_i$, and it takes only two values, therefore homoshedasticity obtains if $Var[u_i|D_i=1]=Var[u_i|D_i=0]$. If this assumption fails, we say that the model exhibits \textcolor{ForestGreen}{heteroschedasticity}. As a rule, we are better off reporting \textcolor{ForestGreen}{heteroschedasticity-robust} SEs, i.e.,  SEs computed in a way that allows for heteroschedasticity, because they are valid whether or not homoschedasticity holds.}\\
+
+\noindent \textcolor{Maroon}{\textbf{Background: \textcolor{ForestGreen}{``Partialling-Out'' Interpretation} of OLS in a MLRM}. Simple linear-in-parameter regression models (SLRM) are of the form 
+\begin{equation}\label{eq:slrm}
+y_i=\alpha+\beta x_i + u_i 
+\end{equation}
+where $x_i$ is a single regression covariate. MLRMs are of the form:
+\begin{equation}\label{eq:mlrm}
+y_i=\alpha+\beta_1 x_{1,i} + \dots + \beta_K x_{K,i} +u_i \text{ with } K>1.
+\end{equation}
+\noindent In PSet1 you derived the form of the OLS estimator of the slope coefficient in SLRM (\ref{eq:slrm}), namely 
+\begin{equation}\label{eq:slrm_slope_a}
+\hat{\beta}=\frac{\sum_{i=1}^{n}(x_i-\bar{x})y_i}{\sum_{i=1}^{n}(x_i-\bar{x})^2} \underbrace{=}_{\text{also equivalent to}} \frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}{\sum_{i=1}^{n}(x_i-\bar{x})^2}.
+\end{equation}
+Note that if you regress $x_i$ on a constant, the \textcolor{ForestGreen}{fitted value} is $\hat{x}_i=\bar{x}$, thus the \textcolor{ForestGreen}{regression residuals} are $\hat{r}_i \equiv x_i-\hat{x}_i=x_i-\bar{x}$. Similarly, if you regress $y_i$ on a constant, the fitted value is $\hat{y}_i=\bar{y}$, thus the regression residuals are $\hat{v}_i \equiv y_i-\hat{y}_i=y_i-\bar{y}$. Accordingly, we can rewrite $\hat{\beta}$ in expression (\ref{eq:slrm_slope_a}) as:
+\begin{equation}\label{eq:slrm_slope_b}
+\hat{\beta}=\frac{\sum_{i=1}^{n}\hat{r}_i y_i}{\sum_{i=1}^{n}\hat{r}_i^2} \underbrace{=}_{\text{also equivalent to}} \frac{\sum_{i=1}^{n}\hat{r}_i \hat{v}_i}{\sum_{i=1}^{n}\hat{r}_i^2}.
+\end{equation}
+Similar steps yield a very compact representation of the OLS estimator of the slope coefficient\textbf{s} in a MLRM. For example, the OLS estimator of $\beta_1$ in MLRM (\ref{eq:mlrm}) can be written as: 
+\begin{equation}\label{eq:mlrm_slope_b}
+\hat{\beta}_1=\frac{\sum_{i=1}^{n}\hat{r}_{1,i}y_i}{\sum_{i=1}^{n}\hat{r}_{1,i}^2} \underbrace{=}_{\text{also equivalent to}} \frac{\sum_{i=1}^{n}\hat{r}_{1,i}\hat{v}_{1,i}}{\sum_{i=1}^{n}\hat{r}_{1,i}^2},
+\end{equation}
+where $\hat{r}_{1,i}$ denotes the residuals from regressing $x_{1,i}$ on a constant and all remaining regression covariates, i.e., $\{x_{2,i},\ldots,x_{K,i} \}$ and $\hat{v}_{1,i}$ denotes the residuals from regressing $y_{i}$ on a constant and all remaining regression covariates, i.e., $\{x_{2,i},\ldots,x_{K,i} \}$. Similar expressions hold for $\hat{\beta}_2$, $\hat{\beta}_3$, etc.}
+
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{-10pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}

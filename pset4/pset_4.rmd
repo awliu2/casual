@@ -124,8 +124,8 @@ library(knitr)
         robust_se <- lmtest::coeftest(m2, vcov. = sandwich::vcovHC(m2, type = "HC0"))
 
         test_stats <- lmtest::coeftest(m2, vcov. = vcov(m2))
-        result_df <- data.frame(Estimate = robust_se[,"Estimate"],
-                                Std_Error = robust_se[,"Std. Error"],
+        result_df <- data.frame(Estimate = robust_se[2, "Estimate"],
+                                Std_Error = robust_se[2, "Std. Error"],
                                 t_value = robust_se[2, "t value"],
                                 Pr = robust_se[2, "Pr(>|t|)"])
         knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
@@ -156,15 +156,12 @@ library(knitr)
             ```{r}
             # regress re78 on a constant and the residuals from 6a
             m3 <- lm(re78 ~ resid_m2, data = nswpsid)
-            # get coefficients
-            coeff <- summary(m3)$coefficients["resid_m2", c("Estimate", "Std. Error")]
-            test_stats <- lmtest::coeftest(m3, vcov. = vcov(m3))
-            result_df <- data.frame(Estimate = coeff["Estimate"],
-                                    Std_Error = coeff["Std. Error"],
-                                    t_value = test_stats[2, "t value"],
-                                    Pr = formatC(test_stats[2, "Pr(>|t|)"],
-                                                format = "e",
-                                                digits = 3))
+
+            robust_se <- lmtest::coeftest(m3, vcov. = sandwich::vcovHC(m3, type = "HC0"))
+            result_df <- data.frame(Estimate = robust_se[2, "Estimate"],
+                                    Std_Error = robust_se[2, "Std. Error"],
+                                    t_value = robust_se[2, "t value"],
+                                    Pr = robust_se[2, "Pr(>|t|)"])
             knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
             ```
     
@@ -174,26 +171,24 @@ library(knitr)
         ii. (4 p) First Stage: Regress \texttt{re78} on a constant and the OPVs listed in \textbf{\textbf{\ref{item:CFnc-rho}}}; obtain the residuals.\label{item:CFnc-po-3rdstep}
             ```{r}
             # regress re78 on a constant and the OPVs listed in 5a
-            m3 <- lm(re78 ~ constant + age + agesq +
+            m4 <- lm(re78 ~ constant + age + agesq +
                              edu + nodegree + black + 
                              hisp + re74 + re75, 
                      data = nswpsid_const)
             # get residuals
-            resid_m3 <- m3$residuals
+            resid_m4 <- m4$residuals
             ```
         iii. (4 p) Second Stage: Regress the residuals from \textbf{\ref{item:CFnc-po-3rdstep}} on the residuals from \textbf{\ref{item:CFnc-po-1ststep-bis}}.\label{item:CFnc-po-4thstep}
                 ```{r}
                 # regress residuals from 6b on residuals from 6a
-                m4 <- lm(resid_m3 ~ resid_m2)
+                m5 <- lm(resid_m4 ~ resid_m2)
+
                 # get coefficients
-                coeff <- summary(m4)$coefficients["resid_m2", c("Estimate", "Std. Error")]
-                test_stats <- lmtest::coeftest(m4, vcov. = vcov(m4))
-                result_df <- data.frame(Estimate = coeff["Estimate"],
-                                        Std_Error = coeff["Std. Error"],
-                                        t_value = test_stats[2, "t value"],
-                                        Pr = formatC(test_stats[2, "Pr(>|t|)"],
-                                                    format = "e",
-                                                    digits = 3))
+                robust_se <- lmtest::coeftest(m5, vcov. = sandwich::vcovHC(m5, type = "HC0"))
+                result_df <- data.frame(Estimate = robust_se[2, "Estimate"],
+                                        Std_Error = robust_se[2, "Std. Error"],
+                                        t_value = robust_se[2, "t value"],
+                                        Pr= robust_se[2, "Pr(>|t|)"])
                 knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
                 ```
     c. (4 p) Verify that the estimates of the slope coefficient from \textbf{\ref{item:CFnc-po-2ndstep}} and \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to $\hat{\rho}$ obtained in \textbf{\ref{item:CFnc-rho}}. Use this fact to give meaning to the expression "partialling-out" interpretation of OLS in a MLRM. \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}

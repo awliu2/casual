@@ -327,4 +327,4 @@ library(knitr)
     ```
 
     i. (4 p) Take a look at the output, i.e., at the object \texttt{obj\_dml\_plr}. How does the DML estimate of average treatment effect compare to the estimates based on specifications (\ref{TCcomp}) and (\ref{CFnc})?
-        **TODO**
+        It seems to be somewhere in between the other two estimators - its value of $-603.6$ lies somewhere in between the TCC estimate of $-15204.78$ and the Adj. TCC estimate of $217.9$. It is difficult to comment on the validity of the DML estimate vs the other two specifications - all three of them are quite different than each other. However, the DML estimate is closer to the Adj. TCC estimate than the TCC estimate, which suggests that the DML estimate and the Adj. TCC estimate may be more reliable than the TCC estimate.

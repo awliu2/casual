@@ -131,7 +131,20 @@ library(knitr)
         knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
         ```
     b. (10 p) Intuitively explain why the Adj. TCC approach may be regarded as an improvement over the TCC approach when it comes to credible identification/estimation of average treatment effects.
-        **TODO**
+        **Answer:** Given the \texttt{nswpid.csv} dataset, we have a an experimental treatment group but a observational control group. 
+        When we consider how the average treatment effect is identified/esimated for an experiment, we are interested in 
+        \newline
+        \[ATE = \mathbb{E}[Y_{i1} | D_i = 1] - \mathbb{E}[Y_{i0} | D_i = 1].\]
+        \newline
+        However, this cannot be identified as we do not have a good proxy for the population moment $\mathbb{E}[Y_{i0} | D_i = 1]$, recognizing that it is likely that the treatment and control group are drawn from different populations in order to satisfy the randomization assumption.\par\medskip
+
+        Notably, if we make the Selection on Observables assumption, that $D_i$ and $Y_i(d)$ are independent conditional on $\boldsymbol{X}_i$ for every $d$, where $\boldsymbol{X}_i$ is a vector of variables that are observed in the data.
+
+        We can then try to estimate / identify the average treatement effect on the treated as 
+        \newline
+        \[ATT = \mathbb{E}[\mathbb{E}[Y_{i} |\boldsymbol{X}_i, D_i = 1] - \mathbb{E}[Y_{i} |\boldsymbol{X}_i, D_i = 0] \mid D_i = 1]\]
+        \newline
+        where such population moments can be estimated in the data.
 
 
 \pagebreak
@@ -155,7 +168,7 @@ library(knitr)
         ii. (4 p) Second Stage: Regress \texttt{re78} on a constant and the residuals from \textbf{\ref{item:CFnc-po-1ststep}}.\label{item:CFnc-po-2ndstep}
             ```{r}
             # regress re78 on a constant and the residuals from 6a
-            m3 <- lm(re78 ~ resid_m2, data = nswpsid)
+            m3 <- lm(re78 ~ constant + resid_m2, data = nswpsid_const)
 
             robust_se <- lmtest::coeftest(m3, vcov. = sandwich::vcovHC(m3, type = "HC0"))
             result_df <- data.frame(Estimate = robust_se[2, "Estimate"],
@@ -192,7 +205,11 @@ library(knitr)
                 knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
                 ```
     c. (4 p) Verify that the estimates of the slope coefficient from \textbf{\ref{item:CFnc-po-2ndstep}} and \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to $\hat{\rho}$ obtained in \textbf{\ref{item:CFnc-rho}}. Use this fact to give meaning to the expression "partialling-out" interpretation of OLS in a MLRM. \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
-    **Answer: TODO**
+    **Answer:** The partialling-out interpretation tells us that SLRMs and MLRMs estimators are equivalent: from the background, we have the following forms for SLRMs and MLRMs:
+        \newline
+        \[\text{SLRM: }y_i=\alpha+\beta x_i + u_i, \text{ where $x_i$ is a single regression covariate.}\]
+        \newline
+        \[\text{MLRM: }y_i=\alpha+\beta_1 x_{1,i} + \dots + \beta_K x_{K,i} +u_i \text{ with } K>1.\]
 \pagebreak
 
 7.  (20 p) Consider the \textcolor{ForestGreen}{partially-linear specification} in expression (\ref{PLR}). Here you estimate $\rho$ via the the \textcolor{ForestGreen}{Double Machine Learning (DML)} estimation procedure of Robinson (1988), as detailed below.\label{item:DML}
@@ -217,6 +234,7 @@ library(knitr)
          Note: Henceforth when we refer to these OPVs in mathematical expressions we use the notation $\mathbf{x}_{i}$.
         ```{r}
         pretreat_colnames = colnames(dt)[-c(1,9)] 
+        print(pretreat_colnames)
         ```
 
 

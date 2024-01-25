@@ -386,7 +386,28 @@
     (10 p) Intuitively explain why the Adj. TCC approach may be regarded
     as an improvement over the TCC approach when it comes to credible
     identification/estimation of average treatment effects.
-    \textbf{TODO}
+    \textbf{Answer:} Given the \texttt{nswpid.csv} dataset, we have a an
+    experimental treatment group but a observational control group. When
+    we consider how the average treatment effect is identified/esimated
+    for an experiment, we are interested in \newline
+    \[ATE = \mathbb{E}[Y_{i1} | D_i = 1] - \mathbb{E}[Y_{i0} | D_i = 1].\]
+    \newline However, this cannot be identified as we do not have a good
+    proxy for the population moment \(\mathbb{E}[Y_{i0} | D_i = 1]\),
+    recognizing that it is likely that the treatment and control group
+    are drawn from different populations in order to satisfy the
+    randomization assumption.
+
+    \par\medskip
+
+    Notably, if we make the Selection on Observables assumption, that
+    \(D_i\) and \(Y_i(d)\) are independent conditional on
+    \(\boldsymbol{X}_i\) for every \(d\), where \(\boldsymbol{X}_i\) is
+    a vector of variables that are observed in the data.
+
+    We can then try to estimate / identify the average treatement effect
+    on the treated as \newline
+    \[ATT = \mathbb{E}[\mathbb{E}[Y_{i} |\boldsymbol{X}_i, D_i = 1] - \mathbb{E}[Y_{i} |\boldsymbol{X}_i, D_i = 0] \mid D_i = 1]\]
+    \newline where such population moments can be estimated in the data.
   \end{enumerate}
 \end{enumerate}
 
@@ -435,7 +456,7 @@
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# regress re78 on a constant and the residuals from 6a}
-\NormalTok{m3 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ resid\_m2, }\AttributeTok{data =}\NormalTok{ nswpsid)}
+\NormalTok{m3 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ constant }\SpecialCharTok{+}\NormalTok{ resid\_m2, }\AttributeTok{data =}\NormalTok{ nswpsid\_const)}
 
 \NormalTok{robust\_se }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m3, }\AttributeTok{vcov. =}\NormalTok{ sandwich}\SpecialCharTok{::}\FunctionTok{vcovHC}\NormalTok{(m3, }\AttributeTok{type =} \StringTok{"HC0"}\NormalTok{))}
 \NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Estimate"}\NormalTok{],}
@@ -528,7 +549,13 @@
     fact to give meaning to the expression ``partialling-out''
     interpretation of OLS in a MLRM.
     \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
-    \textbf{Answer: TODO} \pagebreak
+    \textbf{Answer:} The partialling-out interpretation tells us that
+    SLRMs and MLRMs estimators are equivalent: from the background, we
+    have the following forms for SLRMs and MLRMs: \newline
+    \[\text{SLRM: }y_i=\alpha+\beta x_i + u_i, \text{ where $x_i$ is a single regression covariate.}\]
+    \newline
+    \[\text{MLRM: }y_i=\alpha+\beta_1 x_{1,i} + \dots + \beta_K x_{K,i} +u_i \text{ with } K>1.\]
+    \pagebreak
   \end{enumerate}
 \item
   (20 p) Consider the

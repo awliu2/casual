@@ -360,36 +360,27 @@
 \NormalTok{robust\_se }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m2, }\AttributeTok{vcov. =}\NormalTok{ sandwich}\SpecialCharTok{::}\FunctionTok{vcovHC}\NormalTok{(m2, }\AttributeTok{type =} \StringTok{"HC0"}\NormalTok{))}
 
 \NormalTok{test\_stats }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m2, }\AttributeTok{vcov. =} \FunctionTok{vcov}\NormalTok{(m2))}
-\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ robust\_se[,}\StringTok{"Estimate"}\NormalTok{],}
-                        \AttributeTok{Std\_Error =}\NormalTok{ robust\_se[,}\StringTok{"Std. Error"}\NormalTok{],}
+\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Estimate"}\NormalTok{],}
+                        \AttributeTok{Std\_Error =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{],}
                         \AttributeTok{t\_value =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
                         \AttributeTok{Pr =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{])}
 \NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(result\_df, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"OLS Regression Results"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-    \begin{longtable}[]{@{}lrrrr@{}}
+    \begin{longtable}[]{@{}rrrr@{}}
     \caption{OLS Regression Results}\tabularnewline
     \toprule\noalign{}
-    & Estimate & Std\_Error & t\_value & Pr \\
+    Estimate & Std\_Error & t\_value & Pr \\
     \midrule\noalign{}
     \endfirsthead
     \toprule\noalign{}
-    & Estimate & Std\_Error & t\_value & Pr \\
+    Estimate & Std\_Error & t\_value & Pr \\
     \midrule\noalign{}
     \endhead
     \bottomrule\noalign{}
     \endlastfoot
-    (Intercept) & -2836.703 & 2931.889 & 0.284 & 0.776 \\
-    treat & 217.944 & 766.444 & 0.284 & 0.776 \\
-    age & 158.506 & 150.748 & 0.284 & 0.776 \\
-    agesq & -3.233 & 2.099 & 0.284 & 0.776 \\
-    edu & 564.624 & 121.421 & 0.284 & 0.776 \\
-    nodegree & 502.091 & 631.185 & 0.284 & 0.776 \\
-    black & -699.335 & 431.649 & 0.284 & 0.776 \\
-    hisp & 2226.535 & 1216.799 & 0.284 & 0.776 \\
-    re74 & 0.279 & 0.062 & 0.284 & 0.776 \\
-    re75 & 0.568 & 0.066 & 0.284 & 0.776 \\
+    217.944 & 766.444 & 0.284 & 0.776 \\
     \end{longtable}
   \item
     (10 p) Intuitively explain why the Adj. TCC approach may be regarded
@@ -445,32 +436,29 @@
 \begin{Highlighting}[]
 \CommentTok{\# regress re78 on a constant and the residuals from 6a}
 \NormalTok{m3 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ resid\_m2, }\AttributeTok{data =}\NormalTok{ nswpsid)}
-\CommentTok{\# get coefficients}
-\NormalTok{coeff }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(m3)}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{"resid\_m2"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"Estimate"}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{)]}
-\NormalTok{test\_stats }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m3, }\AttributeTok{vcov. =} \FunctionTok{vcov}\NormalTok{(m3))}
-\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ coeff[}\StringTok{"Estimate"}\NormalTok{],}
-                        \AttributeTok{Std\_Error =}\NormalTok{ coeff[}\StringTok{"Std. Error"}\NormalTok{],}
-                        \AttributeTok{t\_value =}\NormalTok{ test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
-                        \AttributeTok{Pr =} \FunctionTok{formatC}\NormalTok{(test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{],}
-                                    \AttributeTok{format =} \StringTok{"e"}\NormalTok{,}
-                                    \AttributeTok{digits =} \DecValTok{3}\NormalTok{))}
+
+\NormalTok{robust\_se }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m3, }\AttributeTok{vcov. =}\NormalTok{ sandwich}\SpecialCharTok{::}\FunctionTok{vcovHC}\NormalTok{(m3, }\AttributeTok{type =} \StringTok{"HC0"}\NormalTok{))}
+\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Estimate"}\NormalTok{],}
+                        \AttributeTok{Std\_Error =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{],}
+                        \AttributeTok{t\_value =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
+                        \AttributeTok{Pr =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{])}
 \NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(result\_df, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"OLS Regression Results"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-      \begin{longtable}[]{@{}lrrrl@{}}
+      \begin{longtable}[]{@{}rrrr@{}}
       \caption{OLS Regression Results}\tabularnewline
       \toprule\noalign{}
-      & Estimate & Std\_Error & t\_value & Pr \\
+      Estimate & Std\_Error & t\_value & Pr \\
       \midrule\noalign{}
       \endfirsthead
       \toprule\noalign{}
-      & Estimate & Std\_Error & t\_value & Pr \\
+      Estimate & Std\_Error & t\_value & Pr \\
       \midrule\noalign{}
       \endhead
       \bottomrule\noalign{}
       \endlastfoot
-      Estimate & 217.944 & 1344.279 & 0.162 & 8.712e-01 \\
+      217.944 & 1444.376 & 0.151 & 0.88 \\
       \end{longtable}
     \end{enumerate}
   \item
@@ -489,12 +477,12 @@
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# regress re78 on a constant and the OPVs listed in 5a}
-\NormalTok{m3 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ constant }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ agesq }\SpecialCharTok{+}
+\NormalTok{m4 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(re78 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ constant }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ agesq }\SpecialCharTok{+}
 \NormalTok{                 edu }\SpecialCharTok{+}\NormalTok{ nodegree }\SpecialCharTok{+}\NormalTok{ black }\SpecialCharTok{+} 
 \NormalTok{                 hisp }\SpecialCharTok{+}\NormalTok{ re74 }\SpecialCharTok{+}\NormalTok{ re75, }
          \AttributeTok{data =}\NormalTok{ nswpsid\_const)}
 \CommentTok{\# get residuals}
-\NormalTok{resid\_m3 }\OtherTok{\textless{}{-}}\NormalTok{ m3}\SpecialCharTok{$}\NormalTok{residuals}
+\NormalTok{resid\_m4 }\OtherTok{\textless{}{-}}\NormalTok{ m4}\SpecialCharTok{$}\NormalTok{residuals}
 \end{Highlighting}
 \end{Shaded}
     \item
@@ -505,33 +493,31 @@
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# regress residuals from 6b on residuals from 6a}
-\NormalTok{m4 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(resid\_m3 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ resid\_m2)}
+\NormalTok{m5 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(resid\_m4 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ resid\_m2)}
+
 \CommentTok{\# get coefficients}
-\NormalTok{coeff }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(m4)}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{"resid\_m2"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"Estimate"}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{)]}
-\NormalTok{test\_stats }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m4, }\AttributeTok{vcov. =} \FunctionTok{vcov}\NormalTok{(m4))}
-\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ coeff[}\StringTok{"Estimate"}\NormalTok{],}
-                        \AttributeTok{Std\_Error =}\NormalTok{ coeff[}\StringTok{"Std. Error"}\NormalTok{],}
-                        \AttributeTok{t\_value =}\NormalTok{ test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
-                        \AttributeTok{Pr =} \FunctionTok{formatC}\NormalTok{(test\_stats[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{],}
-                                    \AttributeTok{format =} \StringTok{"e"}\NormalTok{,}
-                                    \AttributeTok{digits =} \DecValTok{3}\NormalTok{))}
+\NormalTok{robust\_se }\OtherTok{\textless{}{-}}\NormalTok{ lmtest}\SpecialCharTok{::}\FunctionTok{coeftest}\NormalTok{(m5, }\AttributeTok{vcov. =}\NormalTok{ sandwich}\SpecialCharTok{::}\FunctionTok{vcovHC}\NormalTok{(m5, }\AttributeTok{type =} \StringTok{"HC0"}\NormalTok{))}
+\NormalTok{result\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Estimate =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Estimate"}\NormalTok{],}
+                        \AttributeTok{Std\_Error =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{],}
+                        \AttributeTok{t\_value =}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"t value"}\NormalTok{],}
+                        \AttributeTok{Pr=}\NormalTok{ robust\_se[}\DecValTok{2}\NormalTok{, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{])}
 \NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(result\_df, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"OLS Regression Results"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-      \begin{longtable}[]{@{}lrrrl@{}}
+      \begin{longtable}[]{@{}rrrr@{}}
       \caption{OLS Regression Results}\tabularnewline
       \toprule\noalign{}
-      & Estimate & Std\_Error & t\_value & Pr \\
+      Estimate & Std\_Error & t\_value & Pr \\
       \midrule\noalign{}
       \endfirsthead
       \toprule\noalign{}
-      & Estimate & Std\_Error & t\_value & Pr \\
+      Estimate & Std\_Error & t\_value & Pr \\
       \midrule\noalign{}
       \endhead
       \bottomrule\noalign{}
       \endlastfoot
-      Estimate & 217.944 & 864.9 & 0.252 & 8.011e-01 \\
+      217.944 & 766.444 & 0.284 & 0.776 \\
       \end{longtable}
     \end{enumerate}
   \item

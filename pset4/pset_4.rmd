@@ -115,20 +115,20 @@ library(knitr)
 5. (20 p) These questions pertain to the specification in expression (\ref{CFnc}) thus you obtain the \textcolor{ForestGreen}{Regression-Adjusted Treatment-Control Comparison (Adj. TCC) Estimator} of the treatment effect of the offer of training. \label{item:CFnc}
     a. (10 p) Add to the model estimated in \textbf{\ref{item:TCcomp}} the following OPVs as regression covariates: \texttt{age}, \texttt{agesq}, \texttt{edu}, \texttt{nodegree}, \texttt{black}, \texttt{hisp}, \texttt{re74}, and \texttt{re75}. Report $\hat{\rho}$ and its heteroschedasticity-robust SE. \textcolor{gray}{\textbf{Programming Guidance:} Add column \texttt{agesq} (\texttt{age} squared) to your dataframe using, e.g., \texttt{dplyr::mutate( )}.}\label{item:CFnc-rho}
         ```{r}
-            # add age squared to the dataframe
-            nswpsid <- nswpsid %>% mutate(agesq = age^2)
-            m2 <- lm(re78 ~ treat + age + agesq + edu + 
-                     nodegree + black + hisp + re74 + re75, 
-                     data = nswpsid)
-            coeff <- summary(m2)$coefficients["treat", c("Estimate", "Std. Error")]
-            test_stats <- lmtest::coeftest(m2, vcov. = vcov(m2))
-            result_df <- data.frame(Estimate = coeff["Estimate"],
-                                    Std_Error = coeff["Std. Error"],
-                                    t_value = test_stats[2, "t value"],
-                                    Pr = formatC(test_stats[2, "Pr(>|t|)"],
-                                                format = "e",
-                                                digits = 3))
-            knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
+        # add age squared to the dataframe
+        nswpsid <- nswpsid %>% mutate(agesq = age^2)
+        m2 <- lm(re78 ~ treat + age + agesq + edu + 
+                    nodegree + black + hisp + re74 + re75, 
+                    data = nswpsid)
+
+        robust_se <- lmtest::coeftest(m2, vcov. = sandwich::vcovHC(m2, type = "HC0"))
+
+        test_stats <- lmtest::coeftest(m2, vcov. = vcov(m2))
+        result_df <- data.frame(Estimate = robust_se[,"Estimate"],
+                                Std_Error = robust_se[,"Std. Error"],
+                                t_value = robust_se[2, "t value"],
+                                Pr = robust_se[2, "Pr(>|t|)"])
+        knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
         ```
     b. (10 p) Intuitively explain why the Adj. TCC approach may be regarded as an improvement over the TCC approach when it comes to credible identification/estimation of average treatment effects.
         **TODO**

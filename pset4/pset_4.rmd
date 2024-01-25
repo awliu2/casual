@@ -47,7 +47,7 @@ library(knitr)
 
 3. Why do you think that Dehajia and Wahba constructed their "observational datasets" by pulling together the treated sample from NSW and a sample of individuals drawn from either the PSID or the CPS data? \textcolor{gray}{\textbf{Hint:} Both PSID and CPS include information on whether an individual enrolled in a training course during the previous 12 months. Thus, Dehajia and Wahba could have exploited exclusively observational variation in whether an individual enrolled in a training program. Why do you think that they chose not to follow this approach?}
 
-    **Answer:** We believe that Dehajia and Wahba chose to pool the NSW and PSID/CPS datasets because they wanted to have a larger sample size to work with. This is because the NSW sample is relatively small, and the PSID/CPS samples are much larger. By pooling the NSW and PSID/CPS samples, Dehajia and Wahba are able to increase the sample size of their dataset. In addition, by analyzing samples drawn from different distributions (i.e. PSID/CPS datasets), they could increase the generalizability of their results to the population.
+    **Answer:** We believe that Dehajia and Wahba chose to pool the NSW and PSID/CPS datasets because they wanted to have a larger sample size to work with. This is because the NSW sample is relatively small, and the PSID/CPS samples are much larger. By pooling the NSW and PSID/CPS samples, Dehajia and Wahba are able to increase the sample size of their dataset. In addition, by analyzing samples drawn from different distributions (i.e. PSID/CPS datasets), they could increase the generalizability of their results.
     
 
 <!-- Part 2 Setup, table -->
@@ -108,7 +108,7 @@ library(knitr)
 
     d. (10 p) Intuitively explain why the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest. \textcolor{gray}{\textbf{Hint}: Use the result in  \textbf{\ref{item:TCcomp-diff}} to think about what this approach uses to proxy for the missing data, i.e., for the control units' mean of the potential outcome w/ treatment, and for the treated units' mean of the potential outcome w/out treatment.}\label{item:TCcomp-rho} 
     
-        **Answer:** The TCC approach uses the control group as a proxy for the missing potential outcome of the treatment group if they had not been treated, and vice versa. However, if the control group is not comparable with the treated group (i.e. the samples are drawn from different distributions), the proxy is invalid. For instance, from the summary statistics provided, we can see that there are differences in characteristics such as age, education, and race between the treated and control groups. These differences suggest that the groups may not be comparable and thus the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest.
+        **Answer:** The TCC approach uses the control group as a proxy for the missing potential outcome of the treatment group if they had not been treated, and vice versa. However, if the control group is not comparable with the treated group (i.e. the samples are drawn from different populations), the proxy is invalid. For instance, from the summary statistics provided, we can see that there are differences in characteristics such as age, education, and race between the treated and control groups. These differences suggest that the groups may not be comparable and thus the TCC approach may not deliver a credible estimate of the average effect of the treatment of interest.
 
 \pagebreak
 
@@ -205,11 +205,13 @@ library(knitr)
                 knitr::kable(result_df, digits = 3, caption = "OLS Regression Results")
                 ```
     c. (4 p) Verify that the estimates of the slope coefficient from \textbf{\ref{item:CFnc-po-2ndstep}} and \textbf{\ref{item:CFnc-po-4thstep}} are numerically identical to $\hat{\rho}$ obtained in \textbf{\ref{item:CFnc-rho}}. Use this fact to give meaning to the expression "partialling-out" interpretation of OLS in a MLRM. \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
-    **Answer:** The partialling-out interpretation tells us that SLRMs and MLRMs estimators are equivalent: from the background, we have the following forms for SLRMs and MLRMs:
-        \newline
-        \[\text{SLRM: }y_i=\alpha+\beta x_i + u_i, \text{ where $x_i$ is a single regression covariate.}\]
+    
+    **Answer:** In 5a, we calculated $\hat{\rho}$ to be 217.9. We obtained the same estiamte in 6(a)ii and 6(b)ii, verifying the partialling-out interpretation which tells us that that the estimate of the treatment effect obtained from this process is the amount of variation in the outcome variable that can be exclusively attributed to the treatment variable, after accounting for the variation explained by other covariates. From the background, we have the following form for MLRMs:
         \newline
         \[\text{MLRM: }y_i=\alpha+\beta_1 x_{1,i} + \dots + \beta_K x_{K,i} +u_i \text{ with } K>1.\]
+        
+    Verifying that the estimates of the slope coefficient from 6(a)ii and 6(b)iii are numerically identical to the regression coefficient obtained in 5a serves as empirical evidence that the "partialling-out" interpretation is valid. This equality demonstrates that the effect of the treatment variable on the outcome variable is the same regardless of whether we control for the other variables by including them in the regression (as in 5a) or by partialling them out through the two-step residual process (as in 6(a) and 6(b)). 
+    
 \pagebreak
 
 7.  (20 p) Consider the \textcolor{ForestGreen}{partially-linear specification} in expression (\ref{PLR}). Here you estimate $\rho$ via the the \textcolor{ForestGreen}{Double Machine Learning (DML)} estimation procedure of Robinson (1988), as detailed below.\label{item:DML}

@@ -188,7 +188,7 @@
   PSID/CPS samples, Dehajia and Wahba are able to increase the sample
   size of their dataset. In addition, by analyzing samples drawn from
   different distributions (i.e.~PSID/CPS datasets), they could increase
-  the generalizability of their results to the population.
+  the generalizability of their results.
 \end{enumerate}
 
 \include{figures/table_reg_specs.tex}
@@ -317,7 +317,7 @@
     for the missing potential outcome of the treatment group if they had
     not been treated, and vice versa. However, if the control group is
     not comparable with the treated group (i.e.~the samples are drawn
-    from different distributions), the proxy is invalid. For instance,
+    from different populations), the proxy is invalid. For instance,
     from the summary statistics provided, we can see that there are
     differences in characteristics such as age, education, and race
     between the treated and control groups. These differences suggest
@@ -549,14 +549,34 @@
     fact to give meaning to the expression ``partialling-out''
     interpretation of OLS in a MLRM.
     \textcolor{gray}{\textbf{Hint}: Think about what steps \textbf{\ref{item:CFnc-po-1ststep}} and \textbf{\ref{item:CFnc-po-3rdstep}} accomplish.}
-    \textbf{Answer:} The partialling-out interpretation tells us that
-    SLRMs and MLRMs estimators are equivalent: from the background, we
-    have the following forms for SLRMs and MLRMs: \newline
-    \[\text{SLRM: }y_i=\alpha+\beta x_i + u_i, \text{ where $x_i$ is a single regression covariate.}\]
-    \newline
-    \[\text{MLRM: }y_i=\alpha+\beta_1 x_{1,i} + \dots + \beta_K x_{K,i} +u_i \text{ with } K>1.\]
-    \pagebreak
   \end{enumerate}
+
+  \textbf{Answer:} In 5a, we calculated \(\hat{\rho}\) to be 217.9. We
+  obtained the same estiamte in 6(a)ii and 6(b)ii, verifying the
+  partialling-out interpretation which tells us that that the estimate
+  of the treatment effect obtained from this process is the amount of
+  variation in the outcome variable that can be exclusively attributed
+  to the treatment variable, after accounting for the variation
+  explained by other covariates. From the background, we have the
+  following form for MLRMs: \newline
+  \[\text{MLRM: }y_i=\alpha+\beta_1 x_{1,i} + \dots + \beta_K x_{K,i} +u_i \text{ with } K>1.\]
+
+  Verifying that the estimates of the slope coefficient from 6(a)ii and
+  6(b)iii are numerically identical to the regression coefficient
+  obtained in 5a serves as empirical evidence that the
+  ``partialling-out'' interpretation is valid. This equality
+  demonstrates that the effect of the treatment variable on the outcome
+  variable is the same regardless of whether we control for the other
+  variables by including them in the regression (as in 5a) or by
+  partialling them out through the two-step residual process (as in 6(a)
+  and 6(b)).
+\end{enumerate}
+
+\pagebreak
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
 \item
   (20 p) Consider the
   \textcolor{ForestGreen}{partially-linear specification} in expression
@@ -606,8 +626,14 @@
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{pretreat\_colnames }\OtherTok{=} \FunctionTok{colnames}\NormalTok{(dt)[}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{9}\NormalTok{)] }
+\FunctionTok{print}\NormalTok{(pretreat\_colnames)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+##  [1] "age"      "edu"      "black"    "hisp"     "married"  "re74"    
+##  [7] "re75"     "u74"      "u75"      "nodegree" "agesq"
+\end{verbatim}
   \item
     (2 p) Specify data and variables for the causal model by running the
     script:\label{item:dml-data}

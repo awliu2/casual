@@ -13,6 +13,8 @@ colorlinks: true
 <!-- R library setup -->
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# Change root.dir to match your working directory location
+knitr::opts_knit$set(root.dir = "~/Documents/Casual")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -28,7 +30,35 @@ library(knitr)
     \smash{\hat{#1}}}}
 
 
-\include{figures/background.tex}
+\noindent \textcolor{Maroon}{\textbf{Objective}: In PSet 3 you used NSW experimental data to estimate the treatment effect of the offer of training on post-training earnings. In PSet 4 you used datasets created to mimic observational data and reported estimates of the treatment effect obtained using regression-based methodologies. In this pset you complete STEP 1 in \textcolor{ForestGreen}{propensity score matching (PSM)}. Specifically, you estimate each sample unit's probability of being included in the treatment group, which we call the \textcolor{ForestGreen}{propensity score}, or \textcolor{ForestGreen}{pscore} for short. In the next PSet you use the estimated pscores to estimate the impact of the offer of training on post-intervention earnings using observational data.} \\
+
+\noindent \textcolor{Maroon}{\textbf{Background}: A unit's pscore is \underline{known} when the data results from an experiment because it is set by the researcher and used to assign units to one group or the other. For example, in an RCT with random assignment (RA) the researcher flips (say) a balanced coin to decide whether to assign a unit to treated or control groups. That is, the researcher uses an assignment probability equal to 0.5. Thus, each unit's pscore is 0.5. As another example consider an RCT with conditional random assignment (CRA) such that units are either males or females and the researcher assigns males to the treated group with probability 0.5 but they assign females to the treated group with probability 0.3. Then the pscore of any male sample unit is 0.5 and the pscore of any female sample unit is 0.3.}\\
+
+\noindent \textcolor{Maroon}{When the data is observational, a unit's pscore is \underline{not known} hence you need to first estimate it in order to use it in matching procedures. In this PSet you estimate the pscore based on two models: the \textcolor{ForestGreen}{Linear Probability Model (LPM)} and the \textcolor{ForestGreen}{Logit Model}. The LPM posits that, as a function of the unit's observable and predetermined characteristics $\mathbf{x}_i=(1, x_{i,1},\ldots,x_{i,K})$, the probability of ``success'' (with ``success'' = being assigned to the treatment group) is a linear-in-parameter function\footnote{This explains the name ``LPM'': it \textit{models} the \textit{probability} of “success” as a \textit{linear}-in-parameter function. The ``linearity'' in the name of this model pertains to the way in which parameters enter the specification. The OPVs may enter linearly or non-linearly. For example, say that there are two covariates $(x_{1i},x_{2i})$, then the model $\Pr(D_i=|\mathbf{x}_i=\mathbf{x})=\theta_0+\theta_1 x_{1}+\theta_2 x_{2}+\theta_3 x_{1}^2+\theta_4 ln(x_{1})$ is a LPM. This means that, when in the text we write, e.g., $\Pr(D_i=|\mathbf{x}_i=\mathbf{x})=\theta'\mathbf{x}$, the RHS variables may be transformation of the original OPVs.}:
+\begin{equation}\label{eq:lpm}
+\Pr(D_i=1|\mathbf{x}_i=\mathbf{x})=\theta'\mathbf{x}, \text{ for some } \theta=(\theta_0,\theta_1, \ldots, \theta_K).
+\end{equation}
+\noindent Instead, the Logit model posits that, as a function of the unit's characteristics, the probability of ``success'' is a non-linear function of the parameters of the form:
+\begin{equation}\label{eq:logit}
+\Pr(D_i=1|\mathbf{x}_i=\mathbf{x})=\frac{e^{\gamma'\mathbf{x}}}{1 + e^{\gamma'\mathbf{x}}}, \text{ for some } \gamma=(\gamma_0,\gamma_1, \ldots, \gamma_K).
+\end{equation}
+\noindent You know the LPM from introductory econometrics. Why? You verified in PSet 1 that: 
+\begin{equation}\label{eq:meanDeqPr}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\Pr(D_i=1|\mathbf{x}_i=\mathbf{x}).
+\end{equation}
+Taken together expressions (\ref{eq:lpm}) and (\ref{eq:meanDeqPr}) say that the mean of $D_i$ is a \underline{linear-in-parameter} function, i.e., 
+\begin{equation}\label{eq:meanLPM}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\theta'\mathbf{x}. 
+\end{equation}
+This means that the LPM is a standard multivariate linear regression model (MLRM) whose dependent variable is the binary 0/1 variable $D_i$. Thus, you can use OLS to estimate the parameters of a LPM, in your case $\theta$. In this Pset you do that and you also use a second estimation methodology suitable for linear-in-parameter models, \textcolor{ForestGreen}{Lasso regression}. (No prior knowledge of Lasso is expected, we guide you through implementation.)}\\
+
+\noindent \noindent \textcolor{Maroon}{Next, using expressions (\ref{eq:logit}) and (\ref{eq:meanDeqPr}) you have:
+\begin{equation}\label{eq:meanLogit}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\frac{e^{\gamma'\mathbf{x}}}{1 + e^{\gamma'\mathbf{x}}}.
+\end{equation}
+This says that according to the Logit model the mean of $D_i$ is a \underline{non-linear} function of the parameters. Thus, you cannot apply OLS nor Lasso to estimate $\gamma$. Instead you use a methodology called \textcolor{ForestGreen}{Maximum Likelihood Estimation (MLE)}. (No prior knowledge of MLE is expected, we guide you through implementation.) By the end of this PSet you will have estimated the pscore for all the units included in the \texttt{nswpsid.csv} dataset.}
+\newpage
+
 
 \begin{center}
 {\LARGE Part 1: Estimate the PScore Using A Linear-in-Parameter Model (65 p)}
@@ -39,29 +69,88 @@ library(knitr)
 2. (45 p) Consider the LPM introduced in expression (\ref{eq:lpm}) and recall the (implied) expression (\ref{eq:meanLPM}) for the conditional mean of treatment status. Here you estimate $\theta$ given a specific form of $\theta'\mathbf{x}_{i}$ and using the OLS approach.\label{item:lpm:ols}
 
     a. (10 p) Use the \texttt{nswpsid.csv} data with: 1) \texttt{treat} as $D_i$; 2) a constant and the following 13 covariates as $\mathbf{x}_{i}$: \texttt{age, agesq, edu, edusq, married, nodegree, black, hisp, re74, re75, re74sq, re75sq, u74black}, where e.g. \texttt{re74sq} is the square of \texttt{re74} and \texttt{u74black} is the interaction b/w \texttt{u74} and \texttt{black}. Obtain the OLS estimator of $\theta=(\theta_0,\theta_1,\ldots,\theta_{13})$, denoted $\hat{\theta}$. \textcolor{gray}{\textbf{Programming Guidance:} Declare a formula object with \texttt{as.formula( )} then use \texttt{stats::lm( )}. For later reference, in our R script we named the formula object \texttt{pscore\_formula}.} \label{item:lpm:ols:reg}
+        ```{r}
+        nswpsid <- read.csv("pset5/starter-files/nswpsid.csv") %>%
+          mutate(agesq = age^2) %>% mutate(edusq = edu^2) %>%
+          mutate(re74sq = re74^2) %>% mutate(re75sq = re75^2) %>%
+          mutate(u74black = u74*black)
+        ```
+        ```{r}
+        pscore_formula = as.formula(treat ~ age + agesq + edu + edusq + 
+                                      married + nodegree + black + hisp + 
+                                      re74 + re75 + re74sq + re75sq + u74black)
+        ols <- lm(pscore_formula, data = nswpsid)
+        theta_hat <- data.frame(ols$coefficients)
+        knitr::kable(theta_hat)
+        ```
 
     b. Use $\hat{\theta}$ from \textbf{\ref{item:lpm:ols:reg}} to describe the change in the pscore associated with a change in one of the covariates. Specifically:
 
         i. (2 p) Show that $\frac{\partial Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial x_{i,k}} = \frac{\partial E[D_i|\mathbf{x}_{i}=\mathbf{x}]}{\partial x_{i,k}}= \frac{\partial \mathbf{x}'\theta}{\partial x_{i,k}} = \theta_k$ for any $k >0$ and $x_{i,k}$ that varies continuously and such that no other covariates mechanically changes when $x_{i,k}$ changes. \textcolor{gray}{\textbf{Hint:} Use Calculus.}
+        
+            **Solution:** From \ref{eq:meanDeqPr} and \ref{eq:meanLPM} we know that 
+            \[E[D_i|\mathbf{x}_i=\mathbf{x}]=\Pr(D_i=1|\mathbf{x}_i=\mathbf{x}) = E[D_i|\mathbf{x}_i=\mathbf{x}]=\theta'\mathbf{x}.\]
+            Then, we can rewrite the partial derivative as 
+            \begin{align*}
+            \frac{\partial Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial x_{i,k}} &= \frac{\partial E[D_i|\mathbf{x}_{i}=\mathbf{x}]}{\partial x_{i,k}} \\
+            &= \frac{\partial \mathbf{x}'\theta}{\partial x_{i,k}} \ \text{, where $\mathbf{x}'\theta = \theta'\mathbf{x}$}\\ 
+            \end{align*}
+            Furthermore, we can express $\mathbf{x}'\theta$ as
+            \[\mathbf{x}'\theta = \theta_0 + x_1 \theta_1 + \ldots + x_k \theta_k + \ldots + x_K \theta_K\]
+            from which it is easy to see that the partial derivative of this linear equation with respect to $x_{i,k}$, for some fixed $k > 0$ and continuous $x_{i, k}$, is $\theta_k$. \hfill $\blacksquare$
+            \newline
 
         ii. (4 p) Write out the expression for $\frac{\partial Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial \texttt{re75}}$ paying attention to the fact that earnings in 1975 contribute to two mechanically related regression covariates: \texttt{re75} and \texttt{re75sq}. \textcolor{gray}{\textbf{Hint:} Use Calculus.}\label{item:lpm:delta-pscore-re75}
-        
+
+            **Solution:** Similar to (i), we can express our partial deriative as:
+            \[\frac{\partial (\theta_0 + x_1 \theta_1 + \ldots + x_k \theta_k + \ldots + x_K \theta_K)}{\partial x_{i,k}}.\]
+
+            Specifically, these covariates include the terms `re75` and `re75sq`, which are the 1975 earnings and the square of the 1975 earnings, respectively. Thus, we can express the partial derivative with respect to `re75` as:
+            \[\frac{\partial (\theta_0 + x_1 \theta_1 + \ldots + \texttt{re75} \theta_{\texttt{re75}} + \texttt{re75}^2 \theta_{\texttt{re75sq}} + \ldots + x_K \theta_K)}{\partial \texttt{re75}}\]
+            which we find equivalent to $\theta_{\texttt{re75}} + 2\theta_{\texttt{re75sq}}\texttt{re75}$. \hfill $\blacksquare$
+            \newline
+            
         iii. Use $\hat{\theta}$ and the expression from \textbf{\ref{item:lpm:delta-pscore-re75}} to complete this sentence: ``\textit{Evaluated at average 1975 earnings, a \$10,000 increase in 1975 earnings is associated with [\dots] percentage points [lower/higher] probability of being included in the treated group}.'' \textcolor{gray}{\textbf{Hint:} Start by computing average 1975 earnings.}
+            
+                ```{r}
+                # compute average 1975 earnings:
+                df <- data.frame(mean(nswpsid$re75))
+                colnames(df) <- c("mean re75")
+                kable(df)
+                ```
+                First, we note that $\theta_{\texttt{re75sq}}$ is neglible, that is to say, given our partial derivative $\theta_{\texttt{re75}} + 2\theta_{\texttt{re75sq}}\texttt{re75} = \theta_{\texttt{re75}}$, we do not need to account for the starting earnings amount in our calculation to determine the change in pscore given a change in earnings. As $\theta{\texttt{re75}}$ = -0.0000025, we find that $P(D_\texttt{re75}=1)$ decreases by $-0.0000025 * 100000 = 0.025$, i.e 2.5 percentage points.
 
     c. (6 p) As mentioned above, when $D_i$ indicates whether a unit belongs to the treated or the control group we call it the \textcolor{ForestGreen}{treatment status indicator} and we call the probability of ``success'', namely $Pr(D_i=1|\mathbf{x}_i=\mathbf{x})$, the \textcolor{ForestGreen}{propensity score}. Use the regression output from \textbf{\ref{item:lpm:ols:reg}} to obtain \textcolor{ForestGreen}{fitted values}\footnote{Consider a generic MLRM regression framework where $y_i$ denotes the dependent variable, $\mathbf{x}_i$ are the covariates (including a constant), and $\beta$ are the coefficients. Let $\hat{\beta}$ denote the OLS estimates. We define the fitted value of the dependent variable as $\hat{y}_i \equiv \hat{\beta}'\mathbf{x}_i = \hat{\beta}_0 + \hat{\beta}_1 x_{1,i}+\ldots+\hat{\beta}_K x_{i,K}$.}, denoted $\hat{p}_i$. Note: Interpret $\hat{p}_i$ as the estimated probability that a unit $i$ with pre-treatment characteristics $\mathbf{x}_i$ is treated. \textcolor{gray}{\textbf{Programming Guidance:} Apply \texttt{stats::predict( )} to the object returned by \texttt{stats::lm( )} to get fitted values.}\label{item:lpm:ols:fitted}
 
+    ```{r}
+    p_hat <- predict(ols, type = "response")
+    ```
+
     d. (2 p) Add $\hat{p}_i$ obtained in \textbf{\ref{item:lpm:ols:fitted}} to your dataframe as a column. \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::mutate( )}}.
+    ```{r}
+    nswpsid <- mutate(nswpsid, p_hat = p_hat)
+    ```
     e. (4 p) The LPM has one disadvantage: $\hat{p}_i$ is not guaranteed to be between 0 and 1 (the range of values a probability may take). For how many units is $\hat{p}_i$ obtained in \textbf{\ref{item:lpm:ols:fitted}} negative or larger than 1?
+    ```{r}
+    # number of units with p_hat < 0
+    n_less <- nrow(nswpsid[nswpsid$p_hat < 0, ])
+    # number of units with p_hat > 1
+    n_greater <- nrow(nswpsid[nswpsid$p_hat > 1, ])
+    n_total <- nrow(nswpsid)
+    df <- data.frame(n_less, n_greater, n_total)
+    colnames(df) <- c("# $p_hat < 0$", "# p_hat > 0", "# total")
+    kable(df, align = "c")
+    ```
 
 3. (15 p) In \textbf{\ref{item:lpm:ols}} you estimated $\theta$ using OLS. Here you use \textcolor{ForestGreen}{Lasso} regression. Specifically,
     a. (10 p) Obtain $\doublehat{\theta}$. \textcolor{gray}{\textbf{Programming Guidance:} In our R script the formula is called \texttt{pscore\_formula} and the dataframe \texttt{dt\_psid}. To implement the Lasso approach you need to take a few steps: 1) prepare two objects \texttt{x} and \texttt{y} storing, respectively, the covariates and the dependent variable of the regression; 2) find the value of $\lambda$ to plug in the minimization problem (\ref{eq:lasso:objfnc}); 3) use \texttt{glmnet::glmnet(..., alpha = 1)} to fit the Lasso model (glm stands for \textcolor{ForestGreen}{generalized linear model}). Specifically, you want to incorporate in your R script the following lines of code:}
 
-    ```{r, eval=FALSE}
+    ```{r}
     # Estimate the pscore using Lasso
     # Predictor variables
-    x <- stats::model.matrix(pscore_formula, data = dt_psid)[,-1] 
+    x <- stats::model.matrix(pscore_formula, data = nswpsid)[,-1] 
     # Outcome variable
-    y <- dt_psid$treat 
+    y <- nswpsid$treat 
     # Find the best lambda using cross-validation
     set.seed(123) 
     cv_lasso <- glmnet::cv.glmnet(x, y, alpha = 1)
@@ -73,13 +162,45 @@ library(knitr)
     ```
     b. (5 p) Compare $\hat{\theta}$ and $\doublehat{\theta}$. Are there coefficient estimates that Lasso sets to zero but OLS does not? \textcolor{gray}{\textbf{Programming Guidance:} View the coefficient estimates from \texttt{lm( )} and \texttt{glmnet:glmnet( )} by applying method \texttt{coef( )}, e.g. \texttt{coef(lasso\_propensity)} where in our script \texttt{lasso\_propensity} is the object returned by \texttt{glmnet::glmnet( )}}.
 
+    ```{r}
+    theta_hat_hat <- coef(lasso_propensity)
+    coef_df <- data.frame(theta_hat_hat[, 1], theta_hat[, 1])
+    colnames(coef_df) <- c("Lasso", "OLS")
+    kable(coef_df)
+    ```
+    From the above results, we can see that lasso zeros out the `agesq` coefficient, whereas OLS does not. It also assigns less weight to age and education covariates than the OLS model. 
 
 
 \begin{center}
 {\LARGE Part 2: Estimate the Propensity Score Using the Logit Model (35 p)}
 \end{center}
 
-\include{figures/background2.tex}
+\noindent \textcolor{Maroon}{\textbf{Background: Maximum Likelihood Estimation}: MLE returns the values of the parameters that maximize the joint distribution of the data, that is, that make the data as ``most likely'' of having been generated by a parametric model.\footnote{You should have covered MLE estimation of LRMs in introductory econometrics, and MLE more generally in any introductory statistics class. In case you didn't, we offer a brief introduction as applied to the setting under consideration.} It is useful to clearly differentiate between the RVs in a RS and their realized values: denote $\tilde{D_i}$ the realized value of $D_i$ and similarly $\tilde{\mathbf{x}}_i$ the realized value of $\mathbf{x}_i$. The joint distribution of the data is therefore: $\Pr(D=\tilde{D}|\mathbf{X}=\tilde{\mathbf{X}};\gamma)$ where $D$ collects all the $D_i$'s, $\tilde{D}$ collects all the $\tilde{D_i}$'s, $\mathbf{X}$ collects all the $\mathbf{x}_i$'s, and $\tilde{\mathbf{X}}$ collects all the $\tilde{\mathbf{x}}_i$'s. $\Pr(D=\tilde{D}|\mathbf{X}=\tilde{\mathbf{X}};\gamma)$ is called the \textcolor{ForestGreen}{Likelihood function} and is often denoted $\mathcal{L}(\gamma; \tilde{D}, \tilde{\mathbf{X}})$ to underscore that we want to think of it as a function of the parameters $\gamma$ for given realization of the data. When we work with a RS we have independence, which means that the joint distribution factors into the product of $N$ terms: 
+\begin{equation}
+\mathcal{L}(\gamma; \tilde{D}, \tilde{\mathbf{X}})= \prod_{i=1}^{N}\Pr(D_i=\tilde{D}_i|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)
+\end{equation}
+Because $\tilde{D}_i$ takes value either 0 or 1, we can also write:
+\begin{equation}
+\mathcal{L}(\gamma; \tilde{D}, \tilde{\mathbf{X}})= \prod_{i=1}^N\Pr(D_i=1|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)^{\tilde{D}_i}\times \Pr(D_i=0|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)^{1-\tilde{D}_i}.
+\end{equation}
+It is common to work with the logarithm of this function, called the \textcolor{ForestGreen}{Log-Likelihood function}:
+\begin{equation}
+\begin{aligned}
+\ell(\gamma; \tilde{D}, \tilde{\mathbf{X}}) &\equiv ln(\mathcal{L}(\gamma; \tilde{D}, \tilde{\mathbf{X}})) \\
+&=\sum_{i=1}^{N}\Big[\tilde{D}_i \times ln(\Pr(D_i=1|\mathbf{x}_i=\tilde{\mathbf{x}}_i;\gamma))+(1-\tilde{D}_i)\times ln(\Pr(D_i=0|\mathbf{x}_i=\tilde{\mathbf{x}}_i;\gamma)) \Big], \\
+&=\sum_{i \text{ s.t.} \tilde{D}_i=1}ln(\Pr(D_i=1|\mathbf{x}_i=\tilde{\mathbf{x}}_i;\gamma))+\sum_{i \text{ s.t.} \tilde{D}_i=0}ln(\Pr(D_i=0|\mathbf{x}_i=\tilde{\mathbf{x}}_i;\gamma)).
+\end{aligned}
+\end{equation}
+Then the MLE estimator of $\gamma$ is: 
+\begin{argmaxi}
+{\gamma}{\ell(\gamma; \tilde{D}, \tilde{\mathbf{X}}).}{\label{eq:mle:objfnc}}{\hat{\gamma}=}
+\end{argmaxi}
+In the special case of the Logit model $\Pr(D_i=1|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)=\frac{e^{\tilde{\mathbf{x}}_i'\gamma}}{1+e^{\tilde{\mathbf{x}}_i'\gamma}}$ and $\Pr(D_i=0_i|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)=\frac{1}{1+e^{\tilde{\mathbf{x}}_i'\gamma}}$. Hence the MLE estimator of $\gamma$ in the Logit model under consideration is:
+\begin{argmaxi}
+{\gamma}{\sum_{i \text{ s.t. }\tilde{D}_i=1} ln\big[\frac{e^{\tilde{\mathbf{x}}_i'\gamma}}{1+e^{\tilde{\mathbf{x}}_i'\gamma}} \big] + \sum_{i \text{ s.t. }\tilde{D}_i=0} ln\big[\frac{1}{1+e^{\tilde{\mathbf{x}}_i'\gamma}} \big].}{\label{eq:logit:mle:objfnc}}{\hat{\gamma}=}
+\end{argmaxi}
+Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; this system has as many unknowns as there are elements in $\gamma$.}
+
 
 4. (5 p) To familiarize yourself with MLE, here you practice with this estimation approach in a simplified setting. Suppose that there are no OPVs and that your sample has size $N=100$, and 10 units have $\tilde{D}_i=1$ and 90 units have $\tilde{D}_i=0$. Assume that each $D_i$ has a Bernoulli distribution with parameter $\gamma$. Write the likelihood function, take FOCs, and solve the FOC system (which has just one equation in one unknown) by paper and pencil. What you obtain is the MLE estimate of $\gamma$. \textcolor{gray}{\textbf{Hint}: You know, intuitively, that the answer must be $\hat{\gamma}=\frac{1}{10}$.}
 

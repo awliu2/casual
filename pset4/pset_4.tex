@@ -188,12 +188,17 @@
   PSID/CPS samples, Dehajia and Wahba are able to increase the sample
   size of their dataset. In addition, by analyzing samples drawn from
   different distributions (i.e.~PSID/CPS datasets), they could increase
-  the generalizability of their results.
+  the generalizability of their results. In particular, the decision to
+  have an experimental treatment group and observational control group
+  rather than leveraging only observational data offers the potential to
+  make some determination or estimate of a potential causal treatment
+  effect. Using these two populations allows insights into how how
+  training can act as a mechanism that drives changes in earnings,
+  rather than only make claims about observational differences in the
+  sample.
 \end{enumerate}
 
 \include{figures/table_reg_specs.tex}
-
-\pagebreak
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -317,13 +322,14 @@
     for the missing potential outcome of the treatment group if they had
     not been treated, and vice versa. However, if the control group is
     not comparable with the treated group (i.e.~the samples are drawn
-    from different populations), the proxy is invalid. For instance,
-    from the summary statistics provided, we can see that there are
-    differences in characteristics such as age, education, and race
-    between the treated and control groups. These differences suggest
-    that the groups may not be comparable and thus the TCC approach may
-    not deliver a credible estimate of the average effect of the
-    treatment of interest.
+    from different populations), the proxy will be a poor estimator for
+    population moments of interest. For instance, from the summary
+    statistics provided, we can see that there are differences in
+    characteristics such as age, education, and race between the treated
+    and control groups. These differences suggest that the groups may
+    not be comparable and thus the TCC approach may not deliver a
+    credible estimate of the average effect of the treatment of
+    interest.
   \end{enumerate}
 \end{enumerate}
 
@@ -834,15 +840,16 @@ obj_dml_plr
 
   \begin{enumerate}
   \def\labelenumii{\roman{enumii}.}
-  \tightlist
   \item
     (4 p) Take a look at the output, i.e., at the object
     \texttt{obj\_dml\_plr}. How does the DML estimate of average
     treatment effect compare to the estimates based on specifications
-    (\ref{TCcomp}) and (\ref{CFnc})? It seems to be somewhere in between
-    the other two estimators - its value of \(-603.6\) lies somewhere in
-    between the TCC estimate of \(-15204.78\) and the Adj. TCC estimate
-    of \(217.9\). It is difficult to comment on the validity of the DML
+    (\ref{TCcomp}) and (\ref{CFnc})?
+
+    \textbf{Answer:} It seems to be somewhere in between the other two
+    estimators - its value of \(-603.6\) lies somewhere in between the
+    TCC estimate of \(-15204.78\) and the Adj. TCC estimate of
+    \(217.9\). It is difficult to comment on the validity of the DML
     estimate vs the other two specifications - all three of them are
     quite different than each other. However, the DML estimate is closer
     to the Adj. TCC estimate than the TCC estimate, which suggests that

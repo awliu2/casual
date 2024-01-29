@@ -78,6 +78,16 @@
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -128,7 +138,35 @@
     \hat{\vphantom{\rule{1pt}{\dhatheight}}%
     \smash{\hat{#1}}}}
 
-\include{figures/background.tex}
+\noindent \textcolor{Maroon}{\textbf{Objective}: In PSet 3 you used NSW experimental data to estimate the treatment effect of the offer of training on post-training earnings. In PSet 4 you used datasets created to mimic observational data and reported estimates of the treatment effect obtained using regression-based methodologies. In this pset you complete STEP 1 in \textcolor{ForestGreen}{propensity score matching (PSM)}. Specifically, you estimate each sample unit's probability of being included in the treatment group, which we call the \textcolor{ForestGreen}{propensity score}, or \textcolor{ForestGreen}{pscore} for short. In the next PSet you use the estimated pscores to estimate the impact of the offer of training on post-intervention earnings using observational data.}
+\textbackslash{}
+
+\noindent \textcolor{Maroon}{\textbf{Background}: A unit's pscore is \underline{known} when the data results from an experiment because it is set by the researcher and used to assign units to one group or the other. For example, in an RCT with random assignment (RA) the researcher flips (say) a balanced coin to decide whether to assign a unit to treated or control groups. That is, the researcher uses an assignment probability equal to 0.5. Thus, each unit's pscore is 0.5. As another example consider an RCT with conditional random assignment (CRA) such that units are either males or females and the researcher assigns males to the treated group with probability 0.5 but they assign females to the treated group with probability 0.3. Then the pscore of any male sample unit is 0.5 and the pscore of any female sample unit is 0.3.}\textbackslash{}
+
+\noindent \textcolor{Maroon}{When the data is observational, a unit's pscore is \underline{not known} hence you need to first estimate it in order to use it in matching procedures. In this PSet you estimate the pscore based on two models: the \textcolor{ForestGreen}{Linear Probability Model (LPM)} and the \textcolor{ForestGreen}{Logit Model}. The LPM posits that, as a function of the unit's observable and predetermined characteristics $\mathbf{x}_i=(1, x_{i,1},\ldots,x_{i,K})$, the probability of ``success'' (with ``success'' = being assigned to the treatment group) is a linear-in-parameter function\footnote{This explains the name ``LPM'': it \textit{models} the \textit{probability} of “success” as a \textit{linear}-in-parameter function. The ``linearity'' in the name of this model pertains to the way in which parameters enter the specification. The OPVs may enter linearly or non-linearly. For example, say that there are two covariates $(x_{1i},x_{2i})$, then the model $\Pr(D_i=|\mathbf{x}_i=\mathbf{x})=\theta_0+\theta_1 x_{1}+\theta_2 x_{2}+\theta_3 x_{1}^2+\theta_4 ln(x_{1})$ is a LPM. This means that, when in the text we write, e.g., $\Pr(D_i=|\mathbf{x}_i=\mathbf{x})=\theta'\mathbf{x}$, the RHS variables may be transformation of the original OPVs.}:
+\begin{equation}\label{eq:lpm}
+\Pr(D_i=1|\mathbf{x}_i=\mathbf{x})=\theta'\mathbf{x}, \text{ for some } \theta=(\theta_0,\theta_1, \ldots, \theta_K).
+\end{equation}
+\noindent Instead, the Logit model posits that, as a function of the unit's characteristics, the probability of ``success'' is a non-linear function of the parameters of the form:
+\begin{equation}\label{eq:logit}
+\Pr(D_i=1|\mathbf{x}_i=\mathbf{x})=\frac{e^{\gamma'\mathbf{x}}}{1 + e^{\gamma'\mathbf{x}}}, \text{ for some } \gamma=(\gamma_0,\gamma_1, \ldots, \gamma_K).
+\end{equation}
+\noindent You know the LPM from introductory econometrics. Why? You verified in PSet 1 that: 
+\begin{equation}\label{eq:meanDeqPr}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\Pr(D_i=1|\mathbf{x}_i=\mathbf{x}).
+\end{equation}
+Taken together expressions (\ref{eq:lpm}) and (\ref{eq:meanDeqPr}) say that the mean of $D_i$ is a \underline{linear-in-parameter} function, i.e., 
+\begin{equation}\label{eq:meanLPM}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\theta'\mathbf{x}. 
+\end{equation}
+This means that the LPM is a standard multivariate linear regression model (MLRM) whose dependent variable is the binary 0/1 variable $D_i$. Thus, you can use OLS to estimate the parameters of a LPM, in your case $\theta$. In this Pset you do that and you also use a second estimation methodology suitable for linear-in-parameter models, \textcolor{ForestGreen}{Lasso regression}. (No prior knowledge of Lasso is expected, we guide you through implementation.)}\textbackslash{}
+
+\noindent \noindent \textcolor{Maroon}{Next, using expressions (\ref{eq:logit}) and (\ref{eq:meanDeqPr}) you have:
+\begin{equation}\label{eq:meanLogit}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\frac{e^{\gamma'\mathbf{x}}}{1 + e^{\gamma'\mathbf{x}}}.
+\end{equation}
+This says that according to the Logit model the mean of $D_i$ is a \underline{non-linear} function of the parameters. Thus, you cannot apply OLS nor Lasso to estimate $\gamma$. Instead you use a methodology called \textcolor{ForestGreen}{Maximum Likelihood Estimation (MLE)}. (No prior knowledge of MLE is expected, we guide you through implementation.) By the end of this PSet you will have estimated the pscore for all the units included in the \texttt{nswpsid.csv} dataset.}
+\newpage
 
 \begin{center}
 {\LARGE Part 1: Estimate the PScore Using A Linear-in-Parameter Model (65 p)}
@@ -167,6 +205,49 @@
     \(\hat{\theta}\).
     \textcolor{gray}{\textbf{Programming Guidance:} Declare a formula object with \texttt{as.formula( )} then use \texttt{stats::lm( )}. For later reference, in our R script we named the formula object \texttt{pscore\_formula}.}
     \label{item:lpm:ols:reg}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nswpsid }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"pset5/starter{-}files/nswpsid.csv"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{agesq =}\NormalTok{ age}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{edusq =}\NormalTok{ edu}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{re74sq =}\NormalTok{ re74}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{re75sq =}\NormalTok{ re75}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{u74black =}\NormalTok{ u74}\SpecialCharTok{*}\NormalTok{black)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pscore\_formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(treat }\SpecialCharTok{\textasciitilde{}}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ agesq }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ edusq }\SpecialCharTok{+} 
+\NormalTok{                              married }\SpecialCharTok{+}\NormalTok{ nodegree }\SpecialCharTok{+}\NormalTok{ black }\SpecialCharTok{+}\NormalTok{ hisp }\SpecialCharTok{+} 
+\NormalTok{                              re74 }\SpecialCharTok{+}\NormalTok{ re75 }\SpecialCharTok{+}\NormalTok{ re74sq }\SpecialCharTok{+}\NormalTok{ re75sq }\SpecialCharTok{+}\NormalTok{ u74black)}
+\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(pscore\_formula, }\AttributeTok{data =}\NormalTok{ nswpsid)}
+\NormalTok{theta\_hat }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(ols}\SpecialCharTok{$}\NormalTok{coefficients)}
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(theta\_hat)}
+\end{Highlighting}
+\end{Shaded}
+
+    \begin{longtable}[]{@{}lr@{}}
+    \toprule\noalign{}
+    & ols.coefficients \\
+    \midrule\noalign{}
+    \endhead
+    \bottomrule\noalign{}
+    \endlastfoot
+    (Intercept) & 0.0475879 \\
+    age & -0.0038278 \\
+    agesq & 0.0000216 \\
+    edu & 0.0327368 \\
+    edusq & -0.0011982 \\
+    married & -0.1344377 \\
+    nodegree & 0.0654532 \\
+    black & 0.0243867 \\
+    hisp & 0.0912156 \\
+    re74 & -0.0000009 \\
+    re75 & -0.0000025 \\
+    re74sq & 0.0000000 \\
+    re75sq & 0.0000000 \\
+    u74black & 0.5702562 \\
+    \end{longtable}
   \item
     Use \(\hat{\theta}\) from \textbf{\ref{item:lpm:ols:reg}} to
     describe the change in the pscore associated with a change in one of
@@ -180,6 +261,19 @@
       for any \(k >0\) and \(x_{i,k}\) that varies continuously and such
       that no other covariates mechanically changes when \(x_{i,k}\)
       changes. \textcolor{gray}{\textbf{Hint:} Use Calculus.}
+
+      \textbf{Solution:} From \ref{eq:meanDeqPr} and \ref{eq:meanLPM} we
+      know that
+      \[E[D_i|\mathbf{x}_i=\mathbf{x}]=\Pr(D_i=1|\mathbf{x}_i=\mathbf{x}) = E[D_i|\mathbf{x}_i=\mathbf{x}]=\theta'\mathbf{x}.\]
+      Then, we can rewrite the partial derivative as \begin{align*}
+       \frac{\partial Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial x_{i,k}} &= \frac{\partial E[D_i|\mathbf{x}_{i}=\mathbf{x}]}{\partial x_{i,k}} \\
+       &= \frac{\partial \mathbf{x}'\theta}{\partial x_{i,k}} \ \text{, where $\mathbf{x}'\theta = \theta'\mathbf{x}$}\\ 
+       \end{align*} Furthermore, we can express \(\mathbf{x}'\theta\) as
+      \[\mathbf{x}'\theta = \theta_0 + x_1 \theta_1 + \ldots + x_k \theta_k + \ldots + x_K \theta_K\]
+      from which it is easy to see that the partial derivative of this
+      linear equation with respect to \(x_{i,k}\), for some fixed
+      \(k > 0\) and continuous \(x_{i, k}\), is \(\theta_k\).
+      \hfill \(\blacksquare\) \newline
     \item
       (4 p) Write out the expression for
       \(\frac{\partial Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial \texttt{re75}}\)
@@ -187,12 +281,53 @@
       two mechanically related regression covariates: \texttt{re75} and
       \texttt{re75sq}.
       \textcolor{gray}{\textbf{Hint:} Use Calculus.}\label{item:lpm:delta-pscore-re75}
+
+      \textbf{Solution:} Similar to (i), we can express our partial
+      deriative as:
+      \[\frac{\partial (\theta_0 + x_1 \theta_1 + \ldots + x_k \theta_k + \ldots + x_K \theta_K)}{\partial x_{i,k}}.\]
+
+      Specifically, these covariates include the terms \texttt{re75} and
+      \texttt{re75sq}, which are the 1975 earnings and the square of the
+      1975 earnings, respectively. Thus, we can express the partial
+      derivative with respect to \texttt{re75} as:
+      \[\frac{\partial (\theta_0 + x_1 \theta_1 + \ldots + \texttt{re75} \theta_{\texttt{re75}} + \texttt{re75}^2 \theta_{\texttt{re75sq}} + \ldots + x_K \theta_K)}{\partial \texttt{re75}}\]
+      which we find equivalent to
+      \(\theta_{\texttt{re75}} + 2\theta_{\texttt{re75sq}}\texttt{re75}\).
+      \hfill \(\blacksquare\) \newline
     \item
       Use \(\hat{\theta}\) and the expression from
       \textbf{\ref{item:lpm:delta-pscore-re75}} to complete this
       sentence:
       ``\textit{Evaluated at average 1975 earnings, a \$10,000 increase in 1975 earnings is associated with [\dots] percentage points [lower/higher] probability of being included in the treated group}.'\,'
       \textcolor{gray}{\textbf{Hint:} Start by computing average 1975 earnings.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# compute average 1975 earnings:}
+\NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{mean}\NormalTok{(nswpsid}\SpecialCharTok{$}\NormalTok{re75))}
+\FunctionTok{colnames}\NormalTok{(df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"mean re75"}\NormalTok{)}
+\FunctionTok{kable}\NormalTok{(df)}
+\end{Highlighting}
+\end{Shaded}
+
+      \begin{longtable}[]{@{}r@{}}
+      \toprule\noalign{}
+      mean re75 \\
+      \midrule\noalign{}
+      \endhead
+      \bottomrule\noalign{}
+      \endlastfoot
+      17850.89 \\
+      \end{longtable}
+
+      First, we note that \(\theta_{\texttt{re75sq}}\) is neglible, that
+      is to say, given our partial derivative
+      \(\theta_{\texttt{re75}} + 2\theta_{\texttt{re75sq}}\texttt{re75} = \theta_{\texttt{re75}}\),
+      we do not need to account for the starting earnings amount in our
+      calculation to determine the change in pscore given a change in
+      earnings. As \(\theta{\texttt{re75}}\) = -0.0000025, we find that
+      \(P(D_\texttt{re75}=1)\) decreases by
+      \(-0.0000025 * 100000 = 0.025\), i.e 2.5 percentage points.
     \end{enumerate}
   \item
     (6 p) As mentioned above, when \(D_i\) indicates whether a unit
@@ -207,16 +342,63 @@
     estimated probability that a unit \(i\) with pre-treatment
     characteristics \(\mathbf{x}_i\) is treated.
     \textcolor{gray}{\textbf{Programming Guidance:} Apply \texttt{stats::predict( )} to the object returned by \texttt{stats::lm( )} to get fitted values.}\label{item:lpm:ols:fitted}
+  \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{p\_hat }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ols, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{3}
+  \tightlist
   \item
     (2 p) Add \(\hat{p}_i\) obtained in
     \textbf{\ref{item:lpm:ols:fitted}} to your dataframe as a column.
     \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::mutate( )}}.
+  \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nswpsid }\OtherTok{\textless{}{-}} \FunctionTok{mutate}\NormalTok{(nswpsid, }\AttributeTok{p\_hat =}\NormalTok{ p\_hat)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{4}
+  \tightlist
   \item
     (4 p) The LPM has one disadvantage: \(\hat{p}_i\) is not guaranteed
     to be between 0 and 1 (the range of values a probability may take).
     For how many units is \(\hat{p}_i\) obtained in
     \textbf{\ref{item:lpm:ols:fitted}} negative or larger than 1?
   \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# number of units with p\_hat \textless{} 0}
+\NormalTok{n\_less }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(nswpsid[nswpsid}\SpecialCharTok{$}\NormalTok{p\_hat }\SpecialCharTok{\textless{}} \DecValTok{0}\NormalTok{, ])}
+\CommentTok{\# number of units with p\_hat \textgreater{} 1}
+\NormalTok{n\_greater }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(nswpsid[nswpsid}\SpecialCharTok{$}\NormalTok{p\_hat }\SpecialCharTok{\textgreater{}} \DecValTok{1}\NormalTok{, ])}
+\NormalTok{n\_total }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(nswpsid)}
+\NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(n\_less, n\_greater, n\_total)}
+\FunctionTok{colnames}\NormalTok{(df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"\# p\_hat \textless{} 0"}\NormalTok{, }\StringTok{"\# p\_hat \textgreater{} 0"}\NormalTok{, }\StringTok{"\# total"}\NormalTok{)}
+\FunctionTok{kable}\NormalTok{(df, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{longtable}[]{@{}ccc@{}}
+  \toprule\noalign{}
+  \# p\_hat \textless{} 0 & \# p\_hat \textgreater{} 0 & \# total \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  1076 & 0 & 2675 \\
+  \end{longtable}
 \item
   (15 p) In \textbf{\ref{item:lpm:ols}} you estimated \(\theta\) using
   OLS. Here you use \textcolor{ForestGreen}{Lasso} regression.
@@ -238,14 +420,23 @@
 \begin{Highlighting}[]
 \CommentTok{\# Estimate the pscore using Lasso}
 \CommentTok{\# Predictor variables}
-\NormalTok{x }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{model.matrix}\NormalTok{(pscore\_formula, }\AttributeTok{data =}\NormalTok{ dt\_psid)[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{] }
+\NormalTok{x }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{model.matrix}\NormalTok{(pscore\_formula, }\AttributeTok{data =}\NormalTok{ nswpsid)[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{] }
 \CommentTok{\# Outcome variable}
-\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ dt\_psid}\SpecialCharTok{$}\NormalTok{treat }
+\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ nswpsid}\SpecialCharTok{$}\NormalTok{treat }
 \CommentTok{\# Find the best lambda using cross{-}validation}
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }
 \NormalTok{cv\_lasso }\OtherTok{\textless{}{-}}\NormalTok{ glmnet}\SpecialCharTok{::}\FunctionTok{cv.glmnet}\NormalTok{(x, y, }\AttributeTok{alpha =} \DecValTok{1}\NormalTok{)}
 \CommentTok{\# Display the best lambda value}
 \NormalTok{cv\_lasso}\SpecialCharTok{$}\NormalTok{lambda.min}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.0003247039
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \CommentTok{\# Apply Lasso}
 \NormalTok{lasso\_propensity }\OtherTok{\textless{}{-}}\NormalTok{ glmnet}\SpecialCharTok{::}\FunctionTok{glmnet}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y, }\AttributeTok{alpha =} \DecValTok{1}\NormalTok{,  }\AttributeTok{standardize =} \ConstantTok{TRUE}\NormalTok{,}
                                    \AttributeTok{lambda =}\NormalTok{ cv\_lasso}\SpecialCharTok{$}\NormalTok{lambda.min)}
@@ -265,13 +456,71 @@
     Lasso sets to zero but OLS does not?
     \textcolor{gray}{\textbf{Programming Guidance:} View the coefficient estimates from \texttt{lm( )} and \texttt{glmnet:glmnet( )} by applying method \texttt{coef( )}, e.g. \texttt{coef(lasso\_propensity)} where in our script \texttt{lasso\_propensity} is the object returned by \texttt{glmnet::glmnet( )}}.
   \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{theta\_hat\_hat }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(lasso\_propensity)}
+\NormalTok{coef\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(theta\_hat\_hat[, }\DecValTok{1}\NormalTok{], theta\_hat[, }\DecValTok{1}\NormalTok{])}
+\FunctionTok{colnames}\NormalTok{(coef\_df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Lasso"}\NormalTok{, }\StringTok{"OLS"}\NormalTok{)}
+\FunctionTok{kable}\NormalTok{(coef\_df)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{longtable}[]{@{}lrr@{}}
+  \toprule\noalign{}
+  & Lasso & OLS \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  (Intercept) & 0.0658750 & 0.0475879 \\
+  age & -0.0023128 & -0.0038278 \\
+  agesq & 0.0000000 & 0.0000216 \\
+  edu & 0.0259393 & 0.0327368 \\
+  edusq & -0.0009330 & -0.0011982 \\
+  married & -0.1351921 & -0.1344377 \\
+  nodegree & 0.0612463 & 0.0654532 \\
+  black & 0.0234110 & 0.0243867 \\
+  hisp & 0.0882811 & 0.0912156 \\
+  re74 & -0.0000008 & -0.0000009 \\
+  re75 & -0.0000025 & -0.0000025 \\
+  re74sq & 0.0000000 & 0.0000000 \\
+  re75sq & 0.0000000 & 0.0000000 \\
+  u74black & 0.5709564 & 0.5702562 \\
+  \end{longtable}
 \end{enumerate}
 
 \begin{center}
 {\LARGE Part 2: Estimate the Propensity Score Using the Logit Model (35 p)}
 \end{center}
 
-\include{figures/background2.tex}
+\noindent 
+
+\textcolor{Maroon}{\textbf{Background: Maximum Likelihood Estimation}: MLE returns the values of the parameters that maximize the joint distribution of the data, that is, that make the data as ``most likely'' of having been generated by a parametric model.\footnote{You should have covered MLE estimation of LRMs in introductory econometrics, and MLE more generally in any introductory statistics class. In case you didn't, we offer a brief introduction as applied to the setting under consideration.} It is useful to clearly differentiate between the RVs in a RS and their realized values: denote $\tilde{D_i}$ the realized value of $D_i$ and similarly $\tilde{\mathbf{x}}_i$ the realized value of $\mathbf{x}_i$. The joint distribution of the data is therefore: $\Pr(D=\tilde{D}|\mathbf{X}=\tilde{\mathbf{X}};\gamma)$ where $D$ collects all the $D_i$'s, $\tilde{D}$ collects all the $\tilde{D_i}$'s, $\mathbf{X}$ collects all the $\mathbf{x}_i$'s, and $\tilde{\mathbf{X}}$ collects all the $\tilde{\mathbf{x}}_i$'s. $\Pr(D=\tilde{D}|\mathbf{X}=\tilde{\mathbf{X}};\gamma)$ is called the \textcolor{ForestGreen}{Likelihood function} and is often denoted $\mathcal{L}(\gamma; \tilde{D}, \tilde{\mathbf{X}})$ to underscore that we want to think of it as a function of the parameters $\gamma$ for given realization of the data. When we work with a RS we have independence, which means that the joint distribution factors into the product of $N$ terms: 
+\begin{equation}
+\mathcal{L}(\gamma; \tilde{D}, \tilde{\mathbf{X}})= \prod_{i=1}^{N}\Pr(D_i=\tilde{D}_i|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)
+\end{equation}
+Because $\tilde{D}_i$ takes value either 0 or 1, we can also write:
+\begin{equation}
+\mathcal{L}(\gamma; \tilde{D}, \tilde{\mathbf{X}})= \prod_{i=1}^N\Pr(D_i=1|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)^{\tilde{D}_i}\times \Pr(D_i=0|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)^{1-\tilde{D}_i}.
+\end{equation}
+It is common to work with the logarithm of this function, called the \textcolor{ForestGreen}{Log-Likelihood function}:
+\begin{equation}
+\begin{aligned}
+\ell(\gamma; \tilde{D}, \tilde{\mathbf{X}}) &\equiv ln(\mathcal{L}(\gamma; \tilde{D}, \tilde{\mathbf{X}})) \\
+&=\sum_{i=1}^{N}\Big[\tilde{D}_i \times ln(\Pr(D_i=1|\mathbf{x}_i=\tilde{\mathbf{x}}_i;\gamma))+(1-\tilde{D}_i)\times ln(\Pr(D_i=0|\mathbf{x}_i=\tilde{\mathbf{x}}_i;\gamma)) \Big], \\
+&=\sum_{i \text{ s.t.} \tilde{D}_i=1}ln(\Pr(D_i=1|\mathbf{x}_i=\tilde{\mathbf{x}}_i;\gamma))+\sum_{i \text{ s.t.} \tilde{D}_i=0}ln(\Pr(D_i=0|\mathbf{x}_i=\tilde{\mathbf{x}}_i;\gamma)).
+\end{aligned}
+\end{equation}
+Then the MLE estimator of $\gamma$ is: 
+\begin{argmaxi}
+{\gamma}{\ell(\gamma; \tilde{D}, \tilde{\mathbf{X}}).}{\label{eq:mle:objfnc}}{\hat{\gamma}=}
+\end{argmaxi}
+In the special case of the Logit model $\Pr(D_i=1|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)=\frac{e^{\tilde{\mathbf{x}}_i'\gamma}}{1+e^{\tilde{\mathbf{x}}_i'\gamma}}$ and $\Pr(D_i=0_i|\mathbf{x}_i=\tilde{\mathbf{x}}_i; \gamma)=\frac{1}{1+e^{\tilde{\mathbf{x}}_i'\gamma}}$. Hence the MLE estimator of $\gamma$ in the Logit model under consideration is:
+\begin{argmaxi}
+{\gamma}{\sum_{i \text{ s.t. }\tilde{D}_i=1} ln\big[\frac{e^{\tilde{\mathbf{x}}_i'\gamma}}{1+e^{\tilde{\mathbf{x}}_i'\gamma}} \big] + \sum_{i \text{ s.t. }\tilde{D}_i=0} ln\big[\frac{1}{1+e^{\tilde{\mathbf{x}}_i'\gamma}} \big].}{\label{eq:logit:mle:objfnc}}{\hat{\gamma}=}
+\end{argmaxi}
+Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; this system has as many unknowns as there are elements in $\gamma$.}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}

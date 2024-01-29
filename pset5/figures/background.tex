@@ -1,0 +1,28 @@
+\noindent \textcolor{Maroon}{\textbf{Objective}: In PSet 3 you used NSW experimental data to estimate the treatment effect of the offer of training on post-training earnings. In PSet 4 you used datasets created to mimic observational data and reported estimates of the treatment effect obtained using regression-based methodologies. In this pset you complete STEP 1 in \textcolor{ForestGreen}{propensity score matching (PSM)}. Specifically, you estimate each sample unit's probability of being included in the treatment group, which we call the \textcolor{ForestGreen}{propensity score}, or \textcolor{ForestGreen}{pscore} for short. In the next PSet you use the estimated pscores to estimate the impact of the offer of training on post-intervention earnings using observational data.} \\
+
+\noindent \textcolor{Maroon}{\textbf{Background}: A unit's pscore is \underline{known} when the data results from an experiment because it is set by the researcher and used to assign units to one group or the other. For example, in an RCT with random assignment (RA) the researcher flips (say) a balanced coin to decide whether to assign a unit to treated or control groups. That is, the researcher uses an assignment probability equal to 0.5. Thus, each unit's pscore is 0.5. As another example consider an RCT with conditional random assignment (CRA) such that units are either males or females and the researcher assigns males to the treated group with probability 0.5 but they assign females to the treated group with probability 0.3. Then the pscore of any male sample unit is 0.5 and the pscore of any female sample unit is 0.3.}\\
+
+\noindent \textcolor{Maroon}{When the data is observational, a unit's pscore is \underline{not known} hence you need to first estimate it in order to use it in matching procedures. In this PSet you estimate the pscore based on two models: the \textcolor{ForestGreen}{Linear Probability Model (LPM)} and the \textcolor{ForestGreen}{Logit Model}. The LPM posits that, as a function of the unit's observable and predetermined characteristics $\mathbf{x}_i=(1, x_{i,1},\ldots,x_{i,K})$, the probability of ``success'' (with ``success'' = being assigned to the treatment group) is a linear-in-parameter function\footnote{This explains the name ``LPM'': it \textit{models} the \textit{probability} of “success” as a \textit{linear}-in-parameter function. The ``linearity'' in the name of this model pertains to the way in which parameters enter the specification. The OPVs may enter linearly or non-linearly. For example, say that there are two covariates $(x_{1i},x_{2i})$, then the model $\Pr(D_i=|\mathbf{x}_i=\mathbf{x})=\theta_0+\theta_1 x_{1}+\theta_2 x_{2}+\theta_3 x_{1}^2+\theta_4 ln(x_{1})$ is a LPM. This means that, when in the text we write, e.g., $\Pr(D_i=|\mathbf{x}_i=\mathbf{x})=\theta'\mathbf{x}$, the RHS variables may be transformation of the original OPVs.}:
+\begin{equation}\label{eq:lpm}
+\Pr(D_i=1|\mathbf{x}_i=\mathbf{x})=\theta'\mathbf{x}, \text{ for some } \theta=(\theta_0,\theta_1, \ldots, \theta_K).
+\end{equation}
+\noindent Instead, the Logit model posits that, as a function of the unit's characteristics, the probability of ``success'' is a non-linear function of the parameters of the form:
+\begin{equation}\label{eq:logit}
+\Pr(D_i=1|\mathbf{x}_i=\mathbf{x})=\frac{e^{\gamma'\mathbf{x}}}{1 + e^{\gamma'\mathbf{x}}}, \text{ for some } \gamma=(\gamma_0,\gamma_1, \ldots, \gamma_K).
+\end{equation}
+\noindent You know the LPM from introductory econometrics. Why? You verified in PSet 1 that: 
+\begin{equation}\label{eq:meanDeqPr}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\Pr(D_i=1|\mathbf{x}_i=\mathbf{x}).
+\end{equation}
+Taken together expressions (\ref{eq:lpm}) and (\ref{eq:meanDeqPr}) say that the mean of $D_i$ is a \underline{linear-in-parameter} function, i.e., 
+\begin{equation}\label{eq:meanLPM}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\theta'\mathbf{x}. 
+\end{equation}
+This means that the LPM is a standard multivariate linear regression model (MLRM) whose dependent variable is the binary 0/1 variable $D_i$. Thus, you can use OLS to estimate the parameters of a LPM, in your case $\theta$. In this Pset you do that and you also use a second estimation methodology suitable for linear-in-parameter models, \textcolor{ForestGreen}{Lasso regression}. (No prior knowledge of Lasso is expected, we guide you through implementation.)}\\
+
+\noindent \noindent \textcolor{Maroon}{Next, using expressions (\ref{eq:logit}) and (\ref{eq:meanDeqPr}) you have:
+\begin{equation}\label{eq:meanLogit}
+E[D_i|\mathbf{x}_i=\mathbf{x}]=\frac{e^{\gamma'\mathbf{x}}}{1 + e^{\gamma'\mathbf{x}}}.
+\end{equation}
+This says that according to the Logit model the mean of $D_i$ is a \underline{non-linear} function of the parameters. Thus, you cannot apply OLS nor Lasso to estimate $\gamma$. Instead you use a methodology called \textcolor{ForestGreen}{Maximum Likelihood Estimation (MLE)}. (No prior knowledge of MLE is expected, we guide you through implementation.) By the end of this PSet you will have estimated the pscore for all the units included in the \texttt{nswpsid.csv} dataset.}
+\newpage

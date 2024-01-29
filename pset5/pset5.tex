@@ -1,0 +1,343 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{amsmath}
+\usepackage{optidef}
+\usepackage{accents}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Problem Set 5: Estimation of TEs Using Matching Methods},
+  pdfauthor={Tessie Dong, Derek Li, Andi Liu},
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Problem Set 5: Estimation of TEs Using Matching Methods}
+\author{Tessie Dong, Derek Li, Andi Liu}
+\date{Due Feb 1st, 2024}
+
+\begin{document}
+\maketitle
+
+\newlength{\dhatheight}
+\newcommand{\doublehat}[1]{%
+    \settoheight{\dhatheight}{\ensuremath{\hat{#1}}}%
+    \addtolength{\dhatheight}{-0.35ex}%
+    \hat{\vphantom{\rule{1pt}{\dhatheight}}%
+    \smash{\hat{#1}}}}
+
+\include{figures/background.tex}
+
+\begin{center}
+{\LARGE Part 1: Estimate the PScore Using A Linear-in-Parameter Model (65 p)}
+\end{center}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  (5 p) To familiarize yourself with the LPM here you practice with this
+  model in a simplified setting. Suppose that there is only one OPV
+  \(x_i\), and \(x_i\) takes values \(\{1,\ldots,M\}\) (e.g., your data
+  only includes education, and this OPV ranges from 1 year to 12 years).
+  Suppose that you use the following LPM specification for the
+  conditional expectation of treatment status as a function of
+  education: \(E[D_i|x_i]=\sum_{m=1}^{M}\theta_m1[x_i=m]\). Find
+  \(\hat{p}_i\) for each sample unit.
+  \textcolor{gray}{\textbf{Hint}: this is a paper and pencil exercise, you do not have to write any R script. You want to suggest an estimator for $\theta=(\theta_1,\ldots,\theta_m)$, get the estimates, then use the estimates to get the implied fitted value $\hat{p}_i$ for each $i$.}
+\item
+  (45 p) Consider the LPM introduced in expression (\ref{eq:lpm}) and
+  recall the (implied) expression (\ref{eq:meanLPM}) for the conditional
+  mean of treatment status. Here you estimate \(\theta\) given a
+  specific form of \(\theta'\mathbf{x}_{i}\) and using the OLS
+  approach.\label{item:lpm:ols}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    (10 p) Use the \texttt{nswpsid.csv} data with: 1) \texttt{treat} as
+    \(D_i\); 2) a constant and the following 13 covariates as
+    \(\mathbf{x}_{i}\):
+    \texttt{age, agesq, edu, edusq, married, nodegree, black, hisp, re74, re75, re74sq, re75sq, u74black},
+    where e.g.~\texttt{re74sq} is the square of \texttt{re74} and
+    \texttt{u74black} is the interaction b/w \texttt{u74} and
+    \texttt{black}. Obtain the OLS estimator of
+    \(\theta=(\theta_0,\theta_1,\ldots,\theta_{13})\), denoted
+    \(\hat{\theta}\).
+    \textcolor{gray}{\textbf{Programming Guidance:} Declare a formula object with \texttt{as.formula( )} then use \texttt{stats::lm( )}. For later reference, in our R script we named the formula object \texttt{pscore\_formula}.}
+    \label{item:lpm:ols:reg}
+  \item
+    Use \(\hat{\theta}\) from \textbf{\ref{item:lpm:ols:reg}} to
+    describe the change in the pscore associated with a change in one of
+    the covariates. Specifically:
+
+    \begin{enumerate}
+    \def\labelenumiii{\roman{enumiii}.}
+    \item
+      (2 p) Show that
+      \(\frac{\partial Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial x_{i,k}} = \frac{\partial E[D_i|\mathbf{x}_{i}=\mathbf{x}]}{\partial x_{i,k}}= \frac{\partial \mathbf{x}'\theta}{\partial x_{i,k}} = \theta_k\)
+      for any \(k >0\) and \(x_{i,k}\) that varies continuously and such
+      that no other covariates mechanically changes when \(x_{i,k}\)
+      changes. \textcolor{gray}{\textbf{Hint:} Use Calculus.}
+    \item
+      (4 p) Write out the expression for
+      \(\frac{\partial Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial \texttt{re75}}\)
+      paying attention to the fact that earnings in 1975 contribute to
+      two mechanically related regression covariates: \texttt{re75} and
+      \texttt{re75sq}.
+      \textcolor{gray}{\textbf{Hint:} Use Calculus.}\label{item:lpm:delta-pscore-re75}
+    \item
+      Use \(\hat{\theta}\) and the expression from
+      \textbf{\ref{item:lpm:delta-pscore-re75}} to complete this
+      sentence:
+      ``\textit{Evaluated at average 1975 earnings, a \$10,000 increase in 1975 earnings is associated with [\dots] percentage points [lower/higher] probability of being included in the treated group}.'\,'
+      \textcolor{gray}{\textbf{Hint:} Start by computing average 1975 earnings.}
+    \end{enumerate}
+  \item
+    (6 p) As mentioned above, when \(D_i\) indicates whether a unit
+    belongs to the treated or the control group we call it the
+    \textcolor{ForestGreen}{treatment status indicator} and we call the
+    probability of ``success'\,', namely
+    \(Pr(D_i=1|\mathbf{x}_i=\mathbf{x})\), the
+    \textcolor{ForestGreen}{propensity score}. Use the regression output
+    from \textbf{\ref{item:lpm:ols:reg}} to obtain
+    \textcolor{ForestGreen}{fitted values}\footnote{Consider a generic MLRM regression framework where $y_i$ denotes the dependent variable, $\mathbf{x}_i$ are the covariates (including a constant), and $\beta$ are the coefficients. Let $\hat{\beta}$ denote the OLS estimates. We define the fitted value of the dependent variable as $\hat{y}_i \equiv \hat{\beta}'\mathbf{x}_i = \hat{\beta}_0 + \hat{\beta}_1 x_{1,i}+\ldots+\hat{\beta}_K x_{i,K}$.},
+    denoted \(\hat{p}_i\). Note: Interpret \(\hat{p}_i\) as the
+    estimated probability that a unit \(i\) with pre-treatment
+    characteristics \(\mathbf{x}_i\) is treated.
+    \textcolor{gray}{\textbf{Programming Guidance:} Apply \texttt{stats::predict( )} to the object returned by \texttt{stats::lm( )} to get fitted values.}\label{item:lpm:ols:fitted}
+  \item
+    (2 p) Add \(\hat{p}_i\) obtained in
+    \textbf{\ref{item:lpm:ols:fitted}} to your dataframe as a column.
+    \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::mutate( )}}.
+  \item
+    (4 p) The LPM has one disadvantage: \(\hat{p}_i\) is not guaranteed
+    to be between 0 and 1 (the range of values a probability may take).
+    For how many units is \(\hat{p}_i\) obtained in
+    \textbf{\ref{item:lpm:ols:fitted}} negative or larger than 1?
+  \end{enumerate}
+\item
+  (15 p) In \textbf{\ref{item:lpm:ols}} you estimated \(\theta\) using
+  OLS. Here you use \textcolor{ForestGreen}{Lasso} regression.
+  Specifically,
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    (10 p) Obtain \(%
+        \settoheight{\dhatheight}{\ensuremath{\hat{\theta}}}%
+        \addtolength{\dhatheight}{-0.35ex}%
+        \hat{\vphantom{\rule{1pt}{\dhatheight}}%
+        \smash{\hat{\theta}}}\).
+    \textcolor{gray}{\textbf{Programming Guidance:} In our R script the formula is called \texttt{pscore\_formula} and the dataframe \texttt{dt\_psid}. To implement the Lasso approach you need to take a few steps: 1) prepare two objects \texttt{x} and \texttt{y} storing, respectively, the covariates and the dependent variable of the regression; 2) find the value of $\lambda$ to plug in the minimization problem (\ref{eq:lasso:objfnc}); 3) use \texttt{glmnet::glmnet(..., alpha = 1)} to fit the Lasso model (glm stands for \textcolor{ForestGreen}{generalized linear model}). Specifically, you want to incorporate in your R script the following lines of code:}
+  \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Estimate the pscore using Lasso}
+\CommentTok{\# Predictor variables}
+\NormalTok{x }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{model.matrix}\NormalTok{(pscore\_formula, }\AttributeTok{data =}\NormalTok{ dt\_psid)[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{] }
+\CommentTok{\# Outcome variable}
+\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ dt\_psid}\SpecialCharTok{$}\NormalTok{treat }
+\CommentTok{\# Find the best lambda using cross{-}validation}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }
+\NormalTok{cv\_lasso }\OtherTok{\textless{}{-}}\NormalTok{ glmnet}\SpecialCharTok{::}\FunctionTok{cv.glmnet}\NormalTok{(x, y, }\AttributeTok{alpha =} \DecValTok{1}\NormalTok{)}
+\CommentTok{\# Display the best lambda value}
+\NormalTok{cv\_lasso}\SpecialCharTok{$}\NormalTok{lambda.min}
+\CommentTok{\# Apply Lasso}
+\NormalTok{lasso\_propensity }\OtherTok{\textless{}{-}}\NormalTok{ glmnet}\SpecialCharTok{::}\FunctionTok{glmnet}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y, }\AttributeTok{alpha =} \DecValTok{1}\NormalTok{,  }\AttributeTok{standardize =} \ConstantTok{TRUE}\NormalTok{,}
+                                   \AttributeTok{lambda =}\NormalTok{ cv\_lasso}\SpecialCharTok{$}\NormalTok{lambda.min)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    (5 p) Compare \(\hat{\theta}\) and \(%
+        \settoheight{\dhatheight}{\ensuremath{\hat{\theta}}}%
+        \addtolength{\dhatheight}{-0.35ex}%
+        \hat{\vphantom{\rule{1pt}{\dhatheight}}%
+        \smash{\hat{\theta}}}\). Are there coefficient estimates that
+    Lasso sets to zero but OLS does not?
+    \textcolor{gray}{\textbf{Programming Guidance:} View the coefficient estimates from \texttt{lm( )} and \texttt{glmnet:glmnet( )} by applying method \texttt{coef( )}, e.g. \texttt{coef(lasso\_propensity)} where in our script \texttt{lasso\_propensity} is the object returned by \texttt{glmnet::glmnet( )}}.
+  \end{enumerate}
+\end{enumerate}
+
+\begin{center}
+{\LARGE Part 2: Estimate the Propensity Score Using the Logit Model (35 p)}
+\end{center}
+
+\include{figures/background2.tex}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\item
+  (5 p) To familiarize yourself with MLE, here you practice with this
+  estimation approach in a simplified setting. Suppose that there are no
+  OPVs and that your sample has size \(N=100\), and 10 units have
+  \(\tilde{D}_i=1\) and 90 units have \(\tilde{D}_i=0\). Assume that
+  each \(D_i\) has a Bernoulli distribution with parameter \(\gamma\).
+  Write the likelihood function, take FOCs, and solve the FOC system
+  (which has just one equation in one unknown) by paper and pencil. What
+  you obtain is the MLE estimate of \(\gamma\).
+  \textcolor{gray}{\textbf{Hint}: You know, intuitively, that the answer must be $\hat{\gamma}=\frac{1}{10}$.}
+\item
+  (20 p) Consider the Logit model introduced in expression
+  (\ref{eq:logit}). We mentioned that the Logit model yields a
+  conditional mean of \(D_i\) that is not linear in parameters. Here you
+  estimate \(\gamma\) using the MLE
+  approach.\textbackslash begin\{enumerate\}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    (10 p) Continue using the \texttt{nswpsid.csv} dataset, and the
+    variable definitions provided in \textbf{\ref{item:lpm:ols:reg}}.
+    Obtain the MLE estimator of
+    \(\gamma= (\gamma_0,\gamma_1,\dots,\gamma_K)\), denoted
+    \(\hat{\gamma}\).
+    \textcolor{gray}{\textbf{Programming Guidance:} Use \\ \texttt{stats::glm(pscore\_formula, family = binomial( ), data = psid\_tb)} where \texttt{family = binomial( )} tells R that you want to estimate a Logit model; \texttt{psid\_tb} is the name of the dataframe in our R script.}\label{item:logit:reg}
+  \item
+    (10 p) Use the estimated coefficients to describe the change in the
+    pscore associated with a change in one of the covariates.
+    Specifically:
+
+    \begin{enumerate}
+    \def\labelenumiii{\roman{enumiii}.}
+    \item
+      (3 p) Show that
+      \(\frac{\partial \Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial x_{i,k}}=\frac{\partial \frac{e^{\mathbf{x}'\gamma}}{1+ e^{\mathbf{x}'\gamma}}}{\partial x_{i,k}}= \gamma_k \frac{e^{\mathbf{x}'\gamma}}{(1+e^{\mathbf{x}'\gamma})^2}\)
+      for any \(k >0\) and \(x_{i,k}\) that varies continuously and such
+      that no other covariates mechanically changes when \(x_{i,k}\)
+      changes.
+      \textcolor{gray}{\textbf{Hint:} Use Calculus.}\label{item:logit:partial}
+    \item
+      (7 p) Write out the expression for
+      \(\frac{\partial \Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial \texttt{re75}}\)
+      paying attention to the fact that earnings in 1975 contribute to
+      two mechanically related regression covariates: \texttt{re75} and
+      \texttt{re75sq}.
+      \textcolor{gray}{\textbf{Hint:} Use Calculus.}\label{item:logit:delta-pscore-re75}
+    \end{enumerate}
+  \end{enumerate}
+\item
+  (4 p) Use the regression output from \textbf{\ref{item:logit:reg}} to
+  obtain \textcolor{ForestGreen}{fitted values} denoted
+  \(\hat{p}_i^{Logit}\). Note that you interpret \(\hat{p}_i^{Logit}\)
+  as the estimated probability that a unit \(i\) with pre-treatment
+  characteristics \(\mathbf{x}_i\) is treated.
+  \textcolor{gray}{\textbf{Programming Guidance:} Apply \texttt{stats::predict( )} with argument \texttt{type = ``response"} to the object returned by \texttt{stats::glm( )}}.\label{item:logit:fitted}
+\item
+  (2 p) Add \(\hat{p}_i^{Logit}\) to your dataframe as a column (you
+  will use it in PSet 6 to estimate average TEs by PSM).
+\item
+  (4 p) The Logit has one advantage over the LPM: \(\hat{p}_i^{Logit}\)
+  is guaranteed to be strictly between 0 and 1. Why is that?
+\end{enumerate}
+
+\end{document}

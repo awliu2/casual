@@ -385,14 +385,14 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
 \NormalTok{n\_greater }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(nswpsid[nswpsid}\SpecialCharTok{$}\NormalTok{p\_hat }\SpecialCharTok{\textgreater{}} \DecValTok{1}\NormalTok{, ])}
 \NormalTok{n\_total }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(nswpsid)}
 \NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(n\_less, n\_greater, n\_total)}
-\FunctionTok{colnames}\NormalTok{(df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"\# p\_hat \textless{} 0"}\NormalTok{, }\StringTok{"\# p\_hat \textgreater{} 0"}\NormalTok{, }\StringTok{"\# total"}\NormalTok{)}
+\FunctionTok{colnames}\NormalTok{(df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"\# $p\_hat \textless{} 0$"}\NormalTok{, }\StringTok{"\# p\_hat \textgreater{} 0"}\NormalTok{, }\StringTok{"\# total"}\NormalTok{)}
 \FunctionTok{kable}\NormalTok{(df, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
   \begin{longtable}[]{@{}ccc@{}}
   \toprule\noalign{}
-  \# p\_hat \textless{} 0 & \# p\_hat \textgreater{} 0 & \# total \\
+  \# \(p_hat < 0\) & \# p\_hat \textgreater{} 0 & \# total \\
   \midrule\noalign{}
   \endhead
   \bottomrule\noalign{}
@@ -488,6 +488,10 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
   re75sq & 0.0000000 & 0.0000000 \\
   u74black & 0.5709564 & 0.5702562 \\
   \end{longtable}
+
+  From the above results, we can see that lasso zeros out the
+  \texttt{agesq} coefficient, whereas OLS does not. It also assigns less
+  weight to age and education covariates than the OLS model.
 \end{enumerate}
 
 \begin{center}
@@ -535,6 +539,23 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
   (which has just one equation in one unknown) by paper and pencil. What
   you obtain is the MLE estimate of \(\gamma\).
   \textcolor{gray}{\textbf{Hint}: You know, intuitively, that the answer must be $\hat{\gamma}=\frac{1}{10}$.}
+
+  \textbf{Solution:} Given this setup, our likelihood function can be
+  written as: \[
+           \mathcal{L}(\gamma; \tilde{D}) = \prod_{i=1}^{N}\Pr(D_i=1; \gamma)^{\tilde{D}_i}\times \Pr(D_i=0; \gamma)^{1-\tilde{D}_i}
+       \] \[
+           \text{where } \Pr(D_i=1; \gamma) = \gamma, \text{ and } \Pr(D_i=0; \gamma) = 1 - \gamma, \text{ since } D_i \overset{\mathrm{iid}}{\sim} B(N, \gamma)
+       \] We ignore conditioning on \(\mathbf{x}\) since we have no OPVs
+  in this simplified setting. We can write log-likelihood function as:
+  \[
+           \ell(\gamma; \tilde{D}) \equiv \sum_{i \text{ s.t } \tilde{D}_i = 1} ln(\gamma) \ \ + \sum_{i \text{ s.t } \tilde{D}_i = 0} ln(1 - \gamma)
+       \] Taking the FOCs and solving for our parameter
+  \(\hat{\gamma}\), we have: \begin{align*}
+           \frac{\partial \ell(\gamma; \tilde{D})}{\partial \gamma} = & \frac{10}{\hat{\gamma}} - \frac{90}{1 - \hat{\gamma}} = 0 \\
+           \implies &\frac{10}{\hat{\gamma}} = \frac{90}{1 - \hat{\gamma}} \ \implies \hat{\gamma} = \frac{1}{10}
+       \end{align*}
+
+  which is the MLE estimate that we expected. \hfill \(\blacksquare\)
 \item
   (20 p) Consider the Logit model introduced in expression
   (\ref{eq:logit}). We mentioned that the Logit model yields a

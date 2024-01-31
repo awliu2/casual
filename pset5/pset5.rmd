@@ -204,9 +204,17 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
 
 4. (5 p) To familiarize yourself with MLE, here you practice with this estimation approach in a simplified setting. Suppose that there are no OPVs and that your sample has size $N=100$, and 10 units have $\tilde{D}_i=1$ and 90 units have $\tilde{D}_i=0$. Assume that each $D_i$ has a Bernoulli distribution with parameter $\gamma$. Write the likelihood function, take FOCs, and solve the FOC system (which has just one equation in one unknown) by paper and pencil. What you obtain is the MLE estimate of $\gamma$. \textcolor{gray}{\textbf{Hint}: You know, intuitively, that the answer must be $\hat{\gamma}=\frac{1}{10}$.}
 
-5. (20 p) Consider the Logit model introduced in expression (\ref{eq:logit}). We mentioned that the Logit model yields a conditional mean of $D_i$ that is not linear in parameters. Here you estimate $\gamma$ using the MLE approach.\begin{enumerate}
+5. (20 p) Consider the Logit model introduced in expression (\ref{eq:logit}). We mentioned that the Logit model yields a conditional mean of $D_i$ that is not linear in parameters. Here you estimate $\gamma$ using the MLE approach.
     
     a. (10 p) Continue using the \texttt{nswpsid.csv} dataset, and the variable definitions provided in \textbf{\ref{item:lpm:ols:reg}}. Obtain the MLE estimator of $\gamma= (\gamma_0,\gamma_1,\dots,\gamma_K)$, denoted $\hat{\gamma}$. \textcolor{gray}{\textbf{Programming Guidance:} Use \\ \texttt{stats::glm(pscore\_formula, family = binomial( ), data = psid\_tb)} where \texttt{family = binomial( )} tells R that you want to estimate a Logit model; \texttt{psid\_tb} is the name of the dataframe in our R script.}\label{item:logit:reg}
+        \newpage
+        ```{r}
+        psid_tb <- nswpsid
+        logit_model <- stats::glm(pscore_formula, family = binomial( ), data = psid_tb)
+        mle_coef <- data.frame(logit_model$coefficients)
+        colnames(mle_coef) <- c("MLE Coefficients")
+        knitr::kable(mle_coef)
+        ```
     
     b. (10 p) Use the estimated coefficients to describe the change in the pscore associated with a change in one of the covariates. Specifically:
 
@@ -215,7 +223,12 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
         ii. (7 p) Write out the expression for $\frac{\partial \Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial \texttt{re75}}$ paying attention to the fact that earnings in 1975 contribute to two mechanically related regression covariates: \texttt{re75} and \texttt{re75sq}. \textcolor{gray}{\textbf{Hint:} Use Calculus.}\label{item:logit:delta-pscore-re75}
 
 6. (4 p) Use the regression output from \textbf{\ref{item:logit:reg}} to obtain \textcolor{ForestGreen}{fitted values} denoted $\hat{p}_i^{Logit}$. Note that you interpret $\hat{p}_i^{Logit}$ as the estimated probability that a unit $i$ with pre-treatment characteristics $\mathbf{x}_i$ is treated. \textcolor{gray}{\textbf{Programming Guidance:} Apply \texttt{stats::predict( )} with argument \texttt{type = ``response"} to the object returned by \texttt{stats::glm( )}}.\label{item:logit:fitted}
+    ```{r}
+    p_hat_logit <- predict(logit_model, type = "response")
+    ```
 
 7. (2 p) Add $\hat{p}_i^{Logit}$ to your dataframe as a column (you will use it in PSet 6 to estimate average TEs by PSM).
-
+    ```{r}
+    psid_tb <- mutate(psid_tb, p_hat_logit = p_hat_logit)
+    ```
 8. (4 p) The Logit has one advantage over the LPM: $\hat{p}_i^{Logit}$ is guaranteed to be strictly between 0 and 1. Why is that?

@@ -14,7 +14,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/Casual")
+knitr::opts_knit$set(root.dir = "~/casual")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -65,6 +65,16 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
 \end{center}
 
 1. (5 p) To familiarize yourself with the LPM here you practice with this model in a simplified setting. Suppose that there is only one OPV $x_i$, and $x_i$ takes values $\{1,\ldots,M\}$ (e.g., your data only includes education, and this OPV ranges from 1 year to 12 years). Suppose that you use the following LPM specification for the conditional expectation of treatment status as a function of education: $E[D_i|x_i]=\sum_{m=1}^{M}\theta_m1[x_i=m]$. Find $\hat{p}_i$ for each sample unit. \textcolor{gray}{\textbf{Hint}: this is a paper and pencil exercise, you do not have to write any R script. You want to suggest an estimator for $\theta=(\theta_1,\ldots,\theta_m)$, get the estimates, then use the estimates to get the implied fitted value $\hat{p}_i$ for each $i$.}
+
+    **Solution:** By definition, \[ E[D_i | x_i] = \sum_{m=1}^M \theta_m1[x_i=m]\]
+    Then, we can set $x_i$ to a specific value, $j$, where $1 <= j <= M$, \[ E[D_i | x_i = j] = \theta_11[x_i = j] + \theta_21[x2 = j] + ... + \theta_M1[x_M = j] \]
+    Then for all values $m$, where $1 <= m <= M$ such that $x_m \neq j$, we observe that $\theta_m1[x_m = j] = 0$.
+    So we get \[ E[D_i | x_i = j] = \theta_j \]
+    Then, we propose the natural estimator for $\theta_j$ to be $\hat{\theta_j}$ such that
+    \[ \hat{\theta_j} = \frac{\sum_{i=1}^N D_i1[x_i = j]}{\sum_{i=1}^N1[x_i = j]}\]
+    that is, $\hat{\theta_j}$ represents the sample proportion of those who received treatment among the individuals within the sample who have the given value of $x_i = j$. Then by the Law of Large Numbers, \[ \hat{\theta_j} \xrightarrow{p} E[D_i | x_i = j] = \theta_j, \forall j\]
+    Then, we can find $\hat{p_i}$ for each sample unit, \[ \hat{p_i} = \hat{p}(x_i) = \sum_{m=1}^M \hat{\theta_m}1[x_i = m] \] which we know to be a consistent estimator of $E[D_i|x_i]$ by the Continuous Mapping Theorem.
+
 
 2. (45 p) Consider the LPM introduced in expression (\ref{eq:lpm}) and recall the (implied) expression (\ref{eq:meanLPM}) for the conditional mean of treatment status. Here you estimate $\theta$ given a specific form of $\theta'\mathbf{x}_{i}$ and using the OLS approach.\label{item:lpm:ols}
 

@@ -204,6 +204,25 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
 
 4. (5 p) To familiarize yourself with MLE, here you practice with this estimation approach in a simplified setting. Suppose that there are no OPVs and that your sample has size $N=100$, and 10 units have $\tilde{D}_i=1$ and 90 units have $\tilde{D}_i=0$. Assume that each $D_i$ has a Bernoulli distribution with parameter $\gamma$. Write the likelihood function, take FOCs, and solve the FOC system (which has just one equation in one unknown) by paper and pencil. What you obtain is the MLE estimate of $\gamma$. \textcolor{gray}{\textbf{Hint}: You know, intuitively, that the answer must be $\hat{\gamma}=\frac{1}{10}$.}
 
+    **Solution:** Given this setup, our likelihood function can be written as:
+        \[
+            \mathcal{L}(\gamma; \tilde{D}) = \prod_{i=1}^{N}\Pr(D_i=1; \gamma)^{\tilde{D}_i}\times \Pr(D_i=0; \gamma)^{1-\tilde{D}_i}
+        \]
+        \[
+            \text{where } \Pr(D_i=1; \gamma) = \gamma, \text{ and } \Pr(D_i=0; \gamma) = 1 - \gamma, \text{ since } D_i \overset{\mathrm{iid}}{\sim} B(N, \gamma)
+        \]
+        We ignore conditioning on $\mathbf{x}$ since we have no OPVs in this simplified setting. We can write log-likelihood function as:
+        \[
+            \ell(\gamma; \tilde{D}) \equiv \sum_{i \text{ s.t } \tilde{D}_i = 1} ln(\gamma) \ \ + \sum_{i \text{ s.t } \tilde{D}_i = 0} ln(1 - \gamma)
+        \]
+        Taking the FOCs and solving for our parameter $\hat{\gamma}$, we have:
+        \begin{align*}
+            \frac{\partial \ell(\gamma; \tilde{D})}{\partial \gamma} = & \frac{10}{\hat{\gamma}} - \frac{90}{1 - \hat{\gamma}} = 0 \\
+            \implies &\frac{10}{\hat{\gamma}} = \frac{90}{1 - \hat{\gamma}} \ \implies \hat{\gamma} = \frac{1}{10}
+        \end{align*}
+
+    which is the MLE estimate that we expected. \hfill $\blacksquare$
+
 5. (20 p) Consider the Logit model introduced in expression (\ref{eq:logit}). We mentioned that the Logit model yields a conditional mean of $D_i$ that is not linear in parameters. Here you estimate $\gamma$ using the MLE approach.
     
     a. (10 p) Continue using the \texttt{nswpsid.csv} dataset, and the variable definitions provided in \textbf{\ref{item:lpm:ols:reg}}. Obtain the MLE estimator of $\gamma= (\gamma_0,\gamma_1,\dots,\gamma_K)$, denoted $\hat{\gamma}$. \textcolor{gray}{\textbf{Programming Guidance:} Use \\ \texttt{stats::glm(pscore\_formula, family = binomial( ), data = psid\_tb)} where \texttt{family = binomial( )} tells R that you want to estimate a Logit model; \texttt{psid\_tb} is the name of the dataframe in our R script.}\label{item:logit:reg}

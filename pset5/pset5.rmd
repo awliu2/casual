@@ -14,7 +14,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/casual")
+knitr::opts_knit$set(root.dir = "~/casual")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -149,7 +149,7 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
         n_greater <- nrow(nswpsid[nswpsid$p_hat > 1, ])
         n_total <- nrow(nswpsid)
         df <- data.frame(n_less, n_greater, n_total)
-        colnames(df) <- c("# $p_hat < 0$", "# p_hat > 0", "# total")
+        colnames(df) <- c("# $p_hat < 0$", "# p_hat > 1", "# total")
         kable(df, align = "c")
         ```
 
@@ -303,3 +303,5 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
     psid_tb <- mutate(psid_tb, p_hat_logit = p_hat_logit)
     ```
 8. (4 p) The Logit has one advantage over the LPM: $\hat{p}_i^{Logit}$ is guaranteed to be strictly between 0 and 1. Why is that?
+
+    **Solution:** The advantage of the Logit model over the Linear Probability Model (LPM) in terms of the predicted probabilities being strictly between 0 and 1 is due to the functional form of the Logit model. The logistic function in (\ref{eq:logit}) has an "S" shaped curve which aymptotically approached 1 as $\gamma'x$ goes to positive infinity and asymptotically approaches 0 as $\gamma'x$ goes to negative infinity. This ensures that no matter what values the parameters $\gamma$ or $x$ take, the logistic function will always return a value between 0 and 1.

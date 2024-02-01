@@ -359,40 +359,27 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
     estimated probability that a unit \(i\) with pre-treatment
     characteristics \(\mathbf{x}_i\) is treated.
     \textcolor{gray}{\textbf{Programming Guidance:} Apply \texttt{stats::predict( )} to the object returned by \texttt{stats::lm( )} to get fitted values.}\label{item:lpm:ols:fitted}
-  \end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{p\_hat }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ols, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \setcounter{enumii}{3}
-  \tightlist
   \item
     (2 p) Add \(\hat{p}_i\) obtained in
     \textbf{\ref{item:lpm:ols:fitted}} to your dataframe as a column.
     \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::mutate( )}}.
-  \end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{nswpsid }\OtherTok{\textless{}{-}} \FunctionTok{mutate}\NormalTok{(nswpsid, }\AttributeTok{p\_hat =}\NormalTok{ p\_hat)}
 \end{Highlighting}
 \end{Shaded}
-
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \setcounter{enumii}{4}
-  \tightlist
   \item
     (4 p) The LPM has one disadvantage: \(\hat{p}_i\) is not guaranteed
     to be between 0 and 1 (the range of values a probability may take).
     For how many units is \(\hat{p}_i\) obtained in
     \textbf{\ref{item:lpm:ols:fitted}} negative or larger than 1?
-  \end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -407,15 +394,16 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
 \end{Highlighting}
 \end{Shaded}
 
-  \begin{longtable}[]{@{}ccc@{}}
-  \toprule\noalign{}
-  \# \(p_hat < 0\) & \# p\_hat \textgreater{} 0 & \# total \\
-  \midrule\noalign{}
-  \endhead
-  \bottomrule\noalign{}
-  \endlastfoot
-  1076 & 0 & 2675 \\
-  \end{longtable}
+    \begin{longtable}[]{@{}ccc@{}}
+    \toprule\noalign{}
+    \# \(p_hat < 0\) & \# p\_hat \textgreater{} 0 & \# total \\
+    \midrule\noalign{}
+    \endhead
+    \bottomrule\noalign{}
+    \endlastfoot
+    1076 & 0 & 2675 \\
+    \end{longtable}
+  \end{enumerate}
 \item
   (15 p) In \textbf{\ref{item:lpm:ols}} you estimated \(\theta\) using
   OLS. Here you use \textcolor{ForestGreen}{Lasso} regression.
@@ -423,7 +411,6 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
 
   \begin{enumerate}
   \def\labelenumii{\alph{enumii}.}
-  \tightlist
   \item
     (10 p) Obtain \(%
         \settoheight{\dhatheight}{\ensuremath{\hat{\theta}}}%
@@ -431,7 +418,6 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
         \hat{\vphantom{\rule{1pt}{\dhatheight}}%
         \smash{\hat{\theta}}}\).
     \textcolor{gray}{\textbf{Programming Guidance:} In our R script the formula is called \texttt{pscore\_formula} and the dataframe \texttt{dt\_psid}. To implement the Lasso approach you need to take a few steps: 1) prepare two objects \texttt{x} and \texttt{y} storing, respectively, the covariates and the dependent variable of the regression; 2) find the value of $\lambda$ to plug in the minimization problem (\ref{eq:lasso:objfnc}); 3) use \texttt{glmnet::glmnet(..., alpha = 1)} to fit the Lasso model (glm stands for \textcolor{ForestGreen}{generalized linear model}). Specifically, you want to incorporate in your R script the following lines of code:}
-  \end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -456,14 +442,9 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
 \begin{Highlighting}[]
 \CommentTok{\# Apply Lasso}
 \NormalTok{lasso\_propensity }\OtherTok{\textless{}{-}}\NormalTok{ glmnet}\SpecialCharTok{::}\FunctionTok{glmnet}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y, }\AttributeTok{alpha =} \DecValTok{1}\NormalTok{,  }\AttributeTok{standardize =} \ConstantTok{TRUE}\NormalTok{,}
-                                   \AttributeTok{lambda =}\NormalTok{ cv\_lasso}\SpecialCharTok{$}\NormalTok{lambda.min)}
+                                \AttributeTok{lambda =}\NormalTok{ cv\_lasso}\SpecialCharTok{$}\NormalTok{lambda.min)}
 \end{Highlighting}
 \end{Shaded}
-
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \setcounter{enumii}{1}
-  \tightlist
   \item
     (5 p) Compare \(\hat{\theta}\) and \(%
         \settoheight{\dhatheight}{\ensuremath{\hat{\theta}}}%
@@ -472,7 +453,6 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
         \smash{\hat{\theta}}}\). Are there coefficient estimates that
     Lasso sets to zero but OLS does not?
     \textcolor{gray}{\textbf{Programming Guidance:} View the coefficient estimates from \texttt{lm( )} and \texttt{glmnet:glmnet( )} by applying method \texttt{coef( )}, e.g. \texttt{coef(lasso\_propensity)} where in our script \texttt{lasso\_propensity} is the object returned by \texttt{glmnet::glmnet( )}}.
-  \end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -483,32 +463,33 @@ This says that according to the Logit model the mean of $D_i$ is a \underline{no
 \end{Highlighting}
 \end{Shaded}
 
-  \begin{longtable}[]{@{}lrr@{}}
-  \toprule\noalign{}
-  & Lasso & OLS \\
-  \midrule\noalign{}
-  \endhead
-  \bottomrule\noalign{}
-  \endlastfoot
-  (Intercept) & 0.0658750 & 0.0475879 \\
-  age & -0.0023128 & -0.0038278 \\
-  agesq & 0.0000000 & 0.0000216 \\
-  edu & 0.0259393 & 0.0327368 \\
-  edusq & -0.0009330 & -0.0011982 \\
-  married & -0.1351921 & -0.1344377 \\
-  nodegree & 0.0612463 & 0.0654532 \\
-  black & 0.0234110 & 0.0243867 \\
-  hisp & 0.0882811 & 0.0912156 \\
-  re74 & -0.0000008 & -0.0000009 \\
-  re75 & -0.0000025 & -0.0000025 \\
-  re74sq & 0.0000000 & 0.0000000 \\
-  re75sq & 0.0000000 & 0.0000000 \\
-  u74black & 0.5709564 & 0.5702562 \\
-  \end{longtable}
+    \begin{longtable}[]{@{}lrr@{}}
+    \toprule\noalign{}
+    & Lasso & OLS \\
+    \midrule\noalign{}
+    \endhead
+    \bottomrule\noalign{}
+    \endlastfoot
+    (Intercept) & 0.0658750 & 0.0475879 \\
+    age & -0.0023128 & -0.0038278 \\
+    agesq & 0.0000000 & 0.0000216 \\
+    edu & 0.0259393 & 0.0327368 \\
+    edusq & -0.0009330 & -0.0011982 \\
+    married & -0.1351921 & -0.1344377 \\
+    nodegree & 0.0612463 & 0.0654532 \\
+    black & 0.0234110 & 0.0243867 \\
+    hisp & 0.0882811 & 0.0912156 \\
+    re74 & -0.0000008 & -0.0000009 \\
+    re75 & -0.0000025 & -0.0000025 \\
+    re74sq & 0.0000000 & 0.0000000 \\
+    re75sq & 0.0000000 & 0.0000000 \\
+    u74black & 0.5709564 & 0.5702562 \\
+    \end{longtable}
 
-  From the above results, we can see that lasso zeros out the
-  \texttt{agesq} coefficient, whereas OLS does not. It also assigns less
-  weight to age and education covariates than the OLS model.
+    From the above results, we can see that lasso zeros out the
+    \texttt{agesq} coefficient, whereas OLS does not. It also assigns
+    less weight to age and education covariates than the OLS model.
+  \end{enumerate}
 \end{enumerate}
 
 \begin{center}
@@ -588,7 +569,6 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
     \(\gamma= (\gamma_0,\gamma_1,\dots,\gamma_K)\), denoted
     \(\hat{\gamma}\).
     \textcolor{gray}{\textbf{Programming Guidance:} Use \\ \texttt{stats::glm(pscore\_formula, family = binomial( ), data = psid\_tb)} where \texttt{family = binomial( )} tells R that you want to estimate a Logit model; \texttt{psid\_tb} is the name of the dataframe in our R script.}\label{item:logit:reg}
-    \newpage
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -596,9 +576,10 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
 \NormalTok{logit\_model }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{glm}\NormalTok{(pscore\_formula, }\AttributeTok{family =} \FunctionTok{binomial}\NormalTok{( ), }\AttributeTok{data =}\NormalTok{ psid\_tb)}
 \NormalTok{mle\_coef }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(logit\_model}\SpecialCharTok{$}\NormalTok{coefficients)}
 \FunctionTok{colnames}\NormalTok{(mle\_coef) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"MLE Coefficients"}\NormalTok{)}
-\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(mle\_coef)}
 \end{Highlighting}
 \end{Shaded}
+
+    \newpage
 
     \begin{longtable}[]{@{}lr@{}}
     \toprule\noalign{}

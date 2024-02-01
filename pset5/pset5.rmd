@@ -259,8 +259,7 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
             thus the partial derivative can be expressed as 
 
             \begin{align*}
-                &\frac{\partial \frac{e^{\mathbf{x}'\gamma}}{1+ e^{\mathbf{x}'\gamma}}}{\partial x_{i,k}} \\
-                &= \frac{\left(\frac{\partial \mathbf{x}'\gamma}{\partial x_{i, k}}\right)e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2} \text{after applying quotient rule and simplifying}, \\
+                \frac{\partial \frac{e^{\mathbf{x}'\gamma}}{1+ e^{\mathbf{x}'\gamma}}}{\partial x_{i,k}} = \frac{\left(\frac{\partial \mathbf{x}'\gamma}{\partial x_{i, k}}\right)e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2} \text{ after applying quotient rule and simplifying.} \\
             \end{align*}
 
             And the term $\frac{\partial \mathbf{x}'\gamma}{\partial x_{i, k}}$ can be rewritten as:
@@ -273,9 +272,10 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
         \newpage
 
         ii. (7 p) Write out the expression for $\frac{\partial \Pr(D_i=1|\mathbf{x}_{i}=\mathbf{x})}{\partial \texttt{re75}}$ paying attention to the fact that earnings in 1975 contribute to two mechanically related regression covariates: \texttt{re75} and \texttt{re75sq}. \textcolor{gray}{\textbf{Hint:} Use Calculus.}\label{item:logit:delta-pscore-re75}
+            
             **Solution:** From above, we know that we can express this probability as
             \[\
-                frac{\left(\frac{\partial \mathbf{x}'\gamma}{\partial \texttt{re75}}\right)e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2}
+                \frac{\left(\frac{\partial \mathbf{x}'\gamma}{\partial \texttt{re75}}\right)e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2}
             \]
 
             We once again expand the partial derivative term:
@@ -288,8 +288,10 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
 
             Thus, we can express our partial derivative as
             \[
-                 (\gamma_{\texttt{re75}} + 2\gamma_{\texttt{re75sq}} \ x_{\texttt{re75}}) \cdot \frac{e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2}
+                 (\gamma_{\texttt{re75}} + 2\gamma_{\texttt{re75sq}} \ x_{\texttt{re75}}) \cdot \frac{e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2}.
             \]
+            \vspace{1em}
+
 6. (4 p) Use the regression output from \textbf{\ref{item:logit:reg}} to obtain \textcolor{ForestGreen}{fitted values} denoted $\hat{p}_i^{Logit}$. Note that you interpret $\hat{p}_i^{Logit}$ as the estimated probability that a unit $i$ with pre-treatment characteristics $\mathbf{x}_i$ is treated. \textcolor{gray}{\textbf{Programming Guidance:} Apply \texttt{stats::predict( )} with argument \texttt{type = ``response"} to the object returned by \texttt{stats::glm( )}}.\label{item:logit:fitted}
     ```{r}
     p_hat_logit <- predict(logit_model, type = "response")

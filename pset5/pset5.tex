@@ -647,8 +647,7 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
       thus the partial derivative can be expressed as
 
       \begin{align*}
-           &\frac{\partial \frac{e^{\mathbf{x}'\gamma}}{1+ e^{\mathbf{x}'\gamma}}}{\partial x_{i,k}} \\
-           &= \frac{\left(\frac{\partial \mathbf{x}'\gamma}{\partial x_{i, k}}\right)e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2} \text{after applying quotient rule and simplifying}, \\
+           \frac{\partial \frac{e^{\mathbf{x}'\gamma}}{1+ e^{\mathbf{x}'\gamma}}}{\partial x_{i,k}} = \frac{\left(\frac{\partial \mathbf{x}'\gamma}{\partial x_{i, k}}\right)e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2} \text{ after applying quotient rule and simplifying.} \\
        \end{align*}
 
       And the term
@@ -674,9 +673,10 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
       two mechanically related regression covariates: \texttt{re75} and
       \texttt{re75sq}.
       \textcolor{gray}{\textbf{Hint:} Use Calculus.}\label{item:logit:delta-pscore-re75}
+
       \textbf{Solution:} From above, we know that we can express this
       probability as \[\
-          frac{\left(\frac{\partial \mathbf{x}'\gamma}{\partial \texttt{re75}}\right)e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2}
+          \frac{\left(\frac{\partial \mathbf{x}'\gamma}{\partial \texttt{re75}}\right)e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2}
       \]
 
       We once again expand the partial derivative term:
@@ -688,8 +688,8 @@ Thus, to find $\hat{\gamma}$ you solve the system of first order conditions; thi
       \end{align*}
 
       Thus, we can express our partial derivative as \[
-           (\gamma_{\texttt{re75}} + 2\gamma_{\texttt{re75sq}} \ x_{\texttt{re75}}) \cdot \frac{e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2}
-      \]
+           (\gamma_{\texttt{re75}} + 2\gamma_{\texttt{re75sq}} \ x_{\texttt{re75}}) \cdot \frac{e^{\mathbf{x}'\gamma}}{\left(1 + e^{\mathbf{x}'\gamma}\right)^2}.
+      \] \vspace{1em}
     \end{enumerate}
   \end{enumerate}
 \item

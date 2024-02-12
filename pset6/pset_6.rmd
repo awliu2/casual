@@ -22,7 +22,13 @@ library(systemfit)
 library(knitr)
 ```
 
+\input{figures/premise.tex}
+
+\newpage
+
 ## Part 1: Naive Stratification Matching on the Propensity Score (50 Points)
+\input{figures/part1_background.tex}
+
 1. (5 p) Let $\widehat{p}_i$ denote the Logit-based estimate of the pscore for unit $i$ which you obtained in PSet 5. Drop all sample units whose $\widehat{p}_{i}$ falls outside of the common support. Why may a researcher want to trim the sample in this way? How many control (treated) units do you drop? Are you surprised? In all subsequent questions you use the resulting \textcolor{ForestGreen}{trimmed sample}. \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::filter( )} to drop rows from a dataframe. Save the resulting dataframe as a new object; in our R script it is called \texttt{psid\_trimmed}.}\label{item:pscore-trim}
 
 2. (5 p) Figure \ref{fig:propensity_vs_earnings} plots \texttt{re78} (the outcome metric) against $\widehat{p}_{i}$, separately for the treated and the control groups. Each panel also includes a curve that displays the fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ i.e., a smoothed estimate of the mean of earnings conditional on the value of the pscore. Take for example the curve in the Treated panel, it connects earnings values constructed as follows. Pick a value of the pscore, e.g., $p=0.89567$. Identify the (for example) 10 closest pscore values in the treated sample. Using these 11 points, regress \texttt{re78} on a constant and the pscore values, giving more weight to the pscore values closest to $p=0.89567$. The implied fitted value of earnings at $p=0.89567$ is the value depicted on the curve.
@@ -82,6 +88,8 @@ library(knitr)
 
 
 ## Part 2: Fancier Matching On the PScore (50 Points)
+\input{figures/part2_background.tex}
+\newpage
 
 4. (6 p) Denote the outcome variable by $y$. Show that under unconditional random assignment (RA), $\widehat{ATT}^{m}=\overline{y}^{1}-\overline{y}^{0},$ $\forall m\in \left\{ NNM,RM,KM\right\}$. That is, if there are no observable confounders, all three estimators reduce to the Treatment-Control Comparison estimator. \textcolor{gray}{\textbf{Hint:} Assign treatment by the flip of a balanced coin, i.e., let $\widehat{p}_{i}=0.5$ for all $i$. Then, simplify expressions (\ref{ATT_m}) and (\ref{w_ij}). Do read carefully the background information presented above.}
 

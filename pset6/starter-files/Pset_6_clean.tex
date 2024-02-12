@@ -1,0 +1,309 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ECMA 31360 PSet 6: Causal Inference with Observational Data
+% Author: Melissa Tartari
+% Created: 10/20/2023
+% Last Updated: 2/8/2024
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage[]{graphicx}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{float}
+
+\setcounter{MaxMatrixCols}{10}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\usepackage{alltt}
+\textwidth=7.6in
+\textheight=9.9in
+\topmargin=-1.2in
+\headheight=0in
+\headsep=.5in
+\hoffset  -1.25in
+
+\newcommand{\psetyear}{2024}
+\newcommand{\psetnum}{6}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy} 
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[R]{\color{Gray}{ECMA 31360 PSet \psetnum, Page \thepage}}
+
+\usepackage{lineno}
+%\linenumbers
+
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{ECMA 31360, Pset \psetnum: Estimation of TEs Using Propensity Score Matching}
+\date{}
+\author{Melissa Tartari}
+\maketitle
+\thispagestyle{fancy}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Premise
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\noindent \textcolor{Maroon}{\textbf{Objective}: In PSet 5 you used the \texttt{nswpsid.csv} data to estimate the \textcolor{ForestGreen}{propensity score (pscore)}, i.e., the probability that a unit is assigned to treatment as a function of their observed pre-determined characteristics (OPVs). You employed three estimation approaches: 1) OLS applied to a \textcolor{ForestGreen}{Linear Probability Model (LPM)}; 2) \textcolor{ForestGreen}{Lasso} also applied to a LPM; and, 3) \textcolor{ForestGreen}{Maximum Likelihood Estimation (MLE)} applied to a \textcolor{ForestGreen}{Logit Model}. In this PSet you use the Logit-based estimates of the pscore to estimate the ATT (of the offer of training) on post-training earning using four pscore-based matching approaches: 1) \textcolor{ForestGreen}{(Naive) Stratification Matching (SM)}; 2) \textcolor{ForestGreen}{Nearest-neighbor Matching (NNM)}; 3) \textcolor{ForestGreen}{Radius Matching (RM)}; and, 4) \textcolor{ForestGreen}{Kernel Matching (KM)}.} \\
+
+
+\noindent \textcolor{Maroon}{\textbf{Background}: All matching approaches are predicated on the \textcolor{ForestGreen}{conditional independence assumption (CIA)} holding, i.e., on the assumption that \textit{conditional} on observed pre-determined characteristics (OPVs) treatment is as good as randomly assigned. When CIA holds, we can in theory exactly match (i.e., pair) treated and control units based on their OPVs, then estimate the treatment effect on the treated as the difference in the average outcome of the treated and the average outcome of the matched controls. This estimator will not be confounded by differences in OPVs because the \textcolor{ForestGreen}{matched sample} is by construction exactly balanced in the pre-treatment characteristics.} \\
+
+\noindent \textcolor{Maroon}{In practice, matching exactly on OPVs runs into the \textcolor{ForestGreen}{curse of dimensionality problem} whenever there are many OPVs and/or some OPVs take many values. The statisticians Rosenbaum and Rubin (1983) showed that identification of TEs under CIA does not hinge on matching exactly on OPVs because imbalance in the OPVs matter only as far as it produces imbalance in the pscores. That is, matching units with different OPVs but the same pscore suffices to identify TEs. Formally, their result says that if CIA holds, then the potential outcomes are independent of treatment status conditional on the pscore.} \\
+
+\noindent \textcolor{Maroon}{Rosembaum and Rubin's result suggests a matching estimator that matches controls to treated units based on the pscore rather than directly on the OPVs. In practice, matching exactly on the pscore may face the problem that there is no control unit with the same pscore value as a treated unit's (or viceversa). Econometricians have developed matching techniques to overcome this problem. These techniques differ in their implementation details but they share the same basic idea: instead of matching a control unit and a treated unit only when they have the exact same value of the pscore, they are matched if their pscores are ``sufficiently similar.'' The various techniques differ in terms of which matches they regard as ``sufficiently similar.'' As mentioned above, in this Pset you consider and implement four such techniques, i.e., SM, NNM, RM, and KM.} \\
+
+\noindent \textcolor{Maroon}{Here is the gist of each technique: 
+\begin{itemize}
+\item \textbf{SM}: The idea of stratification is to divide the range of variation of the pscore into intervals such that within each interval there are both treated and control units and they have, \textit{on average}, the same pscore. In the limit, i.e., as we increase the number of intervals along with the sample size, SM matches exactly on the pscore. \item \textbf{NNM}: The idea of nearest-neighbor matching is to match a treated unit with the ``nearest'' M control units (M could be just 1 or a number larger than one). The control units matched to a treated unit are called the treated unit's ``nearest neighbors.'' In the limit, i.e., as we increase the sample size to infinity, NNM matches exactly on the pscore. 
+\item \textbf{RM}: Each treated unit is matched with the control units whose pscore falls within a predefined neighborhood of the pscore of the treated unit. If the dimension of the neighborhood (i.e., the radius) is set very small, it is possible that some treated units are not matched because the neighborhood does not contain control units. On the other hand, the smaller the size of the neighborhood, the better the quality of the resulting matches. In the limit, i.e., as we decrease the radius along with increases in the sample size, RM matches exactly on the pscore. 
+\item \textbf{KM}: Each treated unit is matched with a weighted average of all control units with weights that are inversely proportional to the difference between the pscore of the treated unit and that of the control units. In the limit, i.e., as we decrease the bandwith along with increases in the sample size, KM matches exactly on the pscore.
+\end{itemize}
+ In finite samples, the above four techniques reach different points on the frontier of the trade-off between quality and quantity of the matches, and none of them is a priori superior.}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+{\LARGE Part 1: Naive Stratification Matching on the Propensity Score (50 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Background: Common Support and Trimming}. Let $\widehat{p}_i$ denote the estimate of the pscore for unit $i$. Let $\left(\widehat{p}^{C,l},\widehat{p}^{C,u}\right)$ denote the smallest (``lower'') and largest (``upper'') $\widehat{p}_{i}$ among control units and $\left(\widehat{p}^{T,l},\widehat{p}^{T,u}\right) $ the smallest and largest $\widehat{p}_{i}$ among treated units. The range $\left[\max \left\{ \widehat{p}^{C,l},\widehat{p}^{T,l}\right\},\min \left\{ \widehat{p}^{C,u},\widehat{p}^{T,u}\right\} \right] $ is called the \textcolor{ForestGreen}{common support}. To understand this terminology observe that $\left(\widehat{p}^{C,l},\widehat{p}^{C,u}\right)$ are the extremes of the support of the empirical distribution of the pscore among the controls and $\left(\widehat{p}^{T,l},\widehat{p}^{T,u}\right) $ are the extremes of the support of the empirical distribution of the pscore among the treated; the common support is the intersection of the two empirical supports. By definition, a treated unit whose pscore is outside of the common support has no exact match among the control units and viceversa. \textcolor{ForestGreen}{Trimming} is a procedure whereby we drop sample units. There are various ways of implementing trimming for the purpose of pscore matching. A common approach is to drop all units (control and treated alike) whose $\widehat{p}_{i}$ falls outside of the common support.}
+
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt]
+\item (5 p) Let $\widehat{p}_i$ denote the Logit-based estimate of the pscore for unit $i$ which you obtained in PSet 5. Drop all sample units whose $\widehat{p}_{i}$ falls outside of the common support. Why may a researcher want to trim the sample in this way? How many control (treated) units do you drop? Are you surprised? In all subsequent questions you use the resulting \textcolor{ForestGreen}{trimmed sample}. \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::filter( )} to drop rows from a dataframe. Save the resulting dataframe as a new object; in our R script it is called \texttt{psid\_trimmed}.}\label{item:pscore-trim}
+
+\item (5 p) Figure \ref{fig:propensity_vs_earnings} plots \texttt{re78} (the outcome metric) against $\widehat{p}_{i}$, separately for the treated and the control groups. Each panel also includes a curve that displays the fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ i.e., a smoothed estimate of the mean of earnings conditional on the value of the pscore. Take for example the curve in the Treated panel, it connects earnings values constructed as follows. Pick a value of the pscore, e.g., $p=0.89567$. Identify the (for example) 10 closest pscore values in the treated sample. Using these 11 points, regress \texttt{re78} on a constant and the pscore values, giving more weight to the pscore values closest to $p=0.89567$. The implied fitted value of earnings at $p=0.89567$ is the value depicted on the curve.
+%%%%%
+\begin{enumerate}
+\item (2 p) Reproduce Figure \ref{fig:propensity_vs_earnings}. Test your understanding of the Loess smoothing method by varying the value of \texttt{span}. \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.} 
+\begin{lstlisting}[language=R]
+# Draw scatter plot of post-intervention earnings and the Logit-based pscore, by group;
+# overlay smooth local regression line.
+plot_df <- trimmed_df %>%
+  dplyr::filter(re78 < 20000) %>% # drop outliers for plotting purposes
+  dplyr::mutate(treat = factor(ifelse(treat == 1, "Treated", "Control")))
+p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = pscore, y = re78)) +
+  ggplot2::facet_grid(~treat) +
+  ggplot2::geom_point() + 
+  ggplot2::scale_y_continuous(breaks=seq(0,20000,by=1000)) +
+  ggplot2::geom_smooth(method = "loess", formula = y ~ x, span = 0.5, 
+                                        method.args = list(degree = 1)) +
+  ggplot2::ylab("Real Earnings in 1978") +
+  ggplot2::xlab("Estimated Propensity Score") +
+  ggplot2::labs(caption = "Data Source: NSW-PSID1.") +
+  theme_bw()
+ # Save plot object to PDF file
+ggplot2::ggsave(filename_plot_2, plot = p)
+\end{lstlisting}
+%%%%%
+\item (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
+\end{enumerate}
+
+\item (40 p) We can do better than eyeballing TEs. You are now ready to implement \textcolor{ForestGreen}{stratification matching}.
+
+\begin{enumerate}
+\item (5 p) Add a column to your dataframe called \texttt{stratum} that takes values from 1 to 10 corresponding to 10 equally spaced intervals with \texttt{stratum=1} if $0<\widehat{p}_{i}\leq 0.1$, \texttt{stratum=2} if $0.1<\widehat{p}_{i}\leq 0.2$, and so on.\footnote{\textit{Strata} is the plural of \textit{stratum}, both are Latin words.} What is the distribution of control and treated observation across strata? Are all strata \textcolor{ForestGreen}{populated}? \textcolor{gray}{\textbf{Programming Guidance:} To bin the values of a column, use the R base function \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/.bincode( )}{\texttt{.bincode}} with break points at 0, 0.1, 0.2 etc. up to 1. To add a column to a dataframe, use \texttt{dplyr::mutate( )}. To produce summary statistics by group, use \texttt{dplyr::group\_by( )}, and pipe the result to \texttt{dplyr::summarize( )}. In our R script we produce the following summary statistics within each stratum: count of treated units, count of control units, minimum pscore value, maximum pscore value.}
+
+\item (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
+
+\begin{lstlisting}[language=R]
+# Declare a function that identifies perfectly collinear covariates.
+# Note: this fnc is roughly equivalent to _rmcoll in STATA.
+rmcoll <- function(df, colnames = names(df)) {
+  # Arguments:
+  # - df: A data frame.
+  # - colnames: A list of column names.
+  # Returns:
+  # A list with the column names of collinear variables.
+ 	df_ <- df %>% dplyr::select(one_of(colnames))
+ 	cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
+  	return(names(cc)[is.na(cc)])
+} # end fnc rmcoll
+\end{lstlisting}
+
+\item (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
+
+\begin{equation}
+\widehat{ATT}^{SM}=\sum_{s=1}^{10}\left( \frac{N_{s}^{T}}{N^{T}}\right) \left( \overline{re78}_{s}^{1}-\overline{re78}_{s}^{0}\right) 
+\text{.}  \label{strata_ATT}
+\end{equation}
+\end{enumerate}
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+{\LARGE Part 2: ``Fancier'' Matching on the PScore (50 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}. Part 1 showed that one of the pitfalls of the (naive) stratification matching technique is that it discards the strata where either treated or control units are absent, also some (naive) strata may have a prohibitively small number of units. This suggests an alternative way to match treated and control units: take each treated unit and search for the control unit with the closest \textit{pscore} i.e., the unit's \textcolor{ForestGreen}{nearest neighbor (NN)}. Once each treated unit is matched with a control unit, the difference between the outcomes of each treated unit and the outcome of the matched control unit is computed. The \textcolor{ForestGreen}{Nearest-Neighbor Matching (NNM)} estimate of ATT is the average of these difference. While in \textcolor{ForestGreen}{Stratification Matching} there may be treated units that are discarded because no control is available in their stratum, in NNM matching all treated units have a match. However, some of these matches may be fairly poor because for some treated units the NN may have a very different \textit{pscore}; nevertheless, they contribute to the estimation of the TE. The \textcolor{ForestGreen}{Radius Matching (RM)} and \textcolor{ForestGreen}{Kernel Matching (KM)} methods offer a solution. With RM matching, each treated unit is matched only with the control units whose pscore falls within a predefined neighborhood of the pscore of the treated unit. If the dimension of the neighborhood (the radius) is very small, it is possible that some treated units are not matched because the neighborhood does not contain control units. On the other hand, the smaller the size of the neighborhood, the better the quality of the matches. With KM each treated unit is matched with a weighted average of all control units, with weights that are inversely proportional to the distance between the pscore of treated unit and control units. Clearly, these 3 methods reach different points on the frontier of the trade-off between quality and quantity of the matches, and none of them is a priori superior. Below you first look closely at the estimators produced by these methods, then you use one them to obtain estimates of the ATT of the offer of training. You continue to use the Logit-based estimates of the pscore but revert back to the original data, i.e., before trimming.}\\
+
+\noindent \textcolor{Maroon}{\textbf{Background: Nearest Neighbor, Radius, and Kernel Matching}.
+Let $C$ (respectively $T$) denote the collection of control (respectively treated) units. Let $N^{C}$ (respectively $N^{T}$) denote the number of units in $C$ (respectively $T$). Let $C\left( i\right) $ denote treated unit $i$'s \textcolor{ForestGreen}{matching set}, i.e., the set of control units matched to $i$. Let $N_{i}^{C}$ denote the number of units in $C\left( i\right) $. NNM, RM and KM\ define $i$'s matching set as, respectively: 
+\begin{eqnarray}
+C^{NNM}\left( i\right) &=&\left\{ j\in C:\left\vert \widehat{p}_{j}-\widehat{p}_{i}\right\vert \leq \left\vert \widehat{p}_{j^{\prime }}-\widehat{p}_{i}\right\vert \text{ }\forall j^{\prime }\in C\right\} \text{,}
+\label{C_rn} \\
+C^{RM}\left( i\right) &=&\left\{ j\in C:\left\vert \widehat{p}_{j}-\widehat{p}_{i}\right\vert <r\right\} \text{ (given a choice of radius }r\text{),} \label{C_rm} \\
+C^{KM}\left( i\right) &=&C\text{.}  \label{C_km}
+\end{eqnarray}
+\noindent In words: $C^{NNM}\left( i\right)$ includes the control unit whose estimated pscore is closest to treated unit $i$'s pscore; if more than one control unit satisfy this condition (i.e., have the exact same pscore estimate), they are all included in $C^{NNM}\left( i\right)$. Given a value of $r$, $C^{RM}\left( i\right)$ includes all the control units whose estimated pscore is within $\pm r$ of treated unit $i$'s pscore, thus $C^{RM}\left( i\right)$ may contain no control unit, one control unit, or multiple control units. Finally, $C^{KM}\left( i\right)$ includes all control units irrespective of their pscore estimate.
+\noindent The NNM, RM, and KM estimators of the ATT have a common form: 
+\begin{equation}
+\widehat{ATT}^{m} = \frac{1}{N^{T}} \sum_{i \in T}\left[y_{i}-\sum_{j \in C^{m}\left( i\right) }w_{ij}^{m}y_{j}\right] \text{, }m \in \left\{ NNM,RM,KM\right\} \text{,}  \label{ATT_m}
+\end{equation}
+\noindent where $C^{m}\left( i\right) $ is defined in (\ref{C_rn})-(\ref{C_km}) and $w_{ij}^{m}$ is a matching method-specific weight:
+\begin{equation}
+w_{ij}^{m}=\left\{ 
+\begin{array}{ll}
+\frac{1}{N_{i}^{C}}\text{ if }j\in C^{m}\left( i\right) \text{ and zero
+otherwise} & \text{for }m\in \left\{ NNM,RM\right\} \\ 
+K\left( \frac{\widehat{p}_{j}-\widehat{p}_{i}}{h}\right)
+/\sum_{k \in C}K\left( \frac{\widehat{p}_{k}-\widehat{p}_{i}}{h}\right) & \text{for }m=KM\text{ (given kernel function }K\left(\cdot \right) \text{ and bandwidth }h \text{)}
+\end{array}
+\right. \text{.}  \label{w_ij}
+\end{equation}
+\noindent In words: Pick a treated unit $i$. Taken together expressions (\ref{ATT_m}) and (\ref{w_ij}) say that, in both NNM and RM, unit $i$'s (counterfactual) outcome without treatment is proxied by the sample average of the observed outcome of the controls included in $i$'s matching set: you have this result because, per expression (\ref{w_ij}), all control units in $i$'s matching set have weight equal to 1 divided by the number of control units in $i$'s matching set. For example, suppose that when you implement NNM the matching set of each treated unit includes exactly one NN. In this special case, all matched control units have weight equal to $1=\frac{1}{1}$, which implies that NNM proxies unit $i$'s (counterfactual) outcome without treatment by the observed outcome experienced by $i$'s unique NN. \\ \\
+To understand the expression of the KM weights we next review the concept of \textcolor{ForestGreen}{kernel function}. A kernel function is a non-negative valued function $K(\cdot)$ with the following properties: 1) $K\left( z \right) = K\left( -z \right)$, i.e $K\left(\cdot \right) $ is symmetric around zero; 2) $\int K\left( z \right) dz =1$, i.e., it integrates to 1; 3) $\int z ^{2}K\left(z \right) dz \not=0$ and finite; and 4)$\int K^{2}\left( z \right) dz <\infty $. An example of a kernel function is the standard normal (aka Gaussian) pdf: $K\left( z\right) =\phi(z)=\frac{1}{\sqrt{2\pi }}\exp \left( -\frac{z^{2}}{2}\right)$. It is immediate to verify that it satisfies all the properties because $\phi(\cdot)$ 1) is symmetric around its zero mean, 2) integrates to 1, 3) has variance equal to 1; and 4) the integral of $\phi(\cdot)^2$ is $\frac{1}{2\sqrt{\pi}}$. Recall also that $\phi(\cdot)$ is approximately zero when evaluated at points smaller than -3 or larger than +3, and its mode (i.e., maximum value) is attained at point 0: $\phi(0)=\frac{1}{\sqrt{2\pi}}$. With this information in hands we return to expression (\ref{w_ij}). To start simple, let $h=1$, so that the weight expression reduces to $w_{ij}=\phi \left(\widehat{p}_{j}-\widehat{p}_{i}\right)/\sum_{k \in C}\phi \left( \widehat{p}_{k}-\widehat{p}_{i}\right)$. The denominator is the same for all $j \in C$ (it only varies across treated units). Consider two control units $j$ and $j'$. Which of the two control units is given more weight when proxying unit $i$'s outcome without treatment? The answer depends on the numerator of the weight expression, i.e.,  $\phi \left(\widehat{p}_{j}-\widehat{p}_{i}\right)$ and $\phi \left(\widehat{p}_{j'}-\widehat{p}_{i}\right)$ respectively. In particular, if $\widehat{p}_{j}=\widehat{p}_{i}$, unit $j$ is given maximal weight (per above equal to $\frac{1}{\sqrt{2\pi}}$), and if $\widehat{p}_{j'}-\widehat{p}_{i}$ is smaller than -3 or larger than +3, unit $j'$ is given approximately zero weight. This shows that in Gaussian KM all control units are given a non zero weight: the nearest ones (in terms of pscore) are given the larger weight, those units whose pscore is quite far from the treated unit $i$'s pscore value are given an infinitesimally small weight. We conclude by commenting on $h$: this parameter is called \textcolor{ForestGreen}{bandwidth} and is chosen by the researcher. Intuitively, a very small value of $h$ implies that only the control units whose pscore value is extremely close to that of treated unit $i$ are given non negligible weight; conversely, a very large value of $h$ implies that even control units whose pscore value is extremely far from that of treated unit $i$ are given non negligible weight. For the KM approach to perform well the researcher wants $h$ to become smaller as the sample size increases as this guarantees that the control units given non negligible weights are only those whose pscore is extremely close to the treated unit's pscore.
+}
+
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt, resume]
+
+%%%%%%%%%%%
+\item (6 p) Denote the outcome variable by $y$. Show that under unconditional random assignment (RA), $\widehat{ATT}^{m}=\overline{y}^{1}-\overline{y}^{0},$ $\forall m\in \left\{ NNM,RM,KM\right\}$. That is, if there are no observable confounders, all three estimators reduce to the Treatment-Control Comparison estimator. \textcolor{gray}{\textbf{Hint:} Assign treatment by the flip of a balanced coin, i.e., let $\widehat{p}_{i}=0.5$ for all $i$. Then, simplify expressions (\ref{ATT_m}) and (\ref{w_ij}). Do read carefully the background information presented above.}
+
+%%%%%%%%%%%
+\item (9 p) Show that $\widehat{ATT}^{m}$ in expression (\ref{ATT_m}) rewrites as:
+
+\begin{equation} \label{ATT_m_bis}
+\widehat{ATT}^{m} =\overline{y}^{1}-\overline{y}_{m}^{0} \ \forall m\in \left\{ NNM,RM,KM\right\},
+\end{equation}
+
+\noindent where:
+
+\begin{equation}\label{ATT_m_bis_w}
+\overline{y}^{1} =\frac{1}{N^{T}}\sum_{j \in T}y_{j}, \text{     and      }  \overline{y}_{m}^{0} =\frac{1}{N^{C}}\sum_{j \in C}\pi_{j}^{m}y_{j}.
+\end{equation}
+
+\noindent Use expression (\ref{ATT_m_bis}) to describe in plain English the essence of each matching approach.  \textcolor{gray}{\textbf{Hint:} Find the expression for $\pi _{j}^{m}$ in expression (\ref{ATT_m_bis_w}) for each $m\in \left\{NNM,RM,KM\right\} $}.
+
+%%%%%%%%%%%
+\item (3 p) With the trimmed sample from Part 1, produce the 1:1 NNM estimate of ATT using \href{https://www.rdocumentation.org/packages/Matching/versions/4.9-6/topics/Match}{\texttt{Matching::Match( )}} from the package \href{https://cran.r-project.org/web/packages/Matching/Matching.pdf}{\texttt{Matching}}. Verify that it coincides with that presented in Table \ref{tab:Tab25-4_2}. \textcolor{gray}{\textbf{Note:} Table \ref{tab:Tab25-4_2} also reports estimates based on 3 other PSM approaches (you are not asked to implement them). ``Adaptive Stratification'' is a refinement of the ``Naive Stratification'' approach that you implemented in Part 1: strata are created iteratively (as opposed to being fixed ahead of time) so as to ensure balance within each stratum.}  \textcolor{gray}{\textbf{Programming guidance:} \texttt{Matching::Match()} takes 3 dataframes as inputs, \texttt{Y}, \texttt{Tr} and \texttt{X}. \texttt{Y} and \texttt{Tr} are columns \texttt{re78} and \texttt{treat} respectively in your dataframe, and \texttt{X} is the column that stores the Logit estimates of the pscore because you want to match on the estimated pscore. Specify \texttt{M=1} and \texttt{estimand=``ATT''} so that you estimate ATT using 1:1 matching. Use \texttt{summary()} on the object returned, which is a list of 23 elements.} \label{item:estimate-att-ncs}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ccc}
+\hline \hline
+\textbf{Matching Estimator} & \textbf{Estimate (\$/year)} & \textbf{SE (\$/year)} \\ \hline
+1:1 Nearest-Neighbor Matching with Replacement (NNM)       &  490.39 & 1,929.6  \\
+Radius Matching with $r=0.0001$ (RM)  &  -5,546.139 &  4,614.773 \\
+Gaussian Kernel Matching (KM)        &  1,537.947 & 861.329  \\ 
+Adaptive Stratification Matching     &  2,208.603 &  855.168 \\ \hline
+\end{tabular}
+\caption{Estimates of ATT based on four pscore-matching estimators.}
+\label{tab:Tab25-4_2}
+\end{table}
+
+%%%%%%%%%%%%
+\item (16 p) Consider the \textcolor{ForestGreen}{matched data}, i.e., the collection of pairs such that each pair is a treated unit and a matched control.
+\begin{enumerate}
+\item (2 p) How many treated units are paired with at least one control unit? 
+\item (2 p) How many treated units are paired with exactly one control unit? 
+\item (2 p) What percentage of control units serve as a match to at least one treated unit? 
+\item (2 p) Take the treated units that are paired with exactly 1 control unit, how many distinct control units serve as matches to these treated units? Are you surprised?
+\item (2 p) The algorithm matches one treated unit with 209 distinct control units. How do you make sense of this?
+\item (2 p) Make sense of the line ``\texttt{Matched number of observations (unweighted). 700}'' in Figure \ref{fig:nnm_output}. 
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.4\textwidth]{Pset_6_nnm_output.png}
+  \caption{Snapshot of output produced by running \texttt{symmary()} on the object returned by \texttt{Matching::Match()} in \textbf{\ref{item:estimate-att-ncs}}.}
+  \label{fig:nnm_output}
+\end{figure}
+\item (2 p) Use the matched data to ``manually'' compute the ATT estimate. 
+\item (2 p) Run \texttt{Matching::Match()} with \texttt{ties = FALSE}. Why do you get ``\texttt{Matched number of observations (unweighted). 179}?'' 
+\end{enumerate}
+\textcolor{gray}{\textbf{Programming Guidance}: Explore the list returned by \texttt{Matching::Match()}, in particular the named elements \texttt{mdata}, \texttt{index.treated}, \texttt{index.control} and \texttt{weights}.} \textcolor{gray}{\textbf{Hint}: Use \texttt{names()} to see the elements in the list returned by \texttt{Matching::Match()}. Feel free to use Table \ref{tab:matched-set-ds} to check on your work on the matched data. The matched data shall be a dataframe with 700 rows, because there are 700 matched pairs. We recommend that you have as columns the following: an index counter for the treated unit in the pair, an index counter for the control unit in the pair, the pscore value for the treated unit in the pair, the pscore value for the control unit in the pair, the outcome (namely \texttt{re78}) for the treated unit in the pair, the outcome for the control unit in the pair, the weight for the control unit in the pair. With this information you can answer all the questions (and more).}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{\texttt{num\_matches}} & \textbf{\texttt{num\_treated}} & \textbf{\texttt{min\_pscore}} & \textbf{\texttt{avg\_pscore}} & \textbf{\texttt{med\_pscore}} & \textbf{\texttt{max\_pscore}} \\ \hline
+209 & 1 & 0.000652575 & 0.000652575 & 0.000652575 & 0.000652575 \\ \hline
+129 & 1 & 0.003290713 & 0.003290713 & 0.003290713 & 0.003290713 \\ \hline
+70 & 1 & 0.005570029 & 0.005570029 & 0.005570029 & 0.005570029 \\ \hline
+35 & 2 & 0.007592412 & 0.007776318 & 0.007776318 & 0.007960224 \\ \hline
+9 & 1 & 0.055467716 & 0.055467716 & 0.055467716 & 0.055467716 \\ \hline
+7 & 1 & 0.028241882 & 0.028241882 & 0.028241882 & 0.028241882 \\ \hline
+5 & 2 & 0.07015485 & 0.082214016 & 0.082214016 & 0.094273183 \\ \hline
+4 & 2 & 0.046380154 & 0.061290142 & 0.061290142 & 0.076200129 \\ \hline
+3 & 3 & 0.133671949 & 0.688292564 & 0.965164821 & 0.966040924 \\ \hline
+2 & 14 & 0.127383235 & 0.369653196 & 0.336881761 & 0.949418099 \\ \hline
+1 & 151 & 0.141036436 & 0.753198139 & 0.900426437 & 0.972637597 \\ \hline
+\end{tabular}
+\caption{Descriptive statistics for the matched data. The column \texttt{num\_matches} lists the (distinct) count of control units matched to a treated unit, from largest to smallest. The column \texttt{num\_treated} reports the number of treated units with the corresponding count of matched controls. The sum of this column is 179, i.e., the number of treated units in the trimmed sample. The sum of the row-wise product of the first two columns is 700. The remaining columns present min/average/median and max value of the pscore for the treated units with the corresponding count of matched controls. Example A: 1 treated unit is matched to 209 distinct control units, this unit's pscore is 0.000652575. Example B: 14 treated units are each matched to exactly two control units, the maximum pscore among these 14 units is 0.949418099. Example C: 151 treated units are each matched to exactly one control unit, the average of these treated units' pscores is 0.753198139.}
+\label{tab:matched-set-ds}
+\end{table}
+
+
+%%%%%%%%%%%
+\item (10 p) Use \texttt{Matching::MatchBalance()} to document balance in the covariates (those in the Logit specification for the pscore model) before and after matching. Comment on your findings: a) Are covariates more/less balanced after matching? b) Are covariates in the matched sample sufficiently balanced to make you trust that the NNM estimator is not confounded by differences in observables? \textcolor{gray}{\textbf{Programming guidance:} Use 500 bootstrap replication, i.e., set \texttt{nboots=500}. Say that you name \texttt{nnm\_balance} the object (a list of lists) returned by the call to \texttt{Matching::MatchBalance()}. Apply \texttt{names()} to see the named element of the list. To check that your implementation is correct: the averages of \texttt{age} in the trimmed sample before matching and in the matched sample (i.e., after matching) are, respectively:
+\begin{itemize}
+\item \texttt{nnm\_balance\$BeforeMatching[[age\_loc]]\$mean.Tr = 25.76536}, 
+\item \texttt{nnm\_balance\$BeforeMatching[[age\_loc]]\$mean.Co = 30.96161},
+\item \texttt{nnm\_balance\$AfterMatching[[age\_loc]]\$mean.Tr = 25.76536},
+\item \texttt{nnm\_balance\$AfterMatching[[age\_loc]]\$mean.Co = 26.1724}
+\end{itemize}
+where, in our script, \texttt{age\_loc} is the number that identifies the location of the information for the covariate \texttt{age}.}
+
+\item (6 p) The estimate of ATT based on the experimental data is \$1,794 with SE \$633 (see PSet 3). Consider the estimates of ATT in Table \ref{tab:Tab25-4_2}: What are the takeaways? Taking inspiration from Imbens (2015)'s recommendations, are there actions you may want to take to gain more confidence in your ability to learn about the true causal impact of the offer of training via matching when you only have access to observational data?
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figures
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\begin{figure}[!htb]
+\centering
+  \includegraphics[width=0.9\textwidth]{Pset_6_propensity_vs_earnings.pdf}
+  \caption{Scatter plot of \texttt{re78} against the Logit-based $\widehat{p}_{i}$ estimates, separately for the treated and the control group. Each panel also includes a fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ (blue line).}
+  \label{fig:propensity_vs_earnings}
+\end{figure}
+
+
+\end{document}

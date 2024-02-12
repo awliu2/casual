@@ -1,0 +1,424 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{amsmath}
+\usepackage{optidef}
+\usepackage{accents}
+\usepackage{caption}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Problem Set 6: Estimation of TEs Using Matching Methods},
+  pdfauthor={Tessie Dong, Derek Li, Andi Liu},
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Problem Set 6: Estimation of TEs Using Matching Methods}
+\author{Tessie Dong, Derek Li, Andi Liu}
+\date{Due Feb 1st, 2024}
+
+\begin{document}
+\maketitle
+
+\subsection{Part 1: Naive Stratification Matching on the Propensity
+Score (50
+Points)}\label{part-1-naive-stratification-matching-on-the-propensity-score-50-points}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  (5 p) Let \(\widehat{p}_i\) denote the Logit-based estimate of the
+  pscore for unit \(i\) which you obtained in PSet 5. Drop all sample
+  units whose \(\widehat{p}_{i}\) falls outside of the common support.
+  Why may a researcher want to trim the sample in this way? How many
+  control (treated) units do you drop? Are you surprised? In all
+  subsequent questions you use the resulting
+  \textcolor{ForestGreen}{trimmed sample}.
+  \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::filter( )} to drop rows from a dataframe. Save the resulting dataframe as a new object; in our R script it is called \texttt{psid\_trimmed}.}\label{item:pscore-trim}
+\item
+  (5 p) Figure \ref{fig:propensity_vs_earnings} plots \texttt{re78} (the
+  outcome metric) against \(\widehat{p}_{i}\), separately for the
+  treated and the control groups. Each panel also includes a curve that
+  displays the fitted non-parametric regression of \texttt{re78} on
+  \(\widehat{p}_{i}\) i.e., a smoothed estimate of the mean of earnings
+  conditional on the value of the pscore. Take for example the curve in
+  the Treated panel, it connects earnings values constructed as follows.
+  Pick a value of the pscore, e.g., \(p=0.89567\). Identify the (for
+  example) 10 closest pscore values in the treated sample. Using these
+  11 points, regress \texttt{re78} on a constant and the pscore values,
+  giving more weight to the pscore values closest to \(p=0.89567\). The
+  implied fitted value of earnings at \(p=0.89567\) is the value
+  depicted on the curve.
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    Reproduce Figure \ref{fig:propensity_vs_earnings}. Test your
+    understanding of the Loess smoothing method by varying the value of
+    \texttt{span}.
+    \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Draw scatter plot of post{-}intervention earnings}
+\CommentTok{\# and the Logit{-}based pscore, by group;}
+\CommentTok{\# overlay smooth local regression line.}
+\NormalTok{plot\_df }\OtherTok{\textless{}{-}}\NormalTok{ trimmed\_df }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{dplyr}\SpecialCharTok{::}\FunctionTok{filter}\NormalTok{(re78 }\SpecialCharTok{\textless{}} \DecValTok{20000}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \CommentTok{\# drop outliers for plotting purposes}
+\NormalTok{dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{treat =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{ifelse}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\StringTok{"Treated"}\NormalTok{, }\StringTok{"Control"}\NormalTok{)))}
+\NormalTok{p }\OtherTok{\textless{}{-}}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{ggplot}\NormalTok{(plot\_df, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ pscore, }\AttributeTok{y =}\NormalTok{ re78)) }\SpecialCharTok{+}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{facet\_grid}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{treat) }\SpecialCharTok{+}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} 
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{20000}\NormalTok{,}\AttributeTok{by=}\DecValTok{1000}\NormalTok{)) }\SpecialCharTok{+}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"loess"}\NormalTok{, }\AttributeTok{formula =}\NormalTok{ y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x, }\AttributeTok{span =} \FloatTok{0.5}\NormalTok{, }
+                                        \AttributeTok{method.args =} \FunctionTok{list}\NormalTok{(}\AttributeTok{degree =} \DecValTok{1}\NormalTok{)) }\SpecialCharTok{+}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{ylab}\NormalTok{(}\StringTok{"Real Earnings in 1978"}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{xlab}\NormalTok{(}\StringTok{"Estimated Propensity Score"}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{labs}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Data Source: NSW{-}PSID1."}\NormalTok{) }\SpecialCharTok{+}
+\FunctionTok{theme\_bw}\NormalTok{()}
+\CommentTok{\# Save plot object to PDF file}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{ggsave}\NormalTok{(filename\_plot\_2, }\AttributeTok{plot =}\NormalTok{ p)}
+\end{Highlighting}
+\end{Shaded}
+  \item
+    (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of
+    training from these figures? Explain.
+  \end{enumerate}
+\item
+  (40 p) We can do better than eyeballing TEs. You are now ready to
+  implement \textcolor{ForestGreen}{stratification matching}.
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    (5 p) Add a column to your dataframe called \texttt{stratum} that
+    takes values from 1 to 10 corresponding to 10 equally spaced
+    intervals with \texttt{stratum=1} if \(0<\widehat{p}_{i}\leq 0.1\),
+    \texttt{stratum=2} if \(0.1<\widehat{p}_{i}\leq 0.2\), and so
+    on.\footnote{\textit{Strata} is the plural of \textit{stratum}, both are Latin words.}
+    What is the distribution of control and treated observation across
+    strata? Are all strata \textcolor{ForestGreen}{populated}?
+    \textcolor{gray}{\textbf{Programming Guidance:} To bin the values of a column, use the R base function \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/.bincode( )}{\texttt{.bincode}} with break points at 0, 0.1, 0.2 etc. up to 1. To add a column to a dataframe, use \texttt{dplyr::mutate( )}. To produce summary statistics by group, use \texttt{dplyr::group\_by( )}, and pipe the result to \texttt{dplyr::summarize( )}. In our R script we produce the following summary statistics within each stratum: count of treated units, count of control units, minimum pscore value, maximum pscore value.}
+  \item
+    (25 p) Test that the average of each pretreatment variable is the
+    same for treated and control units within each stratum: the
+    pre-treatment variables are
+    \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}.
+    Can you think of a reason why you may want to run this test? Comment
+    on your findings.
+    \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Declare a function that identifies perfectly collinear covariates.}
+\CommentTok{\# Note: this fnc is roughly equivalent to \_rmcoll in STATA.}
+\NormalTok{rmcoll }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df, }\AttributeTok{colnames =} \FunctionTok{names}\NormalTok{(df)) \{}
+\CommentTok{\# Arguments:}
+\CommentTok{\# {-} df: A data frame.}
+\CommentTok{\# {-} colnames: A list of column names.}
+\CommentTok{\# Returns:}
+\CommentTok{\# A list with the column names of collinear variables.}
+\NormalTok{    df\_ }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(}\FunctionTok{one\_of}\NormalTok{(colnames))}
+\NormalTok{    cc }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(}\FunctionTok{lm}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(df\_)) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ df\_))}
+    \FunctionTok{return}\NormalTok{(}\FunctionTok{names}\NormalTok{(cc)[}\FunctionTok{is.na}\NormalTok{(cc)])}
+\NormalTok{\} }\CommentTok{\# end fnc rmcoll}
+\end{Highlighting}
+\end{Shaded}
+  \item
+    (10 p) Let \(N_{s}^{T}\) denote the number of treated units in
+    stratum \(s\) with \(s=1,...,10\). Let
+    \(N^{T}=\sum_{s=1}^{10}N_{s}^{T}\). Let \(\overline{re78}_{s}^{1}\)
+    (respectively, \(\overline{re78}_{s}^{0}\)) denote average
+    post-treatment earnings for treated (respectively, control) units in
+    stratum \(s\). Estimate the ATT of the offer of training using
+    stratification matching estimator (\ref{strata_ATT}). Explain in
+    plain English why this is an estimator of the ATT.
+    \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
+  \end{enumerate}
+
+  \begin{equation}
+   \widehat{ATT}^{SM}=\sum_{s=1}^{10}\left( \frac{N_{s}^{T}}{N^{T}}\right) \left( \overline{re78}_{s}^{1}-\overline{re78}_{s}^{0}\right) 
+   \text{.}\label{strata_ATT}
+   \end{equation}
+\end{enumerate}
+
+\subsection{Part 2: Fancier Matching On the PScore (50
+Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\item
+  (6 p) Denote the outcome variable by \(y\). Show that under
+  unconditional random assignment (RA),
+  \(\widehat{ATT}^{m}=\overline{y}^{1}-\overline{y}^{0},\)
+  \(\forall m\in \left\{ NNM,RM,KM\right\}\). That is, if there are no
+  observable confounders, all three estimators reduce to the
+  Treatment-Control Comparison estimator.
+  \textcolor{gray}{\textbf{Hint:} Assign treatment by the flip of a balanced coin, i.e., let $\widehat{p}_{i}=0.5$ for all $i$. Then, simplify expressions (\ref{ATT_m}) and (\ref{w_ij}). Do read carefully the background information presented above.}
+\item
+  (9 p) Show that \(\widehat{ATT}^{m}\) in expression (\ref{ATT_m})
+  rewrites as:
+\end{enumerate}
+
+\begin{equation} \label{ATT_m_bis}
+\widehat{ATT}^{m} =\overline{y}^{1}-\overline{y}_{m}^{0} \ \forall m\in \left\{ NNM,RM,KM\right\},
+\end{equation}
+
+\noindent where:
+
+\begin{equation}\label{ATT_m_bis_w}
+\overline{y}^{1} =\frac{1}{N^{T}}\sum_{j \in T}y_{j}, \text{     and      }  \overline{y}_{m}^{0} =\frac{1}{N^{C}}\sum_{j \in C}\pi_{j}^{m}y_{j}.
+\end{equation}
+
+\noindent Use expression (\ref{ATT_m_bis}) to describe in plain English
+the essence of each matching approach.
+\textcolor{gray}{\textbf{Hint:} Find the expression for $\pi _{j}^{m}$ in expression (\ref{ATT_m_bis_w}) for each $m\in \left\{NNM,RM,KM\right\} $}.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  (3 p) With the trimmed sample from Part 1, produce the 1:1 NNM
+  estimate of ATT using
+  \href{https://www.rdocumentation.org/packages/Matching/versions/4.9-6/topics/Match}{\texttt{Matching::Match( )}}
+  from the package
+  \href{https://cran.r-project.org/web/packages/Matching/Matching.pdf}{\texttt{Matching}}.
+  Verify that it coincides with that presented in Table
+  \ref{tab:Tab25-4_2}.
+  \textcolor{gray}{\textbf{Note:} Table \ref{tab:Tab25-4_2} also reports estimates based on 3 other PSM approaches (you are not asked to implement them). ``Adaptive Stratification'' is a refinement of the ``Naive Stratification'' approach that you implemented in Part 1: strata are created iteratively (as opposed to being fixed ahead of time) so as to ensure balance within each stratum.}
+  \textcolor{gray}{\textbf{Programming guidance:} \texttt{Matching::Match()} takes 3 dataframes as inputs, \texttt{Y}, \texttt{Tr} and \texttt{X}. \texttt{Y} and \texttt{Tr} are columns \texttt{re78} and \texttt{treat} respectively in your dataframe, and \texttt{X} is the column that stores the Logit estimates of the pscore because you want to match on the estimated pscore. Specify \texttt{M=1} and \texttt{estimand=``ATT''} so that you estimate ATT using 1:1 matching. Use \texttt{summary()} on the object returned, which is a list of 23 elements.}
+  \label{item:estimate-att-ncs}
+\end{enumerate}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccc}
+\hline \hline
+\textbf{Matching Estimator} & \textbf{Estimate (\$/year)} & \textbf{SE (\$/year)} \\ \hline
+1:1 Nearest-Neighbor Matching with Replacement (NNM)       &  490.39 & 1,929.6  \\
+Radius Matching with $r=0.0001$ (RM)  &  -5,546.139 &  4,614.773 \\
+Gaussian Kernel Matching (KM)        &  1,537.947 & 861.329  \\ 
+Adaptive Stratification Matching     &  2,208.603 &  855.168 \\ \hline
+\end{tabular}
+\caption{Estimates of ATT based on four pscore-matching estimators.}
+\label{tab:Tab25-4_2}
+\end{table}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\item
+  (16 p) Consider the \textcolor{ForestGreen}{matched data}, i.e., the
+  collection of pairs such that each pair is a treated unit and a
+  matched control.
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    (2 p) How many treated units are paired with at least one control
+    unit?
+  \item
+    (2 p) How many treated units are paired with exactly one control
+    unit?
+  \item
+    (2 p) What percentage of control units serve as a match to at least
+    one treated unit?
+  \item
+    (2 p) Take the treated units that are paired with exactly 1 control
+    unit, how many distinct control units serve as matches to these
+    treated units? Are you surprised?
+  \item
+    (2 p) The algorithm matches one treated unit with 209 distinct
+    control units. How do you make sense of this?
+  \item
+    Make sense of the line
+    ``\texttt{Matched number of observations (unweighted). 700}'\,' in
+    Figure \ref{fig:nnm_output}.
+
+    \begin{figure}[h]
+     \centering
+     \captionsetup{width=.6\textwidth}
+     \includegraphics[width=0.4\textwidth]{figures/q7_f.png}
+     \caption{Snapshot of output produced by running \texttt{symmary()} on the object returned by \texttt{Matching::Match()} in \textbf{\ref{item:estimate-att-ncs}}.}
+     \label{fig:nnm_output}
+     \end{figure}
+  \item
+    (2 p) Use the matched data to ``manually'\,' compute the ATT
+    estimate.
+  \item
+    (2 p) Run \texttt{Matching::Match()} with \texttt{ties = FALSE}. Why
+    do you get
+    ``\texttt{Matched number of observations (unweighted). 179}?'\,'
+  \end{enumerate}
+\end{enumerate}
+
+\textcolor{gray}{\textbf{Programming Guidance}: Explore the list returned by \texttt{Matching::Match()}, in particular the named elements \texttt{mdata}, \texttt{index.treated}, \texttt{index.control} and \texttt{weights}.}
+\textcolor{gray}{\textbf{Hint}: Use \texttt{names()} to see the elements in the list returned by \texttt{Matching::Match()}. Feel free to use Table \ref{tab:matched-set-ds} to check on your work on the matched data. The matched data shall be a dataframe with 700 rows, because there are 700 matched pairs. We recommend that you have as columns the following: an index counter for the treated unit in the pair, an index counter for the control unit in the pair, the pscore value for the treated unit in the pair, the pscore value for the control unit in the pair, the outcome (namely \texttt{re78}) for the treated unit in the pair, the outcome for the control unit in the pair, the weight for the control unit in the pair. With this information you can answer all the questions (and more).}
+
+\newpage 
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{\texttt{num\_matches}} & \textbf{\texttt{num\_treated}} & \textbf{\texttt{min\_pscore}} & \textbf{\texttt{avg\_pscore}} & \textbf{\texttt{med\_pscore}} & \textbf{\texttt{max\_pscore}} \\ \hline
+209 & 1 & 0.000652575 & 0.000652575 & 0.000652575 & 0.000652575 \\ \hline
+129 & 1 & 0.003290713 & 0.003290713 & 0.003290713 & 0.003290713 \\ \hline
+70 & 1 & 0.005570029 & 0.005570029 & 0.005570029 & 0.005570029 \\ \hline
+35 & 2 & 0.007592412 & 0.007776318 & 0.007776318 & 0.007960224 \\ \hline
+9 & 1 & 0.055467716 & 0.055467716 & 0.055467716 & 0.055467716 \\ \hline
+7 & 1 & 0.028241882 & 0.028241882 & 0.028241882 & 0.028241882 \\ \hline
+5 & 2 & 0.07015485 & 0.082214016 & 0.082214016 & 0.094273183 \\ \hline
+4 & 2 & 0.046380154 & 0.061290142 & 0.061290142 & 0.076200129 \\ \hline
+3 & 3 & 0.133671949 & 0.688292564 & 0.965164821 & 0.966040924 \\ \hline
+2 & 14 & 0.127383235 & 0.369653196 & 0.336881761 & 0.949418099 \\ \hline
+1 & 151 & 0.141036436 & 0.753198139 & 0.900426437 & 0.972637597 \\ \hline
+\end{tabular}
+
+\caption{Descriptive statistics for the matched data. The column \texttt{num\_matches} lists the (distinct) count of control units matched to a treated unit, from largest to smallest. The column \texttt{num\_treated} reports the number of treated units with the corresponding count of matched controls. The sum of this column is 179, i.e., the number of treated units in the trimmed sample. The sum of the row-wise product of the first two columns is 700. The remaining columns present min/average/median and max value of the pscore for the treated units with the corresponding count of matched controls. Example A: 1 treated unit is matched to 209 distinct control units, this unit's pscore is 0.000652575. Example B: 14 treated units are each matched to exactly two control units, the maximum pscore among these 14 units is 0.949418099. Example C: 151 treated units are each matched to exactly one control unit, the average of these treated units' pscores is 0.753198139.}
+\label{tab:matched-set-ds}
+\end{table}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{7}
+\tightlist
+\item
+  (10 p) Use \texttt{Matching::MatchBalance()} to document balance in
+  the covariates (those in the Logit specification for the pscore model)
+  before and after matching. Comment on your findings: a) Are covariates
+  more/less balanced after matching? b) Are covariates in the matched
+  sample sufficiently balanced to make you trust that the NNM estimator
+  is not confounded by differences in observables?
+
+  \textcolor{gray}{\textbf{Programming guidance:} Use 500 bootstrap replication, i.e., set \texttt{nboots=500}. Say that you name \texttt{nnm\_balance} the object (a list of lists) returned by the call to \texttt{Matching::MatchBalance()}. Apply \texttt{names()} to see the named element of the list. To check that your implementation is correct: the averages of \texttt{age} in the trimmed sample before matching and in the matched sample (i.e., after matching) are, respectively:
+   \begin{itemize}
+   \item \texttt{nnm\_balance\$BeforeMatching[[age\_loc]]\$mean.Tr = 25.76536}, 
+   \item \texttt{nnm\_balance\$BeforeMatching[[age\_loc]]\$mean.Co = 30.96161},
+   \item \texttt{nnm\_balance\$AfterMatching[[age\_loc]]\$mean.Tr = 25.76536},
+   \item \texttt{nnm\_balance\$AfterMatching[[age\_loc]]\$mean.Co = 26.1724}
+   \end{itemize}
+  where, in our script, \texttt{age\_loc} is the number that identifies the location of the information for the covariate \texttt{age}.}
+\item
+  (6 p) The estimate of ATT based on the experimental data is \$1,794
+  with SE \$633 (see PSet 3). Consider the estimates of ATT in Table
+  \ref{tab:Tab25-4_2}: What are the takeaways? Taking inspiration from
+  Imbens (2015)'s recommendations, are there actions you may want to
+  take to gain more confidence in your ability to learn about the true
+  causal impact of the offer of training via matching when you only have
+  access to observational data?
+\end{enumerate}
+
+\newpage
+\begin{figure}[!htb]
+\centering
+  \includegraphics[width=0.9\textwidth]{figures/figures_end.png}
+  \caption{Scatter plot of \texttt{re78} against the Logit-based $\widehat{p}_{i}$ estimates, separately for the treated and the control group. Each panel also includes a fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ (blue line).}
+  \label{fig:propensity_vs_earnings}
+\end{figure}
+
+\end{document}

@@ -14,7 +14,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset6")
+knitr::opts_knit$set(root.dir = "~/casual/pset6")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -91,14 +91,14 @@ p_tu = max(treatment$logit_propensity)
 ```
 
 ```{r}
-trimmed <- subset(dt_psid, logit_propensity >= max(p_cl, p_tl) & logit_propensity <= min(p_cu, p_tu))
+trimmed_df <- subset(dt_psid, logit_propensity >= max(p_cl, p_tl) & logit_propensity <= min(p_cu, p_tu))
 ```
 
 ```{r}
-length(control$logit_propensity) - length((trimmed %>% filter(treat == 0))$logit_propensity)
+length(control$logit_propensity) - length((trimmed_df %>% filter(treat == 0))$logit_propensity)
 ```
 ```{r}
-length(treatment$logit_propensity) - length((trimmed %>% filter(treat == 1))$logit_propensity)
+length(treatment$logit_propensity) - length((trimmed_df %>% filter(treat == 1))$logit_propensity)
 ```
 
 A researcher may want to trim the sample in this way because if we are interested in matching p-scores between treatment and control groups, dropping p-scores that are too low or too high allows the OPVs between the groups to be more balanced. This is because we are removing units with certain covariates that are unlikely or very likely to be treated. 
@@ -109,31 +109,12 @@ We dropped 1344 control units and 6 treated units. This is not surprising given 
 
     a. Reproduce Figure \ref{fig:propensity_vs_earnings}. Test your understanding of the Loess smoothing method by varying the value of \texttt{span}. \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.}
     
-        ```{r, eval=FALSE}
-        # Draw scatter plot of post-intervention earnings
-        # and the Logit-based pscore, by group;
-        # overlay smooth local regression line.
-        plot_df <- trimmed_df %>%
-        dplyr::filter(re78 < 20000) %>% # drop outliers for plotting purposes
-        dplyr::mutate(treat = factor(ifelse(treat == 1, "Treated", "Control")))
-        p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = pscore, y = re78)) +
-        ggplot2::facet_grid(~treat) +
-        ggplot2::geom_point() + 
-        ggplot2::scale_y_continuous(breaks=seq(0,20000,by=1000)) +
-        ggplot2::geom_smooth(method = "loess", formula = y ~ x, span = 0.5, 
-                                                method.args = list(degree = 1)) +
-        ggplot2::ylab("Real Earnings in 1978") +
-        ggplot2::xlab("Estimated Propensity Score") +
-        ggplot2::labs(caption = "Data Source: NSW-PSID1.") +
-        theme_bw()
-        # Save plot object to PDF file
-        ggplot2::ggsave(filename_plot_2, plot = p)
-        ```
+
 ```{r}
 # Draw scatter plot of post-intervention earnings
 # and the Logit-based pscore, by group;
 # overlay smooth local regression line.
-plot_df <- trimmed %>%
+plot_df <- trimmed_df %>%
 dplyr::filter(re78 < 20000) %>% # drop outliers for plotting purposes
 dplyr::mutate(treat = factor(ifelse(treat == 1, "Treated", "Control")))
 p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = logit_propensity, y = re78)) +
@@ -159,6 +140,19 @@ From the two smoothed cruves on the graphs, we can roughly eyeball that the TEs 
     a. (5 p) Add a column to your dataframe called \texttt{stratum} that takes values from 1 to 10 corresponding to 10 equally spaced intervals with \texttt{stratum=1} if $0<\widehat{p}_{i}\leq 0.1$, \texttt{stratum=2} if $0.1<\widehat{p}_{i}\leq 0.2$, and so on.\footnote{\textit{Strata} is the plural of \textit{stratum}, both are Latin words.} What is the distribution of control and treated observation across strata? Are all strata \textcolor{ForestGreen}{populated}? \textcolor{gray}{\textbf{Programming Guidance:} To bin the values of a column, use the R base function \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/.bincode( )}{\texttt{.bincode}} with break points at 0, 0.1, 0.2 etc. up to 1. To add a column to a dataframe, use \texttt{dplyr::mutate( )}. To produce summary statistics by group, use \texttt{dplyr::group\_by( )}, and pipe the result to \texttt{dplyr::summarize( )}. In our R script we produce the following summary statistics within each stratum: count of treated units, count of control units, minimum pscore value, maximum pscore value.}
 
 ```{r}
+
+b <- c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
+
+trimmed_df <- dplyr::mutate(trimmed_df, stratum = .bincode(trimmed_df$logit_propensity, b))
+
+strata <- trimmed_df %>% 
+  dplyr::group_by(trimmed_df$stratum) %>% 
+  dplyr::summarize(count_of_treated = length(which(treat == 1)), 
+                   count_of_control = length(which(treat == 0)), 
+                   min_pscore = min(logit_propensity), 
+                   max_pscore = max(logit_propensity))
+
+knitr::kable(strata)
 
 ```
 

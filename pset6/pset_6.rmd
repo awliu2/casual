@@ -14,12 +14,13 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/casual")
+knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset6")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
 library(systemfit)
 library(knitr)
+library(readr)
 ```
 
 \input{figures/premise.tex}
@@ -29,11 +30,60 @@ library(knitr)
 ## Part 1: Naive Stratification Matching on the Propensity Score (50 Points)
 \input{figures/part1_background.tex}
 
-1. (5 p) Let $\widehat{p}_i$ denote the Logit-based estimate of the pscore for unit $i$ which you obtained in PSet 5. Drop all sample units whose $\widehat{p}_{i}$ falls outside of the common support. Why may a researcher want to trim the sample in this way? How many control (treated) units do you drop? Are you surprised? In all subsequent questions you use the resulting \textcolor{ForestGreen}{trimmed sample}. \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::filter( )} to drop rows from a dataframe. Save the resulting dataframe as a new object; in our R script it is called \texttt{psid\_trimmed}.}\label{item:pscore-trim}
+1. (5 p) Let $\widehat{p}_i$ denote the Logit-based estimate of the pscore for unit $i$ which you obtained in PSet 5. Drop all sample units whose $\widehat{p}_{i}$ falls outside of the common support. Why may a researcher want to trim the sample in this way? How many control (treated) units do you drop? Are you surprised? In all subsequent questions you use the resulting \textcolor{ForestGreen}{trimmed sample}. \textcolor{gray}{\textbf{Programming Guidance:} Use \texttt{dplyr::filter()} to drop rows from a dataframe. Save the resulting dataframe as a new object; in our R script it is called \texttt{psid\_trimmed}.}\label{item:pscore-trim}
+
+```{r}
+load_data <- function(filename){
+  dt <- data.table::as.data.table(
+    readr::read_csv(filename,
+                     col_names = TRUE,
+                     col_types = readr::cols(
+                       treat = readr::col_integer(),
+                       age = readr::col_integer(),
+                       edu = readr::col_integer(),
+                       black = readr::col_integer(),
+                       hisp = readr::col_integer(),
+                       married = readr::col_integer(),
+                       re74 = readr::col_double(),
+                       re75 = readr::col_double(),
+                       re78 = readr::col_double(),
+                       u74 = readr::col_integer(),
+                       u75 = readr::col_integer(),
+                       nodegree = readr::col_integer()
+                     ))
+  )
+  return(dt)
+}
+```
+
+```{r}
+filename_psid = "starter-files/nswpsid.csv"
+
+dt_psid <- load_data(filename = filename_psid)
+
+dt_psid[ , `:=` (agesq = age^2, edusq = edu^2, re74sq = re74^2, re75sq = re75^2, u74black=u74*black)]
+
+pscore_formula = as.formula(treat ~ age + agesq + edu + edusq + 
+                              married + nodegree + black + hisp + 
+                              re74 + re75 + re74sq + re75sq + u74black)
+```
+
+
+```{r}
+logit_obj <- stats::glm(pscore_formula, family=binomial(), data = dt_psid)
+```
+
+```{r}
+dt_psid$logit_propensity <- predict(logit_obj, type="response")
+```
+
+```{r}
+```
 
 2. (5 p) Figure \ref{fig:propensity_vs_earnings} plots \texttt{re78} (the outcome metric) against $\widehat{p}_{i}$, separately for the treated and the control groups. Each panel also includes a curve that displays the fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ i.e., a smoothed estimate of the mean of earnings conditional on the value of the pscore. Take for example the curve in the Treated panel, it connects earnings values constructed as follows. Pick a value of the pscore, e.g., $p=0.89567$. Identify the (for example) 10 closest pscore values in the treated sample. Using these 11 points, regress \texttt{re78} on a constant and the pscore values, giving more weight to the pscore values closest to $p=0.89567$. The implied fitted value of earnings at $p=0.89567$ is the value depicted on the curve.
 
-    a. Reproduce Figure \ref{fig:propensity_vs_earnings}. Test your understanding of the Loess smoothing method by varying the value of \texttt{span}. \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.} 
+    a. Reproduce Figure \ref{fig:propensity_vs_earnings}. Test your understanding of the Loess smoothing method by varying the value of \texttt{span}. \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.}
+    
         ```{r, eval=FALSE}
         # Draw scatter plot of post-intervention earnings
         # and the Logit-based pscore, by group;

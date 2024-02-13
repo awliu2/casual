@@ -14,7 +14,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/casual/pset6")
+knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset6")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -159,20 +159,50 @@ The distribution of control and treated observation across strata is shown in th
 
 b. (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
 
-        ```{r, eval=FALSE}
-        # Declare a function that identifies perfectly collinear covariates.
-        # Note: this fnc is roughly equivalent to _rmcoll in STATA.
-        rmcoll <- function(df, colnames = names(df)) {
-        # Arguments:
-        # - df: A data frame.
-        # - colnames: A list of column names.
-        # Returns:
-        # A list with the column names of collinear variables.
-            df_ <- df %>% dplyr::select(one_of(colnames))
-            cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
-            return(names(cc)[is.na(cc)])
-        } # end fnc rmcoll
-        ```
+```{r}
+# Declare a function that identifies perfectly collinear covariates.
+# Note: this fnc is roughly equivalent to _rmcoll in STATA.
+rmcoll <- function(df, colnames = names(df)) {
+# Arguments:
+# - df: A data frame.
+# - colnames: A list of column names.
+# Returns:
+# A list with the column names of collinear variables.
+    df_ <- df %>% dplyr::select(one_of(colnames))
+    cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
+    return(names(cc)[is.na(cc)])
+} # end fnc rmcoll
+```
+
+```{r}
+for(stratum_i in 1: 10){
+  
+  if(stratum_i == 8){
+    next
+  }
+    
+  subset = trimmed_df %>% filter(stratum == stratum_i)
+  vars = setdiff(colnames(subset), rmcoll(subset))
+  
+  sur_system <- purrr::map(vars, function(x) stats::formula(paste(x, "~ treat")))
+  null_system <- purrr::map(vars, function(x) stats::formula(paste(x, "~ 1")))
+  
+  sur_fit <- systemfit::systemfit(sur_system, data=trimmed_df, method="SUR")
+  null_fit <- systemfit::systemfit(null_system, data=trimmed_df, method="SUR")
+  
+  even <- function(x) x %% 2 == 0
+  tab_sur <- round(summary(sur_fit)$coefficients[even(1:dim(summary(sur_fit)$coefficients)[1]),
+                                                 c("Estimate", "Std. Error", "Pr(>|t|)")], 3)
+  colnames(tab_sur)[colnames(tab_sur) =="Pr(>|t|)"] <- "P_value"
+  colnames(tab_sur)[colnames(tab_sur) =="Std. Error"] <- "Std_Error"
+  tab_sur <- cbind(rownames(tab_sur), data.frame(tab_sur, row.names = NULL))
+  colnames(tab_sur)[1] <- 'DepVar' 
+  tab_sur$DepVar <- gsub('_treat', "", tab_sur$DepVar)
+  
+  knitr::kable(tab_sur, format = 'simple')
+}
+  
+```
 
     c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
 

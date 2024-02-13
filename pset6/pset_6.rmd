@@ -129,12 +129,38 @@ We dropped 1344 control units and 6 treated units. This is not surprising given 
         # Save plot object to PDF file
         ggplot2::ggsave(filename_plot_2, plot = p)
         ```
+```{r}
+# Draw scatter plot of post-intervention earnings
+# and the Logit-based pscore, by group;
+# overlay smooth local regression line.
+plot_df <- trimmed %>%
+dplyr::filter(re78 < 20000) %>% # drop outliers for plotting purposes
+dplyr::mutate(treat = factor(ifelse(treat == 1, "Treated", "Control")))
+p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = logit_propensity, y = re78)) +
+ggplot2::facet_grid(~treat) +
+ggplot2::geom_point() + 
+ggplot2::scale_y_continuous(breaks=seq(0,20000,by=1000)) +
+ggplot2::geom_smooth(method = "loess", formula = y ~ x, span = 0.5, 
+                                        method.args = list(degree = 1)) +
+ggplot2::ylab("Real Earnings in 1978") +
+ggplot2::xlab("Estimated Propensity Score") +
+ggplot2::labs(caption = "Data Source: NSW-PSID1.") +
+theme_bw()
+
+p
+```
 
     b. (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
+
+From the two smoothed cruves on the graphs, we can roughly eyeball that the TEs are not homogenous across different pscores. For example, we eyeball that for pscores < 0.5, the estimates of the TE are roughly 0 as there does not seem to be a significant difference between the real earnings in '78 for the control and treated groups. However, for pscores that are > 0.5, we eyeball that the estimates of TE are positive (e.g. for pscore = 0.75, the TE seems to be ~1.5k), implying that there is a positive impact of the training offer on real earnings in '78 for those pscores.
 
 3. (40 p) We can do better than eyeballing TEs. You are now ready to implement \textcolor{ForestGreen}{stratification matching}.
     
     a. (5 p) Add a column to your dataframe called \texttt{stratum} that takes values from 1 to 10 corresponding to 10 equally spaced intervals with \texttt{stratum=1} if $0<\widehat{p}_{i}\leq 0.1$, \texttt{stratum=2} if $0.1<\widehat{p}_{i}\leq 0.2$, and so on.\footnote{\textit{Strata} is the plural of \textit{stratum}, both are Latin words.} What is the distribution of control and treated observation across strata? Are all strata \textcolor{ForestGreen}{populated}? \textcolor{gray}{\textbf{Programming Guidance:} To bin the values of a column, use the R base function \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/.bincode( )}{\texttt{.bincode}} with break points at 0, 0.1, 0.2 etc. up to 1. To add a column to a dataframe, use \texttt{dplyr::mutate( )}. To produce summary statistics by group, use \texttt{dplyr::group\_by( )}, and pipe the result to \texttt{dplyr::summarize( )}. In our R script we produce the following summary statistics within each stratum: count of treated units, count of control units, minimum pscore value, maximum pscore value.}
+
+```{r}
+
+```
 
     b. (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
 

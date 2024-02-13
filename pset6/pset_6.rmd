@@ -78,7 +78,32 @@ dt_psid$logit_propensity <- predict(logit_obj, type="response")
 ```
 
 ```{r}
+control <- dt_psid %>% filter(treat == 0)
+treatment <- dt_psid %>% filter(treat == 1)
 ```
+
+```{r}
+p_cl = min(control$logit_propensity)
+p_cu = max(control$logit_propensity)
+
+p_tl = min(treatment$logit_propensity)
+p_tu = max(treatment$logit_propensity)
+```
+
+```{r}
+trimmed <- subset(dt_psid, logit_propensity >= max(p_cl, p_tl) & logit_propensity <= min(p_cu, p_tu))
+```
+
+```{r}
+length(control$logit_propensity) - length((trimmed %>% filter(treat == 0))$logit_propensity)
+```
+```{r}
+length(treatment$logit_propensity) - length((trimmed %>% filter(treat == 1))$logit_propensity)
+```
+
+A researcher may want to trim the sample in this way because if we are interested in matching p-scores between treatment and control groups, dropping p-scores that are too low or too high allows the OPVs between the groups to be more balanced. This is because we are removing units with certain covariates that are unlikely or very likely to be treated. 
+
+We dropped 1344 control units and 6 treated units. This is not surprising given the difference in the bounds, where $\hat{p}^{T,l}$ is almost $10e6$ times as large compared to $\hat{p}^{C,l}$ whilst the upper bounds are within $0.001$ of one another.
 
 2. (5 p) Figure \ref{fig:propensity_vs_earnings} plots \texttt{re78} (the outcome metric) against $\widehat{p}_{i}$, separately for the treated and the control groups. Each panel also includes a curve that displays the fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ i.e., a smoothed estimate of the mean of earnings conditional on the value of the pscore. Take for example the curve in the Treated panel, it connects earnings values constructed as follows. Pick a value of the pscore, e.g., $p=0.89567$. Identify the (for example) 10 closest pscore values in the treated sample. Using these 11 points, regress \texttt{re78} on a constant and the pscore values, giving more weight to the pscore values closest to $p=0.89567$. The implied fitted value of earnings at $p=0.89567$ is the value depicted on the curve.
 

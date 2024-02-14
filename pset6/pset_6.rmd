@@ -14,7 +14,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset6")
+knitr::opts_knit$set(root.dir = "~/casual/pset6")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -131,7 +131,7 @@ theme_bw()
 p
 ```
 
-    b. (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
+b. (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
 
 From the two smoothed cruves on the graphs, we can roughly eyeball that the TEs are not homogenous across different pscores. For example, we eyeball that for pscores < 0.5, the estimates of the TE are roughly 0 as there does not seem to be a significant difference between the real earnings in '78 for the control and treated groups. However, for pscores that are > 0.5, we eyeball that the estimates of TE are positive (e.g. for pscore = 0.75, the TE seems to be ~1.5k), implying that there is a positive impact of the training offer on real earnings in '78 for those pscores.
 
@@ -175,43 +175,50 @@ rmcoll <- function(df, colnames = names(df)) {
 ```
 
 ```{r}
-for(stratum_i in 1: 10){
-  
-  if(stratum_i == 8){
-    next
-  }
-    
-  subset = trimmed_df %>% filter(stratum == stratum_i)
-  vars = setdiff(colnames(subset), rmcoll(subset))
-  
-  sur_system <- purrr::map(vars, function(x) stats::formula(paste(x, "~ treat")))
-  null_system <- purrr::map(vars, function(x) stats::formula(paste(x, "~ 1")))
-  
-  sur_fit <- systemfit::systemfit(sur_system, data=trimmed_df, method="SUR")
-  null_fit <- systemfit::systemfit(null_system, data=trimmed_df, method="SUR")
-  
-  even <- function(x) x %% 2 == 0
-  tab_sur <- round(summary(sur_fit)$coefficients[even(1:dim(summary(sur_fit)$coefficients)[1]),
-                                                 c("Estimate", "Std. Error", "Pr(>|t|)")], 3)
-  colnames(tab_sur)[colnames(tab_sur) =="Pr(>|t|)"] <- "P_value"
-  colnames(tab_sur)[colnames(tab_sur) =="Std. Error"] <- "Std_Error"
-  tab_sur <- cbind(rownames(tab_sur), data.frame(tab_sur, row.names = NULL))
-  colnames(tab_sur)[1] <- 'DepVar' 
-  tab_sur$DepVar <- gsub('_treat', "", tab_sur$DepVar)
-  
-  knitr::kable(tab_sur, format = 'simple')
-}
+
   
 ```
 
-    c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
+c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
 
     
     \begin{equation}
     \widehat{ATT}^{SM}=\sum_{s=1}^{10}\left( \frac{N_{s}^{T}}{N^{T}}\right) \left( \overline{re78}_{s}^{1}-\overline{re78}_{s}^{0}\right) 
     \text{.}\label{strata_ATT}
     \end{equation}
+    
+    
+```{r}
 
+te <- c()
+w <- c()
+
+for(i in 1: 10) {
+  
+  if(i == 9){
+    next
+  }
+  
+  stratum_df <- trimmed_df %>% filter(stratum == i)
+  stratum_treat <- stratum_df %>% filter(treat == 1)
+  stratum_control <- stratum_df %>% filter(treat == 0)
+  re78_1bar <- mean(stratum_treat$re78)
+  re78_0bar <- mean(stratum_control$re78)
+  stratum_te <- re78_1bar - re78_0bar
+  
+  te <- c(te, stratum_te)
+  
+  weight <- nrow(stratum_treat)
+  w <- c(w, weight)
+}
+
+att_sm <- round(weighted.mean(te, w/sum(w)), digits = 2)
+att_sm
+
+
+```
+  
+From above, we see that our calculated estimate of the ATT to be \$1562.73 which rounds to \$1563, as desired. This is an estimate of the ATT because we are computing the treatment effect within the sub-population of the treated individuals. We can think of each calculate TE within stratum as a CATE (conditional upon the stratum), and then we performed a weighted sum of these CATEs (weighed by proportion of treated within each stratum : total treated in the sample), which is by definition the ATT estimator.
 
 ## Part 2: Fancier Matching On the PScore (50 Points)
 \input{figures/part2_background.tex}

@@ -317,9 +317,14 @@ the upper bounds are within \(0.001\) of one another.
 
 \includegraphics{pset_6_files/figure-latex/unnamed-chunk-10-1.pdf}
 
-\begin{verbatim}
-b. (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
-\end{verbatim}
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of
+  training from these figures? Explain.
+\end{enumerate}
 
 From the two smoothed cruves on the graphs, we can roughly eyeball that
 the TEs are not homogenous across different pscores. For example, we
@@ -404,33 +409,105 @@ max\_pscore
 10 & 79 & 7 & 0.9004264 & 0.9735255 \\
 \end{longtable}
 
+The distribution of control and treated observation across strata is
+shown in the table above. We see that within stratum 9 (between 0.8 and
+0.9), there are no control units. Besides that stratum, all others are
+populated by both treated and contrl units. We also observe that there
+is a significantly higher concentration of control units within the 1st
+stratum.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  (25 p) Test that the average of each pretreatment variable is the same
+  for treated and control units within each stratum: the pre-treatment
+  variables are
+  \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}.
+  Can you think of a reason why you may want to run this test? Comment
+  on your findings.
+  \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Declare a function that identifies perfectly collinear covariates.}
+\CommentTok{\# Note: this fnc is roughly equivalent to \_rmcoll in STATA.}
+\NormalTok{rmcoll }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df, }\AttributeTok{colnames =} \FunctionTok{names}\NormalTok{(df)) \{}
+\CommentTok{\# Arguments:}
+\CommentTok{\# {-} df: A data frame.}
+\CommentTok{\# {-} colnames: A list of column names.}
+\CommentTok{\# Returns:}
+\CommentTok{\# A list with the column names of collinear variables.}
+\NormalTok{    df\_ }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(}\FunctionTok{one\_of}\NormalTok{(colnames))}
+\NormalTok{    cc }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(}\FunctionTok{lm}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(df\_)) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ df\_))}
+    \FunctionTok{return}\NormalTok{(}\FunctionTok{names}\NormalTok{(cc)[}\FunctionTok{is.na}\NormalTok{(cc)])}
+\NormalTok{\} }\CommentTok{\# end fnc rmcoll}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\item
+  (10 p) Let \(N_{s}^{T}\) denote the number of treated units in stratum
+  \(s\) with \(s=1,...,10\). Let \(N^{T}=\sum_{s=1}^{10}N_{s}^{T}\). Let
+  \(\overline{re78}_{s}^{1}\) (respectively,
+  \(\overline{re78}_{s}^{0}\)) denote average post-treatment earnings
+  for treated (respectively, control) units in stratum \(s\). Estimate
+  the ATT of the offer of training using stratification matching
+  estimator (\ref{strata_ATT}). Explain in plain English why this is an
+  estimator of the ATT.
+  \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
+
+  \begin{equation}
+   \widehat{ATT}^{SM}=\sum_{s=1}^{10}\left( \frac{N_{s}^{T}}{N^{T}}\right) \left( \overline{re78}_{s}^{1}-\overline{re78}_{s}^{0}\right) 
+   \text{.}\label{strata_ATT}
+   \end{equation}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{te }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+\NormalTok{w }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:} \DecValTok{10}\NormalTok{) \{}
+  
+  \ControlFlowTok{if}\NormalTok{(i }\SpecialCharTok{==} \DecValTok{9}\NormalTok{)\{}
+    \ControlFlowTok{next}
+\NormalTok{  \}}
+  
+\NormalTok{  stratum\_df }\OtherTok{\textless{}{-}}\NormalTok{ trimmed\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(stratum }\SpecialCharTok{==}\NormalTok{ i)}
+\NormalTok{  stratum\_treat }\OtherTok{\textless{}{-}}\NormalTok{ stratum\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+\NormalTok{  stratum\_control }\OtherTok{\textless{}{-}}\NormalTok{ stratum\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+\NormalTok{  re78\_1bar }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(stratum\_treat}\SpecialCharTok{$}\NormalTok{re78)}
+\NormalTok{  re78\_0bar }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(stratum\_control}\SpecialCharTok{$}\NormalTok{re78)}
+\NormalTok{  stratum\_te }\OtherTok{\textless{}{-}}\NormalTok{ re78\_1bar }\SpecialCharTok{{-}}\NormalTok{ re78\_0bar}
+  
+\NormalTok{  te }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(te, stratum\_te)}
+  
+\NormalTok{  weight }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(stratum\_treat)}
+\NormalTok{  w }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(w, weight)}
+\NormalTok{\}}
+
+\NormalTok{att\_sm }\OtherTok{\textless{}{-}} \FunctionTok{round}\NormalTok{(}\FunctionTok{weighted.mean}\NormalTok{(te, w}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(w)), }\AttributeTok{digits =} \DecValTok{2}\NormalTok{)}
+\NormalTok{att\_sm}
+\end{Highlighting}
+\end{Shaded}
+
 \begin{verbatim}
-b. (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
-
-
-    ```r
-    # Declare a function that identifies perfectly collinear covariates.
-    # Note: this fnc is roughly equivalent to _rmcoll in STATA.
-    rmcoll <- function(df, colnames = names(df)) {
-    # Arguments:
-    # - df: A data frame.
-    # - colnames: A list of column names.
-    # Returns:
-    # A list with the column names of collinear variables.
-        df_ <- df %>% dplyr::select(one_of(colnames))
-        cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
-        return(names(cc)[is.na(cc)])
-    } # end fnc rmcoll
-    ```
-
-c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
-
-
-\begin{equation}
-\widehat{ATT}^{SM}=\sum_{s=1}^{10}\left( \frac{N_{s}^{T}}{N^{T}}\right) \left( \overline{re78}_{s}^{1}-\overline{re78}_{s}^{0}\right) 
-\text{.}\label{strata_ATT}
-\end{equation}
+## [1] 1562.73
 \end{verbatim}
+
+From above, we see that our calculated estimate of the ATT to be
+\$1562.73 which rounds to \$1563, as desired. This is an estimate of the
+ATT because we are computing the treatment effect within the
+sub-population of the treated individuals. We can think of each
+calculate TE within stratum as a CATE (conditional upon the stratum),
+and then we performed a weighted sum of these CATEs (weighed by
+proportion of treated within each stratum : total treated in the
+sample), which is by definition the ATT estimator.
 
 \hypertarget{part-2-fancier-matching-on-the-pscore-50-points}{%
 \subsection{Part 2: Fancier Matching On the PScore (50

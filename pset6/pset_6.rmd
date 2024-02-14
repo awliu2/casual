@@ -180,7 +180,6 @@ We dropped 1344 control units and 6 treated units. This is not surprising given 
       ```{r}
       stratum_tables <- list()
       for(stratum_i in 1: 10){
-
         subset <- trimmed_df %>% filter(stratum == stratum_i)
         # Skip strata that do not have either no control or no treated units
         if (sum(subset$treat == 0) <= 0 || 
@@ -220,14 +219,46 @@ We dropped 1344 control units and 6 treated units. This is not surprising given 
       knitr::kable(bound_df, row.names = FALSE)
       ```
 
-    c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
+c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
 
     
     \begin{equation}
     \widehat{ATT}^{SM}=\sum_{s=1}^{10}\left( \frac{N_{s}^{T}}{N^{T}}\right) \left( \overline{re78}_{s}^{1}-\overline{re78}_{s}^{0}\right) 
     \text{.}\label{strata_ATT}
     \end{equation}
+    
+    
+```{r}
 
+te <- c()
+w <- c()
+
+for(i in 1: 10) {
+  
+  if(i == 9){
+    next
+  }
+  
+  stratum_df <- trimmed_df %>% filter(stratum == i)
+  stratum_treat <- stratum_df %>% filter(treat == 1)
+  stratum_control <- stratum_df %>% filter(treat == 0)
+  re78_1bar <- mean(stratum_treat$re78)
+  re78_0bar <- mean(stratum_control$re78)
+  stratum_te <- re78_1bar - re78_0bar
+  
+  te <- c(te, stratum_te)
+  
+  weight <- nrow(stratum_treat)
+  w <- c(w, weight)
+}
+
+att_sm <- round(weighted.mean(te, w/sum(w)), digits = 2)
+att_sm
+
+
+```
+  
+From above, we see that our calculated estimate of the ATT to be \$1562.73 which rounds to \$1563, as desired. This is an estimate of the ATT because we are computing the treatment effect within the sub-population of the treated individuals. We can think of each calculate TE within stratum as a CATE (conditional upon the stratum), and then we performed a weighted sum of these CATEs (weighed by proportion of treated within each stratum : total treated in the sample), which is by definition the ATT estimator.
 
 ## Part 2: Fancier Matching On the PScore (50 Points)
 

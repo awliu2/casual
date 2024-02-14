@@ -338,12 +338,12 @@ c. (2 p) What percentage of control units serve as a match to at least one treat
     
 ```{r}
 num_control_matched = length(unique(matched$index.control))
-total_control_units = length(X)
+total_control_units = sum(Tr == 0)
 control_matched = (num_control_matched / total_control_units) * 100
 control_matched
 ```
     
-  **Solution:** About 40.38\% of control units serve as a match to at least one treated unit.
+  **Solution:** About 46.68\% of control units serve as a match to at least one treated unit.
     
 d. (2 p) Take the treated units that are paired with exactly 1 control unit, how many distinct control units serve as matches to these treated units? Are you surprised?
     

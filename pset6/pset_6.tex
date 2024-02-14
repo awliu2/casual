@@ -818,17 +818,17 @@ the number of treated units that were paired as in part (a).
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{num\_control\_matched }\OtherTok{=} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(matched}\SpecialCharTok{$}\NormalTok{index.control))}
-\NormalTok{total\_control\_units }\OtherTok{=} \FunctionTok{length}\NormalTok{(X)}
+\NormalTok{total\_control\_units }\OtherTok{=} \FunctionTok{sum}\NormalTok{(Tr }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
 \NormalTok{control\_matched }\OtherTok{=}\NormalTok{ (num\_control\_matched }\SpecialCharTok{/}\NormalTok{ total\_control\_units) }\SpecialCharTok{*} \DecValTok{100}
 \NormalTok{control\_matched}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 40.37736
+## [1] 46.68412
 \end{verbatim}
 
-\textbf{Solution:} About 40.38\% of control units serve as a match to at
+\textbf{Solution:} About 46.68\% of control units serve as a match to at
 least one treated unit.
 
 \begin{enumerate}
@@ -915,10 +915,10 @@ with multiple control units.
 
 \begin{verbatim}
 ## 
-## Estimate...  524.77 
-## SE.........  768.27 
-## T-stat.....  0.68306 
-## p.val......  0.49457 
+## Estimate...  468.28 
+## SE.........  778.27 
+## T-stat.....  0.60169 
+## p.val......  0.54738 
 ## 
 ## Original number of observations..............  1325 
 ## Original number of treated obs...............  179 

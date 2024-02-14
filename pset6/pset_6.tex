@@ -127,7 +127,7 @@
 
 \title{Problem Set 6: Estimation of TEs Using Matching Methods}
 \author{Tessie Dong, Derek Li, Andi Liu}
-\date{Due Feb 1st, 2024}
+\date{Due Feb 15th, 2024}
 
 \begin{document}
 \maketitle
@@ -273,16 +273,22 @@ Points)}\label{part-1-naive-stratification-matching-on-the-propensity-score-50-p
 ## [1] -179
 \end{verbatim}
 
-A researcher may want to trim the sample in this way because if we are
-interested in matching p-scores between treatment and control groups,
-dropping p-scores that are too low or too high allows the OPVs between
-the groups to be more balanced. This is because we are removing units
-with certain covariates that are unlikely or very likely to be treated.
+\textbf{Solution:} A researcher may want to trim the sample in this way
+because if we are interested in matching p-scores between treatment and
+control groups, dropping p-scores that are too low or too high allows
+the OPVs between the groups to be more balanced. This is because we are
+removing units with certain covariates that are unlikely or very likely
+to be treated, in order to avoid cases in which there are no good
+matches for a unit from the treatment group within the control group (or
+vice versa).
 
 We dropped 1344 control units and 6 treated units. This is not
 surprising given the difference in the bounds, where \(\hat{p}^{T,l}\)
 is almost \(10e6\) times as large compared to \(\hat{p}^{C,l}\) whilst
-the upper bounds are within \(0.001\) of one another.
+the upper bounds are within \(0.001\) of one another. However, a
+significant portion of the dropped control units have p scores that are
+very close to zero - i.e they would likely not be matched to a treated
+unit.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -314,41 +320,37 @@ the upper bounds are within \(0.001\) of one another.
   \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.}
 \end{enumerate}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Draw scatter plot of post{-}intervention earnings}
-\CommentTok{\# and the Logit{-}based pscore, by group;}
-\CommentTok{\# overlay smooth local regression line.}
-\NormalTok{plot\_df }\OtherTok{\textless{}{-}}\NormalTok{ trimmed\_df }\SpecialCharTok{\%\textgreater{}\%}
-\NormalTok{dplyr}\SpecialCharTok{::}\FunctionTok{filter}\NormalTok{(re78 }\SpecialCharTok{\textless{}} \DecValTok{20000}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \CommentTok{\# drop outliers for plotting purposes}
-\NormalTok{dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{treat =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{ifelse}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\StringTok{"Treated"}\NormalTok{, }\StringTok{"Control"}\NormalTok{)))}
-\NormalTok{p }\OtherTok{\textless{}{-}}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{ggplot}\NormalTok{(plot\_df, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ logit\_propensity, }\AttributeTok{y =}\NormalTok{ re78)) }\SpecialCharTok{+}
-\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{facet\_grid}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{treat) }\SpecialCharTok{+}
-\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} 
-\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{20000}\NormalTok{,}\AttributeTok{by=}\DecValTok{1000}\NormalTok{)) }\SpecialCharTok{+}
-\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"loess"}\NormalTok{, }\AttributeTok{formula =}\NormalTok{ y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x, }\AttributeTok{span =} \FloatTok{0.5}\NormalTok{, }
-                                        \AttributeTok{method.args =} \FunctionTok{list}\NormalTok{(}\AttributeTok{degree =} \DecValTok{1}\NormalTok{)) }\SpecialCharTok{+}
-\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{ylab}\NormalTok{(}\StringTok{"Real Earnings in 1978"}\NormalTok{) }\SpecialCharTok{+}
-\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{xlab}\NormalTok{(}\StringTok{"Estimated Propensity Score"}\NormalTok{) }\SpecialCharTok{+}
-\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{labs}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Data Source: NSW{-}PSID1."}\NormalTok{) }\SpecialCharTok{+}
-\FunctionTok{theme\_bw}\NormalTok{()}
-
-\NormalTok{p}
-\end{Highlighting}
-\end{Shaded}
+\textbf{Discussion of span:} Using the provided R script, we find that
+in general, decreasing the value of \texttt{span} results in a more
+over-fit line, and increasing its value results in a smoother line. This
+lines up with documentation regarding the \texttt{span} parameter: it is
+the proportion of total number of points that contribute to each local
+fitted value, and thus, using less points for each fitted value leads to
+over fitting, and using more points leads to a smoother line. We provide
+two plots for comparison: the first with \texttt{span\ =\ 0.5}, and the
+second with \texttt{span\ =\ 0.25}.
 
 \includegraphics{pset_6_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+\includegraphics{pset_6_files/figure-latex/unnamed-chunk-11-1.pdf}
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
 \setcounter{enumi}{1}
+\tightlist
 \item
   (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of
-  training from these figures? Explain.
-
-\begin{verbatim}
- From the two smoothed cruves on the graphs, we can roughly eyeball that the TEs are not homogenous across different pscores. For example, we eyeball that for pscores < 0.5, the estimates of the TE are roughly 0 as there does not seem to be a significant difference between the real earnings in '78 for the control and treated groups. However, for pscores that are > 0.5, we eyeball that the estimates of TE are positive (e.g. for pscore = 0.75, the TE seems to be ~1.5k), implying that there is a positive impact of the training offer on real earnings in '78 for those pscores.
-\end{verbatim}
+  training from these figures? Explain.\\
+  \textbf{Solution:} From the two smoothed cruves on the graphs, we can
+  roughly eyeball that the TEs are not homogenous across different
+  pscores. For example, we eyeball that for pscores \textless{} 0.5, the
+  estimates of the TE are roughly 0 as there does not seem to be a
+  significant difference between the real earnings in '78 for the
+  control and treated groups. However, for pscores that are
+  \textgreater{} 0.5, we eyeball that the estimates of TE are positive
+  (e.g.~for pscore = 0.75, the TE seems to be \textasciitilde1.5k),
+  implying that there is a positive impact of the training offer on real
+  earnings in '78 for those pscores.
 \end{enumerate}
 
 \begin{enumerate}
@@ -385,19 +387,17 @@ the upper bounds are within \(0.001\) of one another.
 \NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{group\_by}\NormalTok{(trimmed\_df}\SpecialCharTok{$}\NormalTok{stratum) }\SpecialCharTok{\%\textgreater{}\%} 
 \NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{summarize}\NormalTok{(}\AttributeTok{count\_of\_treated =} \FunctionTok{length}\NormalTok{(}\FunctionTok{which}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)), }
                   \AttributeTok{count\_of\_control =} \FunctionTok{length}\NormalTok{(}\FunctionTok{which}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)), }
-                  \AttributeTok{min\_pscore =} \FunctionTok{min}\NormalTok{(logit\_propensity), }
-                  \AttributeTok{max\_pscore =} \FunctionTok{max}\NormalTok{(logit\_propensity))}
+                  \AttributeTok{proportion\_treated =} \FunctionTok{mean}\NormalTok{(treat))}
 
 \NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(strata)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{longtable}[]{@{}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2533}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2267}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2267}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1467}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1467}}@{}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2639}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2361}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2361}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2639}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedleft
 trimmed\_df\$stratum
@@ -406,32 +406,31 @@ count\_of\_treated
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 count\_of\_control
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-min\_pscore
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-max\_pscore
+proportion\_treated
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-1 & 11 & 1018 & 0.0006526 & 0.0992939 \\
-2 & 7 & 53 & 0.1003402 & 0.1987291 \\
-3 & 11 & 24 & 0.2032923 & 0.2987537 \\
-4 & 16 & 17 & 0.3025330 & 0.3885702 \\
-5 & 5 & 8 & 0.4032961 & 0.4966667 \\
-6 & 15 & 6 & 0.5016308 & 0.5978694 \\
-7 & 14 & 8 & 0.6038044 & 0.6918035 \\
-8 & 8 & 5 & 0.7109348 & 0.7984430 \\
-9 & 13 & 0 & 0.8019331 & 0.8955017 \\
-10 & 79 & 7 & 0.9004264 & 0.9735255 \\
+1 & 11 & 1018 & 0.0106900 \\
+2 & 7 & 53 & 0.1166667 \\
+3 & 11 & 24 & 0.3142857 \\
+4 & 16 & 17 & 0.4848485 \\
+5 & 5 & 8 & 0.3846154 \\
+6 & 15 & 6 & 0.7142857 \\
+7 & 14 & 8 & 0.6363636 \\
+8 & 8 & 5 & 0.6153846 \\
+9 & 13 & 0 & 1.0000000 \\
+10 & 79 & 7 & 0.9186047 \\
 \end{longtable}
 
-The distribution of control and treated observation across strata is
-shown in the table above. We see that within stratum 9 (between 0.8 and
-0.9), there are no control units. Besides that stratum, all others are
-populated by both treated and contrl units. We also observe that there
-is a significantly higher concentration of control units within the 1st
-stratum.
+\textbf{Discussion:} The distribution of control and treated observation
+across strata is shown in the table above. We see that within stratum 9
+(between 0.8 and 0.9), there are no control units. Besides that stratum,
+all others are populated by both treated and control units, albeit with
+different distributions. We also observe that there is a general trend
+of increasing proportion of treated units as we move from stratum 1 to
+stratum 10.
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
@@ -449,25 +448,22 @@ stratum.
 
 \textbf{Solution:} We may want to run this test to ensure that the
 pretreatment variables are balanced across the treated and control
-groups within each stratum. This is important because we want to ensure
-that the strata are balanced and that the treatment effect is not
-confounded by differences in observables - in other words, we want to
-ensure that within a specific range of propensity scores, we have
-similar distributions of pretreatment variables between the treated and
-control groups. If this were not the case, we may want to consider if
-some amount of confounding or selection bias is present in our sample -
-for example, if we observe that within a specific stratum with
-\(0.1 < p < 0.2\), the treated group is significantly older than the
-control group, we may want to consider if the likelihood of being
-treated is correlated with age, and if so, whether the treatment effect
-is confounded by age.
-
-We see below that in general, our OPVs remain balanced across strata,
-and there seems to be no trends in the differences between the treated
-and control groups across the strata. This is a good sign - it suggests
-that the treatment selection has not been confounded by the pretreatment
-variables, and thus there are no signs that the treatment effect is
-confounded by differences in observables.
+groups within each stratum. This is important because even though it may
+be the case that the pre-treatment variables are balanced across the
+entire dataset, we want to ensure that they are still balanced even
+after we stratify by pscore. Since we are estimating ATT using
+difference in post-treatment earnings within each of our stratum, we
+would like that OPV balance still holds within each of these sub-groups
+of data. Per the results below, we see that most of the stratum (that
+have both treated and control individuals) have balanced OPVs at a 0.05
+level. However, we see that strata 5 and 8 in particular have p-values
+less than 0.05, indicating that at least one of the OPVs is
+significantly different across the treatment/control groups and we
+cannot be confident that the OPVs are balanced within these strata. We
+might consider that the small sample sizes of these strata may be
+causing the imbalance in OPVs, and perhaps we could consider dropping
+these strata, or combining them with other strata to ensure that we have
+balanced OPVs within each stratum.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -488,7 +484,9 @@ confounded by differences in observables.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{stratum\_tables }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{stratum\_results }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{opvs }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"age"}\NormalTok{, }\StringTok{"edu"}\NormalTok{, }\StringTok{"married"}\NormalTok{, }\StringTok{"nodegree"}\NormalTok{, }\StringTok{"black"}\NormalTok{,}
+            \StringTok{"hisp"}\NormalTok{, }\StringTok{"re74"}\NormalTok{, }\StringTok{"re75"}\NormalTok{, }\StringTok{"u74black"}\NormalTok{)}
 \ControlFlowTok{for}\NormalTok{(stratum\_i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:} \DecValTok{10}\NormalTok{)\{}
 \NormalTok{  subset }\OtherTok{\textless{}{-}}\NormalTok{ trimmed\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(stratum }\SpecialCharTok{==}\NormalTok{ stratum\_i)}
   \CommentTok{\# Skip strata that do not have either no control or no treated units}
@@ -497,114 +495,48 @@ confounded by differences in observables.
     \ControlFlowTok{next}
 \NormalTok{  \}}
   
-\NormalTok{  opvs }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"age"}\NormalTok{, }\StringTok{"edu"}\NormalTok{, }\StringTok{"married"}\NormalTok{, }\StringTok{"nodegree"}\NormalTok{, }\StringTok{"black"}\NormalTok{,}
-            \StringTok{"hisp"}\NormalTok{, }\StringTok{"re74"}\NormalTok{, }\StringTok{"re75"}\NormalTok{, }\StringTok{"u74black"}\NormalTok{)}
-  
 \NormalTok{  non\_collinear }\OtherTok{\textless{}{-}} \FunctionTok{setdiff}\NormalTok{(opvs, }\FunctionTok{rmcoll}\NormalTok{(subset, opvs))}
 
 \NormalTok{  sur\_system }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{  null\_system }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
   \ControlFlowTok{for}\NormalTok{ (v }\ControlFlowTok{in}\NormalTok{ non\_collinear) \{}
 \NormalTok{    sur\_system[[v]] }\OtherTok{\textless{}{-}} \FunctionTok{formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(v, }\StringTok{"\textasciitilde{} treat"}\NormalTok{))}
+\NormalTok{    null\_system[[v]] }\OtherTok{\textless{}{-}} \FunctionTok{formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(v, }\StringTok{"\textasciitilde{} 1"}\NormalTok{))}
 \NormalTok{  \}}
   \CommentTok{\# null\_system \textless{}{-} map(vars, function(x) formula(paste(x, "\textasciitilde{} 1")))}
 \NormalTok{  sur\_fit }\OtherTok{\textless{}{-}}\NormalTok{ systemfit}\SpecialCharTok{::}\FunctionTok{systemfit}\NormalTok{(}\AttributeTok{formula=}\NormalTok{sur\_system, }\AttributeTok{data=}\NormalTok{subset, }\AttributeTok{method=}\StringTok{"SUR"}\NormalTok{)}
-  
-\NormalTok{  coeffs }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{summary}\NormalTok{(sur\_fit)}\SpecialCharTok{$}\NormalTok{coefficients)}
-  
-  \CommentTok{\# keep only \_treat\_ coefficients}
-\NormalTok{  coeffs }\OtherTok{\textless{}{-}}\NormalTok{ coeffs[}\FunctionTok{grep}\NormalTok{(}\StringTok{"treat"}\NormalTok{, }\FunctionTok{rownames}\NormalTok{(coeffs)), ]}
-  \CommentTok{\# generate a table of each opv\textquotesingle{}s estimate, std. error, and p{-}value}
-\NormalTok{  tab\_sur }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{opv =} \FunctionTok{rownames}\NormalTok{(coeffs),}
-                        \AttributeTok{stratum =}\NormalTok{ stratum\_i,}
-                        \AttributeTok{estimate =}\NormalTok{ coeffs[, }\StringTok{"Estimate"}\NormalTok{], }
-                        \AttributeTok{std\_error =}\NormalTok{ coeffs[, }\StringTok{"Std. Error"}\NormalTok{], }
-                        \AttributeTok{p\_value =}\NormalTok{ coeffs[, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{])}
-  
-\NormalTok{  stratum\_tables }\OtherTok{\textless{}{-}} \FunctionTok{append}\NormalTok{(stratum\_tables, }\FunctionTok{list}\NormalTok{(tab\_sur))}
+\NormalTok{  null\_fit }\OtherTok{\textless{}{-}}\NormalTok{ systemfit}\SpecialCharTok{::}\FunctionTok{systemfit}\NormalTok{(}\AttributeTok{formula=}\NormalTok{null\_system, }\AttributeTok{data=}\NormalTok{subset, }\AttributeTok{method=}\StringTok{"SUR"}\NormalTok{)}
+
+\NormalTok{  lrtest\_obj }\OtherTok{\textless{}{-}} \FunctionTok{lrtest}\NormalTok{(null\_fit, sur\_fit)}
+
+\NormalTok{  row }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{stratum =}\NormalTok{ stratum\_i, }\AttributeTok{p\_value =}\NormalTok{ lrtest\_obj}\SpecialCharTok{$}\StringTok{\textquotesingle{}Pr(\textgreater{}Chisq)\textquotesingle{}}\NormalTok{[}\DecValTok{2}\NormalTok{])}
+\NormalTok{  stratum\_results }\OtherTok{\textless{}{-}} \FunctionTok{append}\NormalTok{(stratum\_results, }\FunctionTok{list}\NormalTok{(row))}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{longtable}[]{@{}lrrrr@{}}
+\begin{longtable}[]{@{}rr@{}}
+\caption{P-values of the test of the equality of the OPVs across the
+treated and control groups within each stratum.}\tabularnewline
 \toprule\noalign{}
-opv & stratum & estimate & std\_error & p\_value \\
+stratum & p\_value \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+stratum & p\_value \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-age\_treat & 1 & -1.0636721 & 2.8890189 & 0.7128167 \\
-edu\_treat & 1 & 0.3155921 & 0.7941712 & 0.6911658 \\
-married\_treat & 1 & -0.0099125 & 0.1145116 & 0.9310356 \\
-nodegree\_treat & 1 & -0.0204501 & 0.1475651 & 0.8898065 \\
-black\_treat & 1 & 0.2738882 & 0.1458649 & 0.0607077 \\
-hisp\_treat & 1 & -0.0491159 & 0.0652230 & 0.4515952 \\
-re74\_treat & 1 & -73.9074492 & 2849.2557564 & 0.9793109 \\
-re75\_treat & 1 & -1388.4509522 & 2512.9811141 & 0.5807182 \\
-u74black\_treat & 1 & -0.0147348 & 0.0363642 & 0.6854152 \\
-age\_treat & 2 & 0.6765499 & 3.2065059 & 0.8336324 \\
-edu\_treat & 2 & 0.2803235 & 0.9333900 & 0.7650006 \\
-married\_treat & 2 & 0.2911051 & 0.1967012 & 0.1443020 \\
-nodegree\_treat & 2 & -0.0512129 & 0.1987538 & 0.7975734 \\
-black\_treat & 2 & -0.0323450 & 0.2003357 & 0.8722969 \\
-hisp\_treat & 2 & 0.2102426 & 0.1195619 & 0.0839479 \\
-re74\_treat & 2 & -3958.2270491 & 2200.7803542 & 0.0772931 \\
-re75\_treat & 2 & -666.4366615 & 1420.2776990 & 0.6406645 \\
-u74black\_treat & 2 & 0.0862534 & 0.1013983 & 0.3984681 \\
-age\_treat & 3 & 0.0757576 & 3.1756521 & 0.9811113 \\
-edu\_treat & 3 & -0.4015152 & 0.9559537 & 0.6771965 \\
-married\_treat & 3 & -0.1098485 & 0.1627693 & 0.5044582 \\
-nodegree\_treat & 3 & -0.0795455 & 0.1831797 & 0.6669345 \\
-black\_treat & 3 & -0.1212121 & 0.1799529 & 0.5052711 \\
-hisp\_treat & 3 & -0.0833333 & 0.0858214 & 0.3386079 \\
-re74\_treat & 3 & -591.4571651 & 2334.9782373 & 0.8016054 \\
-re75\_treat & 3 & 276.4310178 & 986.2188805 & 0.7810018 \\
-u74black\_treat & 3 & 0.0075758 & 0.1049645 & 0.9428987 \\
-age\_treat & 4 & 0.7205882 & 3.1461997 & 0.8203464 \\
-edu\_treat & 4 & -0.5845588 & 0.6585677 & 0.3815797 \\
-married\_treat & 4 & 0.0147059 & 0.1539876 & 0.9245320 \\
-nodegree\_treat & 4 & 0.0955882 & 0.1767816 & 0.5925693 \\
-black\_treat & 4 & -0.0073529 & 0.1172833 & 0.9504128 \\
-re74\_treat & 4 & 104.2220459 & 1869.3482305 & 0.9558963 \\
-re75\_treat & 4 & -229.3449635 & 914.9901263 & 0.8037363 \\
-u74black\_treat & 4 & 0.0110294 & 0.1385951 & 0.9370827 \\
-age\_treat & 5 & -1.0750000 & 5.3690559 & 0.8449610 \\
-edu\_treat & 5 & -1.2250000 & 1.3866039 & 0.3958893 \\
-married\_treat & 5 & -0.2500000 & 0.2105188 & 0.2600246 \\
-nodegree\_treat & 5 & 0.1750000 & 0.2811300 & 0.5463086 \\
-black\_treat & 5 & -0.6000000 & 0.1882938 & 0.0086602 \\
-hisp\_treat & 5 & 0.2000000 & 0.1537412 & 0.2198878 \\
-re74\_treat & 5 & 3340.5136414 & 2902.3267820 & 0.2741463 \\
-re75\_treat & 5 & -1287.4168701 & 1310.0385289 & 0.3468606 \\
-u74black\_treat & 5 & -0.0500000 & 0.2606809 & 0.8513895 \\
-age\_treat & 6 & -1.6000000 & 3.4719932 & 0.6501515 \\
-edu\_treat & 6 & 0.7333333 & 0.9156214 & 0.4330837 \\
-married\_treat & 6 & -0.1000000 & 0.1472953 & 0.5053825 \\
-nodegree\_treat & 6 & -0.0333333 & 0.1992677 & 0.8689179 \\
-black\_treat & 6 & -0.2333333 & 0.2333333 & 0.3298768 \\
-hisp\_treat & 6 & -0.0333333 & 0.1775400 & 0.8530624 \\
-re74\_treat & 6 & -770.7300578 & 1435.4043246 & 0.5975394 \\
-re75\_treat & 6 & -1147.3846008 & 1139.7403893 & 0.3267252 \\
-u74black\_treat & 6 & -0.1000000 & 0.1472953 & 0.5053825 \\
-age\_treat & 7 & -0.3750000 & 3.0871457 & 0.9045298 \\
-edu\_treat & 7 & 1.1964286 & 1.0756390 & 0.2792028 \\
-married\_treat & 7 & -0.0535714 & 0.1330926 & 0.6915767 \\
-nodegree\_treat & 7 & 0.0178571 & 0.2235711 & 0.9371326 \\
-black\_treat & 7 & 0.0535714 & 0.1330926 & 0.6915767 \\
-re74\_treat & 7 & 736.0412957 & 1007.1073044 & 0.4733485 \\
-re75\_treat & 7 & 586.6610181 & 559.1540834 & 0.3066027 \\
-u74black\_treat & 7 & 0.0892857 & 0.1781692 & 0.6217514 \\
-age\_treat & 8 & 7.2000000 & 3.6977880 & 0.0774981 \\
-edu\_treat & 8 & 0.4500000 & 0.4314352 & 0.3193155 \\
-married\_treat & 8 & 0.4250000 & 0.2811300 & 0.1587800 \\
-nodegree\_treat & 8 & -0.0500000 & 0.2606809 & 0.8513895 \\
-black\_treat & 8 & 0.2000000 & 0.1537412 & 0.2198878 \\
-re74\_treat & 8 & -1567.4140137 & 530.3527024 & 0.0130820 \\
-re75\_treat & 8 & -1037.1062286 & 1924.4520101 & 0.6006855 \\
-age\_treat & 10 & 0.0813743 & 1.9442487 & 0.9667145 \\
-edu\_treat & 10 & -0.4068716 & 0.7232924 & 0.5752551 \\
-nodegree\_treat & 10 & 0.0452080 & 0.1713501 & 0.7925541 \\
-black\_treat & 10 & -0.0506329 & 0.0838483 & 0.5475617 \\
-re75\_treat & 10 & 106.5913634 & 297.1979241 & 0.7207534 \\
+1 & 0.7031115 \\
+2 & 0.3172816 \\
+3 & 0.8192198 \\
+4 & 0.9730491 \\
+5 & 0.0000000 \\
+6 & 0.5831040 \\
+7 & 0.2434995 \\
+8 & 0.0352425 \\
+10 & 0.9794200 \\
 \end{longtable}
 
 \begin{enumerate}
@@ -660,14 +592,14 @@ re75\_treat & 10 & 106.5913634 & 297.1979241 & 0.7207534 \\
 ## [1] 1562.73
 \end{verbatim}
 
-From above, we see that our calculated estimate of the ATT to be
-\$1562.73 which rounds to \$1563, as desired. This is an estimate of the
-ATT because we are computing the treatment effect within the
-sub-population of the treated individuals. We can think of each
+\textbf{Solution:} From above, we see that our calculated estimate of
+the ATT to be \$1562.73 which rounds to \$1563, as desired. This is an
+estimate of the ATT because we are computing the treatment effect within
+the sub-population of the treated individuals. We can think of each
 calculate TE within stratum as a CATE (conditional upon the stratum),
 and then we performed a weighted sum of these CATEs (weighed by
-proportion of treated within each stratum : total treated in the
-sample), which is by definition the ATT estimator.
+proportion of treated within each stratum/total treated in the sample),
+thus our final estimator is an estimator of the ATT.
 
 \subsection{Part 2: Fancier Matching On the PScore (50
 Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}
@@ -834,6 +766,9 @@ NNM Estimate & NNM Std. Error \\
 490.3947 & 1929.634 \\
 \end{longtable}
 
+From these outputs, we can verify that our results match exactly those
+provided.
+
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{6}
@@ -846,11 +781,9 @@ NNM Estimate & NNM Std. Error \\
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
-\tightlist
 \item
   (2 p) How many treated units are paired with at least one control
   unit?
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -863,31 +796,19 @@ NNM Estimate & NNM Std. Error \\
 ## [1] 179
 \end{verbatim}
 
-\textbf{Solution:} 179 treated units are paired with at least one
-control unit.
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{1}
-\tightlist
+  \textbf{Solution:} 179 treated units are paired with at least one
+  control unit.
 \item
   (2 p) How many treated units are paired with exactly one control unit?
-\end{enumerate}
-
-\textbf{Solution:} 179 treated units are paired with at least one
-control unit. Since we set M=1 in the Match function, each treated unit
-is matched with exactly one control unit. Therefore, the number of
-treated units paired with exactly one control unit would be the same as
-the number of treated units that were paired as in part (a).
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
+  \newline \textbf{Solution:} 179 treated units are paired with at least
+  one control unit. Since we set M=1 in the Match function, each treated
+  unit is matched with exactly one control unit. Therefore, the number
+  of treated units paired with exactly one control unit would be the
+  same as the number of treated units that were paired as in part (a).
 \item
   (2 p) What percentage of control units serve as a match to at least
-  one treated unit?
-\end{enumerate}
+  one treated unit? \newline \textbf{Solution:} About 46.68\% of control
+  units serve as a match to at least one treated unit.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -901,19 +822,14 @@ the number of treated units that were paired as in part (a).
 \begin{verbatim}
 ## [1] 46.68412
 \end{verbatim}
-
-\textbf{Solution:} About 46.68\% of control units serve as a match to at
-least one treated unit.
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{3}
-\tightlist
 \item
   (2 p) Take the treated units that are paired with exactly 1 control
   unit, how many distinct control units serve as matches to these
-  treated units? Are you surprised?
-\end{enumerate}
+  treated units? Are you surprised? \newline \textbf{Solution:} 535
+  distinct control units serve as matches to these treated units.
+  Initially, this was surprising because all the treated units are
+  paired with exactly one control unit, but there are more matched
+  control units than matched treated units.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -925,60 +841,67 @@ least one treated unit.
 \begin{verbatim}
 ## [1] 535
 \end{verbatim}
-
-\textbf{Solution:} 535 distinct control units serve as matches to these
-treated units. Initially, this was surprising because all the treated
-units are paired with exactly one control unit, but there are more
-matched control units than matched treated units.
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{4}
-\tightlist
 \item
   (2 p) The algorithm matches one treated unit with 209 distinct control
-  units. How do you make sense of this?
-\end{enumerate}
-
-\textbf{Solution:} This can happen because the many control units might
-have identical or very similar pscores relative to a treated unit. The
-matching algorithm handles ties by matching the treated unit to all
-equally good control matches (with the same pscore), this could result
-in a large number of matches for a single treated unit.
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{5}
-\tightlist
+  units. How do you make sense of this? \newline \textbf{Solution:} This
+  can happen because the many control units might have identical or very
+  similar pscores relative to a treated unit. The matching algorithm
+  handles ties by matching the treated unit to all equally good control
+  matches (with the same pscore), this could result in a large number of
+  matches for a single treated unit.
 \item
   Make sense of the line
   ``\texttt{Matched number of observations (unweighted). 700}'\,' in
   Figure \ref{fig:nnm_output}.
 
   \begin{figure}[h]
-       \centering
-       \captionsetup{width=.6\textwidth}
-       \includegraphics[width=0.4\textwidth]{figures/q7_f.png}
-       \caption{Snapshot of output produced by running \texttt{symmary()} on the object returned by \texttt{Matching::Match()} in \textbf{\ref{item:estimate-att-ncs}}.}
-       \label{fig:nnm_output}
-       \end{figure}
-\end{enumerate}
+   \centering
+   \captionsetup{width=.6\textwidth}
+   \includegraphics[width=0.4\textwidth]{figures/q7_f.png}
+   \caption{Snapshot of output produced by running \texttt{symmary()} on the object returned by \texttt{Matching::Match()} in \textbf{\ref{item:estimate-att-ncs}}.}
+   \label{fig:nnm_output}
+   \end{figure}
 
-\textbf{Solution:} This line means that there are 700 matched pairs.
-This does not take into account that one treated unit might be matched
-with multiple control units.
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{paste}\NormalTok{(}\StringTok{"length of index.treated:"}\NormalTok{, }\FunctionTok{length}\NormalTok{(matched}\SpecialCharTok{$}\NormalTok{index.treated), }
+      \StringTok{"index.control:"}\NormalTok{, }\FunctionTok{length}\NormalTok{(matched}\SpecialCharTok{$}\NormalTok{index.control))}
+\end{Highlighting}
+\end{Shaded}
 
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{6}
-\tightlist
+\begin{verbatim}
+## [1] "length of index.treated: 700 index.control: 700"
+\end{verbatim}
+
+  \textbf{Solution:} This line means that there are 700 matched pairs.
+  This does not take into account that one treated unit might be matched
+  with multiple control units. We can obtain this result from the above
+  code and verifying that both vectors have 700 elements.
 \item
   (2 p) Use the matched data to ``manually'\,' compute the ATT estimate.
+  \newline \textbf{Solution:} The manually computed ATT estimate is
+  490.39.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(((trimmed\_df}\SpecialCharTok{$}\StringTok{\textquotesingle{}re78\textquotesingle{}}\NormalTok{)[matched}\SpecialCharTok{$}\NormalTok{index.treated] }\SpecialCharTok{{-}} 
+\NormalTok{    (trimmed\_df}\SpecialCharTok{$}\StringTok{\textquotesingle{}re78\textquotesingle{}}\NormalTok{)[matched}\SpecialCharTok{$}\NormalTok{index.control]) }\SpecialCharTok{*}\NormalTok{ matched}\SpecialCharTok{$}\NormalTok{weights) }\SpecialCharTok{/} \DecValTok{179}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 490.3947
+\end{verbatim}
 \item
   (2 p) Run \texttt{Matching::Match()} with \texttt{ties = FALSE}. Why
   do you get
-  ``\texttt{Matched number of observations (unweighted). 179}?'\,'
-\end{enumerate}
+  ``\texttt{Matched number of observations (unweighted). 179}?''
+  \newline \textbf{Solution:} I get ``Matched number of observations
+  (unweighted). 179'' because setting ties = FALSE instructs the
+  algorithm not to match treated units to more than one control unit
+  when there are ties in the matching criterion (e.g.~distance based on
+  propensity score). So we get exactly 179 matched pairs, i.e exactly
+  the number of treated units in the sample.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -989,25 +912,17 @@ with multiple control units.
 
 \begin{verbatim}
 ## 
-## Estimate...  317.26 
-## SE.........  787.54 
-## T-stat.....  0.40285 
-## p.val......  0.68706 
+## Estimate...  301.96 
+## SE.........  777.18 
+## T-stat.....  0.38853 
+## p.val......  0.69762 
 ## 
 ## Original number of observations..............  1325 
 ## Original number of treated obs...............  179 
 ## Matched number of observations...............  179 
 ## Matched number of observations  (unweighted).  179
 \end{verbatim}
-
-\textbf{Solution:} I get ``Matched number of observations (unweighted).
-179'' because setting ties = FALSE instructs the algorithm not to match
-treated units to more than one control unit when there are ties in the
-matching criterion (e.g.~distance based on propensity score). So we get
-exactly 179 matched pairs.
-
-\textcolor{gray}{\textbf{Programming Guidance}: Explore the list returned by \texttt{Matching::Match()}, in particular the named elements \texttt{mdata}, \texttt{index.treated}, \texttt{index.control} and \texttt{weights}.}
-\textcolor{gray}{\textbf{Hint}: Use \texttt{names()} to see the elements in the list returned by \texttt{Matching::Match()}. Feel free to use Table \ref{tab:matched-set-ds} to check on your work on the matched data. The matched data shall be a dataframe with 700 rows, because there are 700 matched pairs. We recommend that you have as columns the following: an index counter for the treated unit in the pair, an index counter for the control unit in the pair, the pscore value for the treated unit in the pair, the pscore value for the control unit in the pair, the outcome (namely \texttt{re78}) for the treated unit in the pair, the outcome for the control unit in the pair, the weight for the control unit in the pair. With this information you can answer all the questions (and more).}
+\end{enumerate}
 
 \newpage 
 \begin{table}[h]
@@ -1052,6 +967,48 @@ exactly 179 matched pairs.
    \item \texttt{nnm\_balance\$AfterMatching[[age\_loc]]\$mean.Co = 26.1724}
    \end{itemize}
   where, in our script, \texttt{age\_loc} is the number that identifies the location of the information for the covariate \texttt{age}.}
+\end{enumerate}
+
+\textbf{Solution:} We use the below script to document balance in the
+covariates before and after matching, and verify that the averages of
+\texttt{age} in the trimmed sample before matching and in the matched
+sample (i.e., after matching) are as expected. We choose to hide the
+rest of the output for convenience of the grader.
+
+In general the covariates seem to be significantly more balanced than
+before, with our T-test p-values increasingly drastically, moving from
+values that were near 0 to consistently failing to reject the null
+hypothesis that the covariates are balanced between the treated and
+control groups. Some variables, like \texttt{black} and
+\texttt{nodegree} didn't quite move to above the 0.05 thresholds,
+however, they are significantly more balanced after matching. Overall,
+the covariances in the matched sample seem to be sufficiently balanced
+to make us trust that the NNM estimator is not confounded by differences
+in most observable pre-treatment variables, with the exception of the
+\texttt{hisp} covariate which still exhibits significant imbalance at
+the 0.05 level.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\StringTok{"treat \textasciitilde{} 1 + age + I(agesq) + edu + I(edusq) + }
+\StringTok{                       married + nodegree + black + hisp + re74 +}
+\StringTok{                       re75 + I(re74sq) + I(re75sq) + u74:black"}\NormalTok{)}
+
+\NormalTok{nnm\_balance }\OtherTok{\textless{}{-}}\NormalTok{ Matching}\SpecialCharTok{::}\FunctionTok{MatchBalance}\NormalTok{(formula, }
+                                      \AttributeTok{data=}\NormalTok{trimmed\_df,}
+                                      \AttributeTok{match.out=}\NormalTok{matched,}
+                                      \AttributeTok{nboots=}\DecValTok{500}\NormalTok{)}
+\NormalTok{nnm\_balance}\SpecialCharTok{$}\NormalTok{BeforeMatching[[}\DecValTok{1}\NormalTok{]]}\SpecialCharTok{$}\NormalTok{mean.Tr }\CommentTok{\# 25.76536}
+\NormalTok{nnm\_balance}\SpecialCharTok{$}\NormalTok{BeforeMatching[[}\DecValTok{1}\NormalTok{]]}\SpecialCharTok{$}\NormalTok{mean.Co }\CommentTok{\# 30.96161}
+\NormalTok{nnm\_balance}\SpecialCharTok{$}\NormalTok{AfterMatching[[}\DecValTok{1}\NormalTok{]]}\SpecialCharTok{$}\NormalTok{mean.Tr }\CommentTok{\# 25.76536}
+\NormalTok{nnm\_balance}\SpecialCharTok{$}\NormalTok{AfterMatching[[}\DecValTok{1}\NormalTok{]]}\SpecialCharTok{$}\NormalTok{mean.Co }\CommentTok{\# 26.1724}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{8}
+\tightlist
 \item
   (6 p) The estimate of ATT based on the experimental data is \$1,794
   with SE \$633 (see PSet 3). Consider the estimates of ATT in Table
@@ -1062,12 +1019,58 @@ exactly 179 matched pairs.
   access to observational data?
 \end{enumerate}
 
-\newpage
-\begin{figure}[!htb]
-\centering
-  \includegraphics[width=0.9\textwidth]{figures/figures_end.png}
-  \caption{Scatter plot of \texttt{re78} against the Logit-based $\widehat{p}_{i}$ estimates, separately for the treated and the control group. Each panel also includes a fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ (blue line).}
-  \label{fig:propensity_vs_earnings}
-\end{figure}
+\textbf{Discussion:} We discuss two major takeaways and their
+implications from this exercise in estimating the ATT.
+
+Firstly, we find that in general, our point estimates of ATT and its SE
+varies significantly across the different matching estimators and
+algorithms being used. This is a potential cause for concern, as it
+suggests that our estimates are sensitive to the choice of matching
+algorithm. Working through multiple different estimators and exploring
+their theoretical background as well as their empirical results leaves
+us with a better understanding of the various strengths and weakness
+associated, and more importantly, with the conclusion that often times,
+there is not a single ``best'' matching estimator to default to.
+
+This realization leads us to our second main takeaway: beyond
+understanding the matching estimators and their various implementations
+and limitations, we also need to be aware of nuances present in the
+dataset we are working with, and how these nuances may affect the
+performance of the matching estimators. For example, we found that the
+covariates in the matched sample seem to be sufficiently balanced to
+make us trust that the NNM estimator is not confounded by differences in
+most observable pre-treatment variables, with the exception of the
+\texttt{hisp} covariate which still exhibits significant imbalance at
+the 0.05 level. Indeed, it is tests such as the stratified balance tests
+that we performed in this assignment that can allow us to gain
+additional insights into our data's ``shape'' and ``style'', and in turn
+allow us to choose one (or multiple) matching estimator(s) most
+appropriate for the context of our investigation.
+
+In the context of Imbens (2015)'s recommendations, we would want to
+consider the following actions to gain more confidence in our ability to
+learn about the true causal impact of the offer of training via matching
+when we only have access to observational data:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  We would want to consider the trial and/or use of multiple matching
+  estimators to understand the sensitivity of our results to the choice
+  of matching algorithm. This would allow us to understand the
+  robustness of our results and the extent to which our results are
+  driven by the choice of matching algorithm.
+\item
+  We would want to perform trimming of the sample to remove extreme
+  observations that may be driving our results. This would mitigate
+  p-score imbalances and thus improve the quality of matches and thus
+  the performance of our matching estimators.
+\item
+  Imbens suggests a step-wise MLE approach for estimating pscores - we
+  would want to consider this approach to ensure that our pscores are
+  estimated as accurately as possible. The more accurate our pscores,
+  the better our matching estimators will perform (regardless of which
+  matching algorithm we might choose).
+\end{enumerate}
 
 \end{document}

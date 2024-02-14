@@ -14,7 +14,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/casual/pset6")
+knitr::opts_knit$set(root.dir = "~/casual/pset6")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -112,112 +112,112 @@ We dropped 1344 control units and 6 treated units. This is not surprising given 
 
 2. (5 p) Figure \ref{fig:propensity_vs_earnings} plots \texttt{re78} (the outcome metric) against $\widehat{p}_{i}$, separately for the treated and the control groups. Each panel also includes a curve that displays the fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ i.e., a smoothed estimate of the mean of earnings conditional on the value of the pscore. Take for example the curve in the Treated panel, it connects earnings values constructed as follows. Pick a value of the pscore, e.g., $p=0.89567$. Identify the (for example) 10 closest pscore values in the treated sample. Using these 11 points, regress \texttt{re78} on a constant and the pscore values, giving more weight to the pscore values closest to $p=0.89567$. The implied fitted value of earnings at $p=0.89567$ is the value depicted on the curve.
 
-    a. Reproduce Figure \ref{fig:propensity_vs_earnings}. Test your understanding of the Loess smoothing method by varying the value of \texttt{span}. \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.}
+a. Reproduce Figure \ref{fig:propensity_vs_earnings}. Test your understanding of the Loess smoothing method by varying the value of \texttt{span}. \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.}
     
-      ```{r}
-      # Draw scatter plot of post-intervention earnings
-      # and the Logit-based pscore, by group;
-      # overlay smooth local regression line.
-      plot_df <- trimmed_df %>%
-      dplyr::filter(re78 < 20000) %>% # drop outliers for plotting purposes
-      dplyr::mutate(treat = factor(ifelse(treat == 1, "Treated", "Control")))
-      p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = logit_propensity, y = re78)) +
-      ggplot2::facet_grid(~treat) +
-      ggplot2::geom_point() + 
-      ggplot2::scale_y_continuous(breaks=seq(0,20000,by=1000)) +
-      ggplot2::geom_smooth(method = "loess", formula = y ~ x, span = 0.5, 
-                                              method.args = list(degree = 1)) +
-      ggplot2::ylab("Real Earnings in 1978") +
-      ggplot2::xlab("Estimated Propensity Score") +
-      ggplot2::labs(caption = "Data Source: NSW-PSID1.") +
-      theme_bw()
+```{r}
+# Draw scatter plot of post-intervention earnings
+# and the Logit-based pscore, by group;
+# overlay smooth local regression line.
+plot_df <- trimmed_df %>%
+dplyr::filter(re78 < 20000) %>% # drop outliers for plotting purposes
+dplyr::mutate(treat = factor(ifelse(treat == 1, "Treated", "Control")))
+p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = logit_propensity, y = re78)) +
+ggplot2::facet_grid(~treat) +
+ggplot2::geom_point() + 
+ggplot2::scale_y_continuous(breaks=seq(0,20000,by=1000)) +
+ggplot2::geom_smooth(method = "loess", formula = y ~ x, span = 0.5, 
+                                        method.args = list(degree = 1)) +
+ggplot2::ylab("Real Earnings in 1978") +
+ggplot2::xlab("Estimated Propensity Score") +
+ggplot2::labs(caption = "Data Source: NSW-PSID1.") +
+theme_bw()
 
-      p
-      ```
+p
+```
 
-    b. (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
+b. (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
     
         From the two smoothed cruves on the graphs, we can roughly eyeball that the TEs are not homogenous across different pscores. For example, we eyeball that for pscores < 0.5, the estimates of the TE are roughly 0 as there does not seem to be a significant difference between the real earnings in '78 for the control and treated groups. However, for pscores that are > 0.5, we eyeball that the estimates of TE are positive (e.g. for pscore = 0.75, the TE seems to be ~1.5k), implying that there is a positive impact of the training offer on real earnings in '78 for those pscores.
 
 3. (40 p) We can do better than eyeballing TEs. You are now ready to implement \textcolor{ForestGreen}{stratification matching}.
     
-    a. (5 p) Add a column to your dataframe called \texttt{stratum} that takes values from 1 to 10 corresponding to 10 equally spaced intervals with \texttt{stratum=1} if $0<\widehat{p}_{i}\leq 0.1$, \texttt{stratum=2} if $0.1<\widehat{p}_{i}\leq 0.2$, and so on.\footnote{\textit{Strata} is the plural of \textit{stratum}, both are Latin words.} What is the distribution of control and treated observation across strata? Are all strata \textcolor{ForestGreen}{populated}? \textcolor{gray}{\textbf{Programming Guidance:} To bin the values of a column, use the R base function \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/.bincode( )}{\texttt{.bincode}} with break points at 0, 0.1, 0.2 etc. up to 1. To add a column to a dataframe, use \texttt{dplyr::mutate( )}. To produce summary statistics by group, use \texttt{dplyr::group\_by( )}, and pipe the result to \texttt{dplyr::summarize( )}. In our R script we produce the following summary statistics within each stratum: count of treated units, count of control units, minimum pscore value, maximum pscore value.}
-      ```{r}
-      b <- c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
+a. (5 p) Add a column to your dataframe called \texttt{stratum} that takes values from 1 to 10 corresponding to 10 equally spaced intervals with \texttt{stratum=1} if $0<\widehat{p}_{i}\leq 0.1$, \texttt{stratum=2} if $0.1<\widehat{p}_{i}\leq 0.2$, and so on.\footnote{\textit{Strata} is the plural of \textit{stratum}, both are Latin words.} What is the distribution of control and treated observation across strata? Are all strata \textcolor{ForestGreen}{populated}? \textcolor{gray}{\textbf{Programming Guidance:} To bin the values of a column, use the R base function \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/.bincode( )}{\texttt{.bincode}} with break points at 0, 0.1, 0.2 etc. up to 1. To add a column to a dataframe, use \texttt{dplyr::mutate( )}. To produce summary statistics by group, use \texttt{dplyr::group\_by( )}, and pipe the result to \texttt{dplyr::summarize( )}. In our R script we produce the following summary statistics within each stratum: count of treated units, count of control units, minimum pscore value, maximum pscore value.}
+```{r}
+b <- c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
 
-      trimmed_df <- dplyr::mutate(trimmed_df, 
-                                  stratum = .bincode(trimmed_df$logit_propensity, b))
+trimmed_df <- dplyr::mutate(trimmed_df, 
+                            stratum = .bincode(trimmed_df$logit_propensity, b))
 
-      strata <- trimmed_df %>% 
-        dplyr::group_by(trimmed_df$stratum) %>% 
-        dplyr::summarize(count_of_treated = length(which(treat == 1)), 
-                        count_of_control = length(which(treat == 0)), 
-                        min_pscore = min(logit_propensity), 
-                        max_pscore = max(logit_propensity))
+strata <- trimmed_df %>% 
+  dplyr::group_by(trimmed_df$stratum) %>% 
+  dplyr::summarize(count_of_treated = length(which(treat == 1)), 
+                  count_of_control = length(which(treat == 0)), 
+                  min_pscore = min(logit_propensity), 
+                  max_pscore = max(logit_propensity))
 
-      knitr::kable(strata)
-      ```
+knitr::kable(strata)
+```
 
-      The distribution of control and treated observation across strata is shown in the table above. We see that within stratum 9 (between 0.8 and 0.9), there are no control units. Besides that stratum, all others are populated by both treated and contrl units. We also observe that there is a significantly higher concentration of control units within the 1st stratum. 
+The distribution of control and treated observation across strata is shown in the table above. We see that within stratum 9 (between 0.8 and 0.9), there are no control units. Besides that stratum, all others are populated by both treated and contrl units. We also observe that there is a significantly higher concentration of control units within the 1st stratum. 
 
-    b. (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
+b. (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
 
-      ```{r}
-      # Declare a function that identifies perfectly collinear covariates.
-      # Note: this fnc is roughly equivalent to _rmcoll in STATA.
-      rmcoll <- function(df, colnames = names(df)) {
-        # Arguments:
-        # - df: A data frame.
-        # - colnames: A list of column names.
-        # Returns:
-        # A list with the column names of collinear variables.
-          df_ <- df %>% dplyr::select(one_of(colnames))
-          cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
-          return(names(cc)[is.na(cc)])
-      } # end fnc rmcoll
-      ```
+```{r}
+# Declare a function that identifies perfectly collinear covariates.
+# Note: this fnc is roughly equivalent to _rmcoll in STATA.
+rmcoll <- function(df, colnames = names(df)) {
+  # Arguments:
+  # - df: A data frame.
+  # - colnames: A list of column names.
+  # Returns:
+  # A list with the column names of collinear variables.
+    df_ <- df %>% dplyr::select(one_of(colnames))
+    cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
+    return(names(cc)[is.na(cc)])
+} # end fnc rmcoll
+```
 
-      ```{r}
-      stratum_tables <- list()
-      for(stratum_i in 1: 10){
-        subset <- trimmed_df %>% filter(stratum == stratum_i)
-        # Skip strata that do not have either no control or no treated units
-        if (sum(subset$treat == 0) <= 0 || 
-            sum(subset$treat == 1) <= 0) {
-          next
-        }
-        
-        opvs <- c("age", "edu", "married", "nodegree", "black",
-                  "hisp", "re74", "re75", "u74black")
-        
-        non_collinear <- setdiff(opvs, rmcoll(subset, opvs))
+```{r}
+stratum_tables <- list()
+for(stratum_i in 1: 10){
+  subset <- trimmed_df %>% filter(stratum == stratum_i)
+  # Skip strata that do not have either no control or no treated units
+  if (sum(subset$treat == 0) <= 0 || 
+      sum(subset$treat == 1) <= 0) {
+    next
+  }
+  
+  opvs <- c("age", "edu", "married", "nodegree", "black",
+            "hisp", "re74", "re75", "u74black")
+  
+  non_collinear <- setdiff(opvs, rmcoll(subset, opvs))
 
-        sur_system <- list()
-        for (v in non_collinear) {
-          sur_system[[v]] <- formula(paste(v, "~ treat"))
-        }
-        # null_system <- map(vars, function(x) formula(paste(x, "~ 1")))
-        sur_fit <- systemfit::systemfit(formula=sur_system, data=subset, method="SUR")
-        
-        coeffs <- (summary(sur_fit)$coefficients)
-        
-        # keep only _treat_ coefficients
-        coeffs <- coeffs[grep("treat", rownames(coeffs)), ]
-        # generate a table of each opv's estimate, std. error, and p-value
-        tab_sur <- data.frame(opv = rownames(coeffs),
-                              stratum = stratum_i,
-                              estimate = coeffs[, "Estimate"], 
-                              std_error = coeffs[, "Std. Error"], 
-                              p_value = coeffs[, "Pr(>|t|)"])
-        
-        stratum_tables <- append(stratum_tables, list(tab_sur))
-      }
-      ```
+  sur_system <- list()
+  for (v in non_collinear) {
+    sur_system[[v]] <- formula(paste(v, "~ treat"))
+  }
+  # null_system <- map(vars, function(x) formula(paste(x, "~ 1")))
+  sur_fit <- systemfit::systemfit(formula=sur_system, data=subset, method="SUR")
+  
+  coeffs <- (summary(sur_fit)$coefficients)
+  
+  # keep only _treat_ coefficients
+  coeffs <- coeffs[grep("treat", rownames(coeffs)), ]
+  # generate a table of each opv's estimate, std. error, and p-value
+  tab_sur <- data.frame(opv = rownames(coeffs),
+                        stratum = stratum_i,
+                        estimate = coeffs[, "Estimate"], 
+                        std_error = coeffs[, "Std. Error"], 
+                        p_value = coeffs[, "Pr(>|t|)"])
+  
+  stratum_tables <- append(stratum_tables, list(tab_sur))
+}
+```
 
-      ```{r, echo=FALSE}
-      bound_df <- bind_rows(stratum_tables)
-      knitr::kable(bound_df, row.names = FALSE)
-      ```
+```{r, echo=FALSE}
+bound_df <- bind_rows(stratum_tables)
+knitr::kable(bound_df, row.names = FALSE)
+```
 
 c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
 
@@ -299,14 +299,68 @@ Adaptive Stratification Matching     &  2,208.603 &  855.168 \\ \hline
 \label{tab:Tab25-4_2}
 \end{table}
 
+```{r}
+Y <- trimmed_df$re78
+Tr <- trimmed_df$treat
+X <- trimmed_df$logit_propensity
+
+matched <- Matching::Match(Y,Tr,X,M=1,estimand="ATT")
+
+nnm_df <- data.frame(matched[c('est', 'se')])
+colnames(nnm_df) <- c('NNM Estimate', 'NNM Std. Error')
+
+summary_matched <- summary(matched)
+
+knitr::kable(nnm_df)
+
+```
+
+
 7. (16 p) Consider the \textcolor{ForestGreen}{matched data}, i.e., the collection of pairs such that each pair is a treated unit and a matched control.
 
-    a. (2 p) How many treated units are paired with at least one control unit? 
-    b. (2 p) How many treated units are paired with exactly one control unit? 
-    c. (2 p) What percentage of control units serve as a match to at least one treated unit? 
-    d. (2 p) Take the treated units that are paired with exactly 1 control unit, how many distinct control units serve as matches to these treated units? Are you surprised?
-    e. (2 p) The algorithm matches one treated unit with 209 distinct control units. How do you make sense of this?
-    f. Make sense of the line ``\texttt{Matched number of observations (unweighted). 700}'' in Figure \ref{fig:nnm_output}. 
+a. (2 p) How many treated units are paired with at least one control unit? 
+    
+```{r}
+
+num_treated_paired = length(unique(matched$index.treated))
+num_treated_paired
+
+```
+    
+  **Solution:** 179 treated units are paired with at least one control unit.
+    
+    
+b. (2 p) How many treated units are paired with exactly one control unit? 
+    
+  **Solution:** 179 treated units are paired with at least one control unit. Since we set M=1 in the Match function, each treated unit is matched with exactly one control unit. Therefore, the number of treated units paired with exactly one control unit would be the same as the number of treated units that were paired as in part (a).
+
+c. (2 p) What percentage of control units serve as a match to at least one treated unit? 
+    
+```{r}
+num_control_matched = length(unique(matched$index.control))
+total_control_units = length(X)
+control_matched = (num_control_matched / total_control_units) * 100
+control_matched
+```
+    
+  **Solution:** About 40.38\% of control units serve as a match to at least one treated unit.
+    
+d. (2 p) Take the treated units that are paired with exactly 1 control unit, how many distinct control units serve as matches to these treated units? Are you surprised?
+    
+```{r}
+num_distinct_controls_for_treated = length(unique(matched$index.control))
+num_distinct_controls_for_treated 
+
+```
+    
+**Solution:** 535 distinct control units serve as matches to these treated units. Initially, this was surprising because all the treated units are paired with exactly one control unit, but there are more matched control units than matched treated units.
+
+
+e. (2 p) The algorithm matches one treated unit with 209 distinct control units. How do you make sense of this?
+    
+**Solution:** This can happen because the many control units might have identical or very similar pscores relative to a treated unit. The matching algorithm handles ties by matching the treated unit to all equally good control matches (with the same pscore), this could result in a large number of matches for a single treated unit.
+    
+f. Make sense of the line ``\texttt{Matched number of observations (unweighted). 700}'' in Figure \ref{fig:nnm_output}. 
         \begin{figure}[h]
         \centering
         \captionsetup{width=.6\textwidth}
@@ -314,8 +368,20 @@ Adaptive Stratification Matching     &  2,208.603 &  855.168 \\ \hline
         \caption{Snapshot of output produced by running \texttt{symmary()} on the object returned by \texttt{Matching::Match()} in \textbf{\ref{item:estimate-att-ncs}}.}
         \label{fig:nnm_output}
         \end{figure}
-    g. (2 p) Use the matched data to ``manually'' compute the ATT estimate. 
-    h. (2 p) Run \texttt{Matching::Match()} with \texttt{ties = FALSE}. Why do you get ``\texttt{Matched number of observations (unweighted). 179}?'' 
+        
+**Solution:** This line means that there are 700 matched pairs. This does not take into account that one treated unit might be matched with multiple control units.
+
+g. (2 p) Use the matched data to ``manually'' compute the ATT estimate. 
+h. (2 p) Run \texttt{Matching::Match()} with \texttt{ties = FALSE}. Why do you get ``\texttt{Matched number of observations (unweighted). 179}?''
+
+```{r}
+
+matched_notie <- Matching::Match(Y,Tr,X,M=1,estimand="ATT",ties = FALSE)
+(summary(matched_notie))
+
+```
+
+**Solution:** I get "Matched number of observations (unweighted). 179" because setting ties = FALSE instructs the  algorithm not to match treated units to more than one control unit when there are ties in the matching criterion (e.g. distance based on propensity score). So we get exactly 179 matched pairs.
 
 \textcolor{gray}{\textbf{Programming Guidance}: Explore the list returned by \texttt{Matching::Match()}, in particular the named elements \texttt{mdata}, \texttt{index.treated}, \texttt{index.control} and \texttt{weights}.} \textcolor{gray}{\textbf{Hint}: Use \texttt{names()} to see the elements in the list returned by \texttt{Matching::Match()}. Feel free to use Table \ref{tab:matched-set-ds} to check on your work on the matched data. The matched data shall be a dataframe with 700 rows, because there are 700 matched pairs. We recommend that you have as columns the following: an index counter for the treated unit in the pair, an index counter for the control unit in the pair, the pscore value for the treated unit in the pair, the pscore value for the control unit in the pair, the outcome (namely \texttt{re78}) for the treated unit in the pair, the outcome for the control unit in the pair, the weight for the control unit in the pair. With this information you can answer all the questions (and more).}
 

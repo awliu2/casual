@@ -14,7 +14,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/casual/pset6")
+knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset6")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -345,6 +345,41 @@ expression to:
 \end{equation}
 
 \noindent Use expression (\ref{ATT_m_bis}) to describe in plain English the essence of each matching approach.  \textcolor{gray}{\textbf{Hint:} Find the expression for $\pi _{j}^{m}$ in expression (\ref{ATT_m_bis_w}) for each $m\in \left\{NNM,RM,KM\right\} $}.
+
+
+**Solution:** Consider the following: 
+\begin{align*}
+ \hat{ATT}^m &= \frac{1}{N^T} \sum_{i\in T}\left[y_i - \sum_{j\in C^m(i)} w_{ij}^m y_j\right], \text{, by definition, }\\
+ &= \frac{1}{N^T} \sum_{i\in T}[y_i] - \frac{1}{N^T} \sum_{i\in T}\sum_{j\in C^m(i)} w_{ij}^m y_j \text{, by properties of $\sum$, }\\
+ &= \bar{y}^1 - \frac{1}{N^T} \sum_{i\in T}\left[\sum_{j\in C^m(i)} w_{ij}^m y_j\right] \text{, by definition. }
+\end{align*}
+
+Now let $m \in \{NNM, RM\}$, for arbitrary treatment unit $i$,
+\begin{align*}
+    \sum_{j\in C}w_{ij}^m y_j &= \sum_{j\in C^m(i)} w_{ij}^m y_j + \sum_{j\in C\setminus C^m(i)} 0 \cdot y_j \text{, by (6), }\\
+    &= \sum_{j\in C^m(i)} w_{ij}^m y_j + 0 \\
+    &= \sum_{j\in C^m(i)} w_{ij}^m y_j.  
+\end{align*}
+
+Similarly, for $m = KN$ we have by definition (6) that $C^m(i) = C$. For all $m$ we thus have, 
+$$\sum_{j\in C}w_{ij}^m y_j = \sum_{j\in C^m(i)} w_{ij}^m y_j.$$
+
+We can continue to then show that 
+\begin{align*}
+    \hat{ATT}^m &= \bar{y}^1 - \frac{1}{N^T} \sum_{i\in T}\left[\sum_{j\in C^m(i)} w_{ij}^m y_j\right] \\ 
+    &= \bar{y}^1 - \frac{1}{N^T} \sum_{i\in T}\left[\sum_{j\in C} w_{ij}^m y_j\right]\\ 
+    &= \bar{y}^1 - \frac{1}{N^T} \sum_{j\in C} \left[ \left(\sum_{i\in T} w_{ij}^m \right) y_j \right] \text{, because $T,C$ are disjoint and $i,j$ are independent,  }\\ 
+    &= \bar{y}^1 - \frac{1}{N^C} \cdot \frac{N^C}{N^T} \cdot \sum_{j\in C} \left[ \left(\sum_{i\in T} w_{ij}^m\right) y_j \right] \text{, by multiplying by 1, }\\
+    &= \bar{y}^1 - \frac{1}{N^C} \sum_{j\in C} \left[ \left(\frac{N^C}{N^T} \sum_{i\in T} w_{ij}^m \right) y_j \right]\text{, by linearity of summation, }\\ 
+    &= \bar{y}^1 - \frac{1}{N^C} \sum_{j\in C} \pi_{j}^m y_j \text{, where } \pi_j^m = \frac{N^C}{N^T} \sum_{i\in T} w_{ij}^m \text{,}\\
+    &= \bar{y}^1 - \bar{y_m^0} \text{, by definition.}  
+\end{align*}
+
+In plain English we recognize that the matching approach is a difference between the sample average of the treated sample and a weighted average of the control sample. 
+In particular each method uses a different weighting mechanism by leveraging (2), (3), (4) and (6) together. For nearest neighbors, we weight by a set of control units that 
+have closest distance in terms of propensity score. In radius matching, we choose control units that are within certain neighborhood of propensity scores. 
+For radius matching we choose controls that are within a certain neibhorhood of propensity scores. For kernel matching we choose a kernel function as the distance metric and weight propensity by similarity.
+
 
 
 6. (3 p) With the trimmed sample from Part 1, produce the 1:1 NNM estimate of ATT using \href{https://www.rdocumentation.org/packages/Matching/versions/4.9-6/topics/Match}{\texttt{Matching::Match( )}} from the package \href{https://cran.r-project.org/web/packages/Matching/Matching.pdf}{\texttt{Matching}}. Verify that it coincides with that presented in Table \ref{tab:Tab25-4_2}. \textcolor{gray}{\textbf{Note:} Table \ref{tab:Tab25-4_2} also reports estimates based on 3 other PSM approaches (you are not asked to implement them). ``Adaptive Stratification'' is a refinement of the ``Naive Stratification'' approach that you implemented in Part 1: strata are created iteratively (as opposed to being fixed ahead of time) so as to ensure balance within each stratum.}  \textcolor{gray}{\textbf{Programming guidance:} \texttt{Matching::Match()} takes 3 dataframes as inputs, \texttt{Y}, \texttt{Tr} and \texttt{X}. \texttt{Y} and \texttt{Tr} are columns \texttt{re78} and \texttt{treat} respectively in your dataframe, and \texttt{X} is the column that stores the Logit estimates of the pscore because you want to match on the estimated pscore. Specify \texttt{M=1} and \texttt{estimand=``ATT''} so that you estimate ATT using 1:1 matching. Use \texttt{summary()} on the object returned, which is a list of 23 elements.} \label{item:estimate-att-ncs}

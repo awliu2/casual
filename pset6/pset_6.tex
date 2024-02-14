@@ -112,7 +112,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
@@ -136,10 +136,9 @@
 
 \newpage
 
-\hypertarget{part-1-naive-stratification-matching-on-the-propensity-score-50-points}{%
 \subsection{Part 1: Naive Stratification Matching on the Propensity
 Score (50
-Points)}\label{part-1-naive-stratification-matching-on-the-propensity-score-50-points}}
+Points)}\label{part-1-naive-stratification-matching-on-the-propensity-score-50-points}
 
 \input{figures/part1_background.tex}
 
@@ -189,7 +188,8 @@ Points)}\label{part-1-naive-stratification-matching-on-the-propensity-score-50-p
 
 \NormalTok{dt\_psid }\OtherTok{\textless{}{-}} \FunctionTok{load\_data}\NormalTok{(}\AttributeTok{filename =}\NormalTok{ filename\_psid)}
 
-\NormalTok{dt\_psid[ , }\StringTok{\textasciigrave{}}\AttributeTok{:=}\StringTok{\textasciigrave{}}\NormalTok{ (}\AttributeTok{agesq =}\NormalTok{ age}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }\AttributeTok{edusq =}\NormalTok{ edu}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }\AttributeTok{re74sq =}\NormalTok{ re74}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }\AttributeTok{re75sq =}\NormalTok{ re75}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }\AttributeTok{u74black=}\NormalTok{u74}\SpecialCharTok{*}\NormalTok{black)]}
+\NormalTok{dt\_psid[ , }\StringTok{\textasciigrave{}}\AttributeTok{:=}\StringTok{\textasciigrave{}}\NormalTok{ (}\AttributeTok{agesq =}\NormalTok{ age}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }\AttributeTok{edusq =}\NormalTok{ edu}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }
+                 \AttributeTok{re74sq =}\NormalTok{ re74}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }\AttributeTok{re75sq =}\NormalTok{ re75}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }\AttributeTok{u74black=}\NormalTok{u74}\SpecialCharTok{*}\NormalTok{black)]}
 
 \NormalTok{pscore\_formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(treat }\SpecialCharTok{\textasciitilde{}}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ agesq }\SpecialCharTok{+}\NormalTok{ edu }\SpecialCharTok{+}\NormalTok{ edusq }\SpecialCharTok{+} 
 \NormalTok{                              married }\SpecialCharTok{+}\NormalTok{ nodegree }\SpecialCharTok{+}\NormalTok{ black }\SpecialCharTok{+}\NormalTok{ hisp }\SpecialCharTok{+} 
@@ -228,28 +228,49 @@ Points)}\label{part-1-naive-stratification-matching-on-the-propensity-score-50-p
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{trimmed\_df }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(dt\_psid, logit\_propensity }\SpecialCharTok{\textgreater{}=} \FunctionTok{max}\NormalTok{(p\_cl, p\_tl) }\SpecialCharTok{\&}\NormalTok{ logit\_propensity }\SpecialCharTok{\textless{}=} \FunctionTok{min}\NormalTok{(p\_cu, p\_tu))}
+\NormalTok{trimmed\_df }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(dt\_psid, logit\_propensity }\SpecialCharTok{\textgreater{}=} 
+              \FunctionTok{max}\NormalTok{(p\_cl, p\_tl) }\SpecialCharTok{\&}\NormalTok{ logit\_propensity }\SpecialCharTok{\textless{}=} \FunctionTok{min}\NormalTok{(p\_cu, p\_tu))}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{length}\NormalTok{(control}\SpecialCharTok{$}\NormalTok{logit\_propensity) }\SpecialCharTok{{-}} \FunctionTok{length}\NormalTok{((trimmed\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{))}\SpecialCharTok{$}\NormalTok{logit\_propensity)}
+\FunctionTok{length}\NormalTok{(control}\SpecialCharTok{$}\NormalTok{logit\_propensity)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 1344
+## [1] 2490
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{length}\NormalTok{(treatment}\SpecialCharTok{$}\NormalTok{logit\_propensity) }\SpecialCharTok{{-}} \FunctionTok{length}\NormalTok{((trimmed\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{))}\SpecialCharTok{$}\NormalTok{logit\_propensity)}
+\SpecialCharTok{{-}} \FunctionTok{length}\NormalTok{((trimmed\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{))}\SpecialCharTok{$}\NormalTok{logit\_propensity)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 6
+## [1] -1146
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(treatment}\SpecialCharTok{$}\NormalTok{logit\_propensity)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 185
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{{-}} \FunctionTok{length}\NormalTok{((trimmed\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{))}\SpecialCharTok{$}\NormalTok{logit\_propensity)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -179
 \end{verbatim}
 
 A researcher may want to trim the sample in this way because if we are
@@ -290,7 +311,6 @@ the upper bounds are within \(0.001\) of one another.
     \texttt{span}.
     \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.}
   \end{enumerate}
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -315,25 +335,26 @@ the upper bounds are within \(0.001\) of one another.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{pset_6_files/figure-latex/unnamed-chunk-10-1.pdf}
+  \includegraphics{pset_6_files/figure-latex/unnamed-chunk-10-1.pdf}
 
-\begin{verbatim}
-b. (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
-\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \item
+    (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of
+    training from these figures? Explain.
 
-From the two smoothed cruves on the graphs, we can roughly eyeball that
-the TEs are not homogenous across different pscores. For example, we
-eyeball that for pscores \textless{} 0.5, the estimates of the TE are
-roughly 0 as there does not seem to be a significant difference between
-the real earnings in '78 for the control and treated groups. However,
-for pscores that are \textgreater{} 0.5, we eyeball that the estimates
-of TE are positive (e.g.~for pscore = 0.75, the TE seems to be
-\textasciitilde1.5k), implying that there is a positive impact of the
-training offer on real earnings in '78 for those pscores.
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{2}
+    From the two smoothed cruves on the graphs, we can roughly eyeball
+    that the TEs are not homogenous across different pscores. For
+    example, we eyeball that for pscores \textless{} 0.5, the estimates
+    of the TE are roughly 0 as there does not seem to be a significant
+    difference between the real earnings in '78 for the control and
+    treated groups. However, for pscores that are \textgreater{} 0.5, we
+    eyeball that the estimates of TE are positive (e.g.~for pscore =
+    0.75, the TE seems to be \textasciitilde1.5k), implying that there
+    is a positive impact of the training offer on real earnings in '78
+    for those pscores.
+  \end{enumerate}
 \item
   (40 p) We can do better than eyeballing TEs. You are now ready to
   implement \textcolor{ForestGreen}{stratification matching}.
@@ -351,90 +372,243 @@ training offer on real earnings in '78 for those pscores.
     strata? Are all strata \textcolor{ForestGreen}{populated}?
     \textcolor{gray}{\textbf{Programming Guidance:} To bin the values of a column, use the R base function \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/.bincode( )}{\texttt{.bincode}} with break points at 0, 0.1, 0.2 etc. up to 1. To add a column to a dataframe, use \texttt{dplyr::mutate( )}. To produce summary statistics by group, use \texttt{dplyr::group\_by( )}, and pipe the result to \texttt{dplyr::summarize( )}. In our R script we produce the following summary statistics within each stratum: count of treated units, count of control units, minimum pscore value, maximum pscore value.}
   \end{enumerate}
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{b }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.1}\NormalTok{, }\FloatTok{0.2}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.4}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\FloatTok{0.6}\NormalTok{, }\FloatTok{0.7}\NormalTok{, }\FloatTok{0.8}\NormalTok{, }\FloatTok{0.9}\NormalTok{, }\DecValTok{1}\NormalTok{)}
 
-\NormalTok{trimmed\_df }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(trimmed\_df, }\AttributeTok{stratum =} \FunctionTok{.bincode}\NormalTok{(trimmed\_df}\SpecialCharTok{$}\NormalTok{logit\_propensity, b))}
+\NormalTok{trimmed\_df }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(trimmed\_df, }
+                            \AttributeTok{stratum =} \FunctionTok{.bincode}\NormalTok{(trimmed\_df}\SpecialCharTok{$}\NormalTok{logit\_propensity, b))}
 
 \NormalTok{strata }\OtherTok{\textless{}{-}}\NormalTok{ trimmed\_df }\SpecialCharTok{\%\textgreater{}\%} 
 \NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{group\_by}\NormalTok{(trimmed\_df}\SpecialCharTok{$}\NormalTok{stratum) }\SpecialCharTok{\%\textgreater{}\%} 
 \NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{summarize}\NormalTok{(}\AttributeTok{count\_of\_treated =} \FunctionTok{length}\NormalTok{(}\FunctionTok{which}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)), }
-                   \AttributeTok{count\_of\_control =} \FunctionTok{length}\NormalTok{(}\FunctionTok{which}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)), }
-                   \AttributeTok{min\_pscore =} \FunctionTok{min}\NormalTok{(logit\_propensity), }
-                   \AttributeTok{max\_pscore =} \FunctionTok{max}\NormalTok{(logit\_propensity))}
+                  \AttributeTok{count\_of\_control =} \FunctionTok{length}\NormalTok{(}\FunctionTok{which}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)), }
+                  \AttributeTok{min\_pscore =} \FunctionTok{min}\NormalTok{(logit\_propensity), }
+                  \AttributeTok{max\_pscore =} \FunctionTok{max}\NormalTok{(logit\_propensity))}
 
 \NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(strata)}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{longtable}[]{@{}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2533}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2267}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2267}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1467}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1467}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedleft
-trimmed\_df\$stratum
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-count\_of\_treated
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-count\_of\_control
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-min\_pscore
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-max\_pscore
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-1 & 11 & 1018 & 0.0006526 & 0.0992939 \\
-2 & 7 & 53 & 0.1003402 & 0.1987291 \\
-3 & 11 & 24 & 0.2032923 & 0.2987537 \\
-4 & 16 & 17 & 0.3025330 & 0.3885702 \\
-5 & 5 & 8 & 0.4032961 & 0.4966667 \\
-6 & 15 & 6 & 0.5016308 & 0.5978694 \\
-7 & 14 & 8 & 0.6038044 & 0.6918035 \\
-8 & 8 & 5 & 0.7109348 & 0.7984430 \\
-9 & 13 & 0 & 0.8019331 & 0.8955017 \\
-10 & 79 & 7 & 0.9004264 & 0.9735255 \\
-\end{longtable}
+  \begin{longtable}[]{@{}
+    >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2533}}
+    >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2267}}
+    >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2267}}
+    >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1467}}
+    >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1467}}@{}}
+  \toprule\noalign{}
+  \begin{minipage}[b]{\linewidth}\raggedleft
+  trimmed\_df\$stratum
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+  count\_of\_treated
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+  count\_of\_control
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+  min\_pscore
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+  max\_pscore
+  \end{minipage} \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  1 & 11 & 1018 & 0.0006526 & 0.0992939 \\
+  2 & 7 & 53 & 0.1003402 & 0.1987291 \\
+  3 & 11 & 24 & 0.2032923 & 0.2987537 \\
+  4 & 16 & 17 & 0.3025330 & 0.3885702 \\
+  5 & 5 & 8 & 0.4032961 & 0.4966667 \\
+  6 & 15 & 6 & 0.5016308 & 0.5978694 \\
+  7 & 14 & 8 & 0.6038044 & 0.6918035 \\
+  8 & 8 & 5 & 0.7109348 & 0.7984430 \\
+  9 & 13 & 0 & 0.8019331 & 0.8955017 \\
+  10 & 79 & 7 & 0.9004264 & 0.9735255 \\
+  \end{longtable}
 
-\begin{verbatim}
-b. (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
+  The distribution of control and treated observation across strata is
+  shown in the table above. We see that within stratum 9 (between 0.8
+  and 0.9), there are no control units. Besides that stratum, all others
+  are populated by both treated and contrl units. We also observe that
+  there is a significantly higher concentration of control units within
+  the 1st stratum.
 
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    (25 p) Test that the average of each pretreatment variable is the
+    same for treated and control units within each stratum: the
+    pre-treatment variables are
+    \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}.
+    Can you think of a reason why you may want to run this test? Comment
+    on your findings.
+    \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
+  \end{enumerate}
 
-    ```r
-    # Declare a function that identifies perfectly collinear covariates.
-    # Note: this fnc is roughly equivalent to _rmcoll in STATA.
-    rmcoll <- function(df, colnames = names(df)) {
-    # Arguments:
-    # - df: A data frame.
-    # - colnames: A list of column names.
-    # Returns:
-    # A list with the column names of collinear variables.
-        df_ <- df %>% dplyr::select(one_of(colnames))
-        cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
-        return(names(cc)[is.na(cc)])
-    } # end fnc rmcoll
-    ```
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Declare a function that identifies perfectly collinear covariates.}
+\CommentTok{\# Note: this fnc is roughly equivalent to \_rmcoll in STATA.}
+\NormalTok{rmcoll }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df, }\AttributeTok{colnames =} \FunctionTok{names}\NormalTok{(df)) \{}
+  \CommentTok{\# Arguments:}
+  \CommentTok{\# {-} df: A data frame.}
+  \CommentTok{\# {-} colnames: A list of column names.}
+  \CommentTok{\# Returns:}
+  \CommentTok{\# A list with the column names of collinear variables.}
+\NormalTok{    df\_ }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(}\FunctionTok{one\_of}\NormalTok{(colnames))}
+\NormalTok{    cc }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(}\FunctionTok{lm}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(df\_)) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ df\_))}
+    \FunctionTok{return}\NormalTok{(}\FunctionTok{names}\NormalTok{(cc)[}\FunctionTok{is.na}\NormalTok{(cc)])}
+\NormalTok{\} }\CommentTok{\# end fnc rmcoll}
+\end{Highlighting}
+\end{Shaded}
 
-c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{stratum\_tables }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{(stratum\_i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:} \DecValTok{10}\NormalTok{)\{}
 
+\NormalTok{  subset }\OtherTok{\textless{}{-}}\NormalTok{ trimmed\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(stratum }\SpecialCharTok{==}\NormalTok{ stratum\_i)}
+  \CommentTok{\# Skip strata that do not have either no control or no treated units}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{sum}\NormalTok{(subset}\SpecialCharTok{$}\NormalTok{treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\SpecialCharTok{\textless{}=} \DecValTok{0} \SpecialCharTok{||} 
+      \FunctionTok{sum}\NormalTok{(subset}\SpecialCharTok{$}\NormalTok{treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\textless{}=} \DecValTok{0}\NormalTok{) \{}
+    \ControlFlowTok{next}
+\NormalTok{  \}}
 
-\begin{equation}
-\widehat{ATT}^{SM}=\sum_{s=1}^{10}\left( \frac{N_{s}^{T}}{N^{T}}\right) \left( \overline{re78}_{s}^{1}-\overline{re78}_{s}^{0}\right) 
-\text{.}\label{strata_ATT}
-\end{equation}
-\end{verbatim}
+\NormalTok{  opvs }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"age"}\NormalTok{, }\StringTok{"edu"}\NormalTok{, }\StringTok{"married"}\NormalTok{, }\StringTok{"nodegree"}\NormalTok{, }\StringTok{"black"}\NormalTok{,}
+            \StringTok{"hisp"}\NormalTok{, }\StringTok{"re74"}\NormalTok{, }\StringTok{"re75"}\NormalTok{, }\StringTok{"u74black"}\NormalTok{)}
 
-\hypertarget{part-2-fancier-matching-on-the-pscore-50-points}{%
+\NormalTok{  non\_collinear }\OtherTok{\textless{}{-}} \FunctionTok{setdiff}\NormalTok{(opvs, }\FunctionTok{rmcoll}\NormalTok{(subset, opvs))}
+
+\NormalTok{  sur\_system }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+  \ControlFlowTok{for}\NormalTok{ (v }\ControlFlowTok{in}\NormalTok{ non\_collinear) \{}
+\NormalTok{    sur\_system[[v]] }\OtherTok{\textless{}{-}} \FunctionTok{formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(v, }\StringTok{"\textasciitilde{} treat"}\NormalTok{))}
+\NormalTok{  \}}
+  \CommentTok{\# null\_system \textless{}{-} map(vars, function(x) formula(paste(x, "\textasciitilde{} 1")))}
+\NormalTok{  sur\_fit }\OtherTok{\textless{}{-}}\NormalTok{ systemfit}\SpecialCharTok{::}\FunctionTok{systemfit}\NormalTok{(}\AttributeTok{formula=}\NormalTok{sur\_system, }\AttributeTok{data=}\NormalTok{subset, }\AttributeTok{method=}\StringTok{"SUR"}\NormalTok{)}
+
+\NormalTok{  coeffs }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{summary}\NormalTok{(sur\_fit)}\SpecialCharTok{$}\NormalTok{coefficients)}
+
+  \CommentTok{\# keep only \_treat\_ coefficients}
+\NormalTok{  coeffs }\OtherTok{\textless{}{-}}\NormalTok{ coeffs[}\FunctionTok{grep}\NormalTok{(}\StringTok{"treat"}\NormalTok{, }\FunctionTok{rownames}\NormalTok{(coeffs)), ]}
+  \CommentTok{\# generate a table of each opv\textquotesingle{}s estimate, std. error, and p{-}value}
+\NormalTok{  tab\_sur }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{opv =} \FunctionTok{rownames}\NormalTok{(coeffs),}
+                        \AttributeTok{stratum =}\NormalTok{ stratum\_i,}
+                        \AttributeTok{estimate =}\NormalTok{ coeffs[, }\StringTok{"Estimate"}\NormalTok{], }
+                        \AttributeTok{std\_error =}\NormalTok{ coeffs[, }\StringTok{"Std. Error"}\NormalTok{], }
+                        \AttributeTok{p\_value =}\NormalTok{ coeffs[, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{])}
+
+\NormalTok{  stratum\_tables }\OtherTok{\textless{}{-}} \FunctionTok{append}\NormalTok{(stratum\_tables, }\FunctionTok{list}\NormalTok{(tab\_sur))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{longtable}[]{@{}lrrrr@{}}
+  \toprule\noalign{}
+  opv & stratum & estimate & std\_error & p\_value \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  age\_treat & 1 & -1.0636721 & 2.8890189 & 0.7128167 \\
+  edu\_treat & 1 & 0.3155921 & 0.7941712 & 0.6911658 \\
+  married\_treat & 1 & -0.0099125 & 0.1145116 & 0.9310356 \\
+  nodegree\_treat & 1 & -0.0204501 & 0.1475651 & 0.8898065 \\
+  black\_treat & 1 & 0.2738882 & 0.1458649 & 0.0607077 \\
+  hisp\_treat & 1 & -0.0491159 & 0.0652230 & 0.4515952 \\
+  re74\_treat & 1 & -73.9074492 & 2849.2557564 & 0.9793109 \\
+  re75\_treat & 1 & -1388.4509522 & 2512.9811141 & 0.5807182 \\
+  u74black\_treat & 1 & -0.0147348 & 0.0363642 & 0.6854152 \\
+  age\_treat & 2 & 0.6765499 & 3.2065059 & 0.8336324 \\
+  edu\_treat & 2 & 0.2803235 & 0.9333900 & 0.7650006 \\
+  married\_treat & 2 & 0.2911051 & 0.1967012 & 0.1443020 \\
+  nodegree\_treat & 2 & -0.0512129 & 0.1987538 & 0.7975734 \\
+  black\_treat & 2 & -0.0323450 & 0.2003357 & 0.8722969 \\
+  hisp\_treat & 2 & 0.2102426 & 0.1195619 & 0.0839479 \\
+  re74\_treat & 2 & -3958.2270491 & 2200.7803542 & 0.0772931 \\
+  re75\_treat & 2 & -666.4366615 & 1420.2776990 & 0.6406645 \\
+  u74black\_treat & 2 & 0.0862534 & 0.1013983 & 0.3984681 \\
+  age\_treat & 3 & 0.0757576 & 3.1756521 & 0.9811113 \\
+  edu\_treat & 3 & -0.4015152 & 0.9559537 & 0.6771965 \\
+  married\_treat & 3 & -0.1098485 & 0.1627693 & 0.5044582 \\
+  nodegree\_treat & 3 & -0.0795455 & 0.1831797 & 0.6669345 \\
+  black\_treat & 3 & -0.1212121 & 0.1799529 & 0.5052711 \\
+  hisp\_treat & 3 & -0.0833333 & 0.0858214 & 0.3386079 \\
+  re74\_treat & 3 & -591.4571651 & 2334.9782373 & 0.8016054 \\
+  re75\_treat & 3 & 276.4310178 & 986.2188805 & 0.7810018 \\
+  u74black\_treat & 3 & 0.0075758 & 0.1049645 & 0.9428987 \\
+  age\_treat & 4 & 0.7205882 & 3.1461997 & 0.8203464 \\
+  edu\_treat & 4 & -0.5845588 & 0.6585677 & 0.3815797 \\
+  married\_treat & 4 & 0.0147059 & 0.1539876 & 0.9245320 \\
+  nodegree\_treat & 4 & 0.0955882 & 0.1767816 & 0.5925693 \\
+  black\_treat & 4 & -0.0073529 & 0.1172833 & 0.9504128 \\
+  re74\_treat & 4 & 104.2220459 & 1869.3482305 & 0.9558963 \\
+  re75\_treat & 4 & -229.3449635 & 914.9901263 & 0.8037363 \\
+  u74black\_treat & 4 & 0.0110294 & 0.1385951 & 0.9370827 \\
+  age\_treat & 5 & -1.0750000 & 5.3690559 & 0.8449610 \\
+  edu\_treat & 5 & -1.2250000 & 1.3866039 & 0.3958893 \\
+  married\_treat & 5 & -0.2500000 & 0.2105188 & 0.2600246 \\
+  nodegree\_treat & 5 & 0.1750000 & 0.2811300 & 0.5463086 \\
+  black\_treat & 5 & -0.6000000 & 0.1882938 & 0.0086602 \\
+  hisp\_treat & 5 & 0.2000000 & 0.1537412 & 0.2198878 \\
+  re74\_treat & 5 & 3340.5136414 & 2902.3267820 & 0.2741463 \\
+  re75\_treat & 5 & -1287.4168701 & 1310.0385289 & 0.3468606 \\
+  u74black\_treat & 5 & -0.0500000 & 0.2606809 & 0.8513895 \\
+  age\_treat & 6 & -1.6000000 & 3.4719932 & 0.6501515 \\
+  edu\_treat & 6 & 0.7333333 & 0.9156214 & 0.4330837 \\
+  married\_treat & 6 & -0.1000000 & 0.1472953 & 0.5053825 \\
+  nodegree\_treat & 6 & -0.0333333 & 0.1992677 & 0.8689179 \\
+  black\_treat & 6 & -0.2333333 & 0.2333333 & 0.3298768 \\
+  hisp\_treat & 6 & -0.0333333 & 0.1775400 & 0.8530624 \\
+  re74\_treat & 6 & -770.7300578 & 1435.4043246 & 0.5975394 \\
+  re75\_treat & 6 & -1147.3846008 & 1139.7403893 & 0.3267252 \\
+  u74black\_treat & 6 & -0.1000000 & 0.1472953 & 0.5053825 \\
+  age\_treat & 7 & -0.3750000 & 3.0871457 & 0.9045298 \\
+  edu\_treat & 7 & 1.1964286 & 1.0756390 & 0.2792028 \\
+  married\_treat & 7 & -0.0535714 & 0.1330926 & 0.6915767 \\
+  nodegree\_treat & 7 & 0.0178571 & 0.2235711 & 0.9371326 \\
+  black\_treat & 7 & 0.0535714 & 0.1330926 & 0.6915767 \\
+  re74\_treat & 7 & 736.0412957 & 1007.1073044 & 0.4733485 \\
+  re75\_treat & 7 & 586.6610181 & 559.1540834 & 0.3066027 \\
+  u74black\_treat & 7 & 0.0892857 & 0.1781692 & 0.6217514 \\
+  age\_treat & 8 & 7.2000000 & 3.6977880 & 0.0774981 \\
+  edu\_treat & 8 & 0.4500000 & 0.4314352 & 0.3193155 \\
+  married\_treat & 8 & 0.4250000 & 0.2811300 & 0.1587800 \\
+  nodegree\_treat & 8 & -0.0500000 & 0.2606809 & 0.8513895 \\
+  black\_treat & 8 & 0.2000000 & 0.1537412 & 0.2198878 \\
+  re74\_treat & 8 & -1567.4140137 & 530.3527024 & 0.0130820 \\
+  re75\_treat & 8 & -1037.1062286 & 1924.4520101 & 0.6006855 \\
+  age\_treat & 10 & 0.0813743 & 1.9442487 & 0.9667145 \\
+  edu\_treat & 10 & -0.4068716 & 0.7232924 & 0.5752551 \\
+  nodegree\_treat & 10 & 0.0452080 & 0.1713501 & 0.7925541 \\
+  black\_treat & 10 & -0.0506329 & 0.0838483 & 0.5475617 \\
+  re75\_treat & 10 & 106.5913634 & 297.1979241 & 0.7207534 \\
+  \end{longtable}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{2}
+  \tightlist
+  \item
+    (10 p) Let \(N_{s}^{T}\) denote the number of treated units in
+    stratum \(s\) with \(s=1,...,10\). Let
+    \(N^{T}=\sum_{s=1}^{10}N_{s}^{T}\). Let \(\overline{re78}_{s}^{1}\)
+    (respectively, \(\overline{re78}_{s}^{0}\)) denote average
+    post-treatment earnings for treated (respectively, control) units in
+    stratum \(s\). Estimate the ATT of the offer of training using
+    stratification matching estimator (\ref{strata_ATT}). Explain in
+    plain English why this is an estimator of the ATT.
+    \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
+  \end{enumerate}
+
+  \begin{equation}
+   \widehat{ATT}^{SM}=\sum_{s=1}^{10}\left( \frac{N_{s}^{T}}{N^{T}}\right) \left( \overline{re78}_{s}^{1}-\overline{re78}_{s}^{0}\right) 
+   \text{.}\label{strata_ATT}
+   \end{equation}
+\end{enumerate}
+
 \subsection{Part 2: Fancier Matching On the PScore (50
-Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}}
+Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}
 
 \input{figures/part2_background.tex}
 \newpage

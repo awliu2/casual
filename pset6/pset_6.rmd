@@ -14,10 +14,11 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset6")
+knitr::opts_knit$set(root.dir = "~/Documents/casual/pset6")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
+library(dplyr)
 library(systemfit)
 library(knitr)
 library(readr)
@@ -61,7 +62,8 @@ filename_psid = "starter-files/nswpsid.csv"
 
 dt_psid <- load_data(filename = filename_psid)
 
-dt_psid[ , `:=` (agesq = age^2, edusq = edu^2, re74sq = re74^2, re75sq = re75^2, u74black=u74*black)]
+dt_psid[ , `:=` (agesq = age^2, edusq = edu^2, 
+                 re74sq = re74^2, re75sq = re75^2, u74black=u74*black)]
 
 pscore_formula = as.formula(treat ~ age + agesq + edu + edusq + 
                               married + nodegree + black + hisp + 
@@ -91,14 +93,17 @@ p_tu = max(treatment$logit_propensity)
 ```
 
 ```{r}
-trimmed_df <- subset(dt_psid, logit_propensity >= max(p_cl, p_tl) & logit_propensity <= min(p_cu, p_tu))
+trimmed_df <- subset(dt_psid, logit_propensity >= 
+              max(p_cl, p_tl) & logit_propensity <= min(p_cu, p_tu))
 ```
 
 ```{r}
-length(control$logit_propensity) - length((trimmed_df %>% filter(treat == 0))$logit_propensity)
+length(control$logit_propensity)
+- length((trimmed_df %>% filter(treat == 0))$logit_propensity)
 ```
 ```{r}
-length(treatment$logit_propensity) - length((trimmed_df %>% filter(treat == 1))$logit_propensity)
+length(treatment$logit_propensity)
+- length((trimmed_df %>% filter(treat == 1))$logit_propensity)
 ```
 
 A researcher may want to trim the sample in this way because if we are interested in matching p-scores between treatment and control groups, dropping p-scores that are too low or too high allows the OPVs between the groups to be more balanced. This is because we are removing units with certain covariates that are unlikely or very likely to be treated. 
@@ -109,100 +114,111 @@ We dropped 1344 control units and 6 treated units. This is not surprising given 
 
     a. Reproduce Figure \ref{fig:propensity_vs_earnings}. Test your understanding of the Loess smoothing method by varying the value of \texttt{span}. \textcolor{gray}{\textbf{Programming Guidance:} Use the script below which assumes that the trimmed dataframe is \texttt{trimmed\_df} and the Logit-based estimates are in column \texttt{pscore}. \texttt{ggplot2::ggplot()} produces a scatter plot. \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{\texttt{geom\_smooth}}\texttt{(method = ``loess'', span = 0.5, method.args = list(degree = 1))} overlays a smoothed curve: (i) the \texttt{method} argument picks the LOWESS (LOcally WEighted Scatter-plot Smoother) smoothing method, i.e., the R function \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/loess}{\texttt{stats::loess()}}; (ii) the \texttt{span} argument indicates the proportion of the total number of points that contribute to each local fitted value; (iii) the \texttt{method.args} argument lists additional arguments passed on to the function \texttt{stats::loess()}, in particular \texttt{degree = 1} picks a polynomials of degree 1 (which is just a line). Here is a \href{https://ggplot2.tidyverse.org/reference/geom_smooth.html}{link} to some examples.}
     
+      ```{r}
+      # Draw scatter plot of post-intervention earnings
+      # and the Logit-based pscore, by group;
+      # overlay smooth local regression line.
+      plot_df <- trimmed_df %>%
+      dplyr::filter(re78 < 20000) %>% # drop outliers for plotting purposes
+      dplyr::mutate(treat = factor(ifelse(treat == 1, "Treated", "Control")))
+      p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = logit_propensity, y = re78)) +
+      ggplot2::facet_grid(~treat) +
+      ggplot2::geom_point() + 
+      ggplot2::scale_y_continuous(breaks=seq(0,20000,by=1000)) +
+      ggplot2::geom_smooth(method = "loess", formula = y ~ x, span = 0.5, 
+                                              method.args = list(degree = 1)) +
+      ggplot2::ylab("Real Earnings in 1978") +
+      ggplot2::xlab("Estimated Propensity Score") +
+      ggplot2::labs(caption = "Data Source: NSW-PSID1.") +
+      theme_bw()
 
-```{r}
-# Draw scatter plot of post-intervention earnings
-# and the Logit-based pscore, by group;
-# overlay smooth local regression line.
-plot_df <- trimmed_df %>%
-dplyr::filter(re78 < 20000) %>% # drop outliers for plotting purposes
-dplyr::mutate(treat = factor(ifelse(treat == 1, "Treated", "Control")))
-p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = logit_propensity, y = re78)) +
-ggplot2::facet_grid(~treat) +
-ggplot2::geom_point() + 
-ggplot2::scale_y_continuous(breaks=seq(0,20000,by=1000)) +
-ggplot2::geom_smooth(method = "loess", formula = y ~ x, span = 0.5, 
-                                        method.args = list(degree = 1)) +
-ggplot2::ylab("Real Earnings in 1978") +
-ggplot2::xlab("Estimated Propensity Score") +
-ggplot2::labs(caption = "Data Source: NSW-PSID1.") +
-theme_bw()
-
-p
-```
+      p
+      ```
 
     b. (3 p) Can you eyeball estimate\textbf{s} of the TE of the offer of training from these figures? Explain.  
-
-From the two smoothed cruves on the graphs, we can roughly eyeball that the TEs are not homogenous across different pscores. For example, we eyeball that for pscores < 0.5, the estimates of the TE are roughly 0 as there does not seem to be a significant difference between the real earnings in '78 for the control and treated groups. However, for pscores that are > 0.5, we eyeball that the estimates of TE are positive (e.g. for pscore = 0.75, the TE seems to be ~1.5k), implying that there is a positive impact of the training offer on real earnings in '78 for those pscores.
+    
+        From the two smoothed cruves on the graphs, we can roughly eyeball that the TEs are not homogenous across different pscores. For example, we eyeball that for pscores < 0.5, the estimates of the TE are roughly 0 as there does not seem to be a significant difference between the real earnings in '78 for the control and treated groups. However, for pscores that are > 0.5, we eyeball that the estimates of TE are positive (e.g. for pscore = 0.75, the TE seems to be ~1.5k), implying that there is a positive impact of the training offer on real earnings in '78 for those pscores.
 
 3. (40 p) We can do better than eyeballing TEs. You are now ready to implement \textcolor{ForestGreen}{stratification matching}.
     
     a. (5 p) Add a column to your dataframe called \texttt{stratum} that takes values from 1 to 10 corresponding to 10 equally spaced intervals with \texttt{stratum=1} if $0<\widehat{p}_{i}\leq 0.1$, \texttt{stratum=2} if $0.1<\widehat{p}_{i}\leq 0.2$, and so on.\footnote{\textit{Strata} is the plural of \textit{stratum}, both are Latin words.} What is the distribution of control and treated observation across strata? Are all strata \textcolor{ForestGreen}{populated}? \textcolor{gray}{\textbf{Programming Guidance:} To bin the values of a column, use the R base function \href{https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/.bincode( )}{\texttt{.bincode}} with break points at 0, 0.1, 0.2 etc. up to 1. To add a column to a dataframe, use \texttt{dplyr::mutate( )}. To produce summary statistics by group, use \texttt{dplyr::group\_by( )}, and pipe the result to \texttt{dplyr::summarize( )}. In our R script we produce the following summary statistics within each stratum: count of treated units, count of control units, minimum pscore value, maximum pscore value.}
+      ```{r}
+      b <- c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
 
-```{r}
+      trimmed_df <- dplyr::mutate(trimmed_df, 
+                                  stratum = .bincode(trimmed_df$logit_propensity, b))
 
-b <- c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
+      strata <- trimmed_df %>% 
+        dplyr::group_by(trimmed_df$stratum) %>% 
+        dplyr::summarize(count_of_treated = length(which(treat == 1)), 
+                        count_of_control = length(which(treat == 0)), 
+                        min_pscore = min(logit_propensity), 
+                        max_pscore = max(logit_propensity))
 
-trimmed_df <- dplyr::mutate(trimmed_df, stratum = .bincode(trimmed_df$logit_propensity, b))
+      knitr::kable(strata)
+      ```
 
-strata <- trimmed_df %>% 
-  dplyr::group_by(trimmed_df$stratum) %>% 
-  dplyr::summarize(count_of_treated = length(which(treat == 1)), 
-                   count_of_control = length(which(treat == 0)), 
-                   min_pscore = min(logit_propensity), 
-                   max_pscore = max(logit_propensity))
+      The distribution of control and treated observation across strata is shown in the table above. We see that within stratum 9 (between 0.8 and 0.9), there are no control units. Besides that stratum, all others are populated by both treated and contrl units. We also observe that there is a significantly higher concentration of control units within the 1st stratum. 
 
-knitr::kable(strata)
+    b. (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
 
-```
-The distribution of control and treated observation across strata is shown in the table above. We see that within stratum 9 (between 0.8 and 0.9), there are no control units. Besides that stratum, all others are populated by both treated and contrl units. We also observe that there is a significantly higher concentration of control units within the 1st stratum. 
+      ```{r}
+      # Declare a function that identifies perfectly collinear covariates.
+      # Note: this fnc is roughly equivalent to _rmcoll in STATA.
+      rmcoll <- function(df, colnames = names(df)) {
+        # Arguments:
+        # - df: A data frame.
+        # - colnames: A list of column names.
+        # Returns:
+        # A list with the column names of collinear variables.
+          df_ <- df %>% dplyr::select(one_of(colnames))
+          cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
+          return(names(cc)[is.na(cc)])
+      } # end fnc rmcoll
+      ```
 
-b. (25 p) Test that the average of each pretreatment variable is the same for treated and control units within each stratum: the pre-treatment variables are \texttt{age, edu, married, nodegree, black, hisp, re74, re75, u74black}. Can you think of a reason why you may want to run this test? Comment on your findings. \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
+      ```{r}
+      stratum_tables <- list()
+      for(stratum_i in 1: 10){
 
-```{r}
-# Declare a function that identifies perfectly collinear covariates.
-# Note: this fnc is roughly equivalent to _rmcoll in STATA.
-rmcoll <- function(df, colnames = names(df)) {
-# Arguments:
-# - df: A data frame.
-# - colnames: A list of column names.
-# Returns:
-# A list with the column names of collinear variables.
-    df_ <- df %>% dplyr::select(one_of(colnames))
-    cc <- coef(lm(rep(1, nrow(df_)) ~ ., data = df_))
-    return(names(cc)[is.na(cc)])
-} # end fnc rmcoll
-```
+        subset <- trimmed_df %>% filter(stratum == stratum_i)
+        # Skip strata that do not have either no control or no treated units
+        if (sum(subset$treat == 0) <= 0 || 
+            sum(subset$treat == 1) <= 0) {
+          next
+        }
+        
+        opvs <- c("age", "edu", "married", "nodegree", "black",
+                  "hisp", "re74", "re75", "u74black")
+        
+        non_collinear <- setdiff(opvs, rmcoll(subset, opvs))
 
-```{r}
-for(stratum_i in 1: 10){
-  
-  if(stratum_i == 8){
-    next
-  }
-    
-  subset = trimmed_df %>% filter(stratum == stratum_i)
-  vars = setdiff(colnames(subset), rmcoll(subset))
-  
-  sur_system <- purrr::map(vars, function(x) stats::formula(paste(x, "~ treat")))
-  null_system <- purrr::map(vars, function(x) stats::formula(paste(x, "~ 1")))
-  
-  sur_fit <- systemfit::systemfit(sur_system, data=trimmed_df, method="SUR")
-  null_fit <- systemfit::systemfit(null_system, data=trimmed_df, method="SUR")
-  
-  even <- function(x) x %% 2 == 0
-  tab_sur <- round(summary(sur_fit)$coefficients[even(1:dim(summary(sur_fit)$coefficients)[1]),
-                                                 c("Estimate", "Std. Error", "Pr(>|t|)")], 3)
-  colnames(tab_sur)[colnames(tab_sur) =="Pr(>|t|)"] <- "P_value"
-  colnames(tab_sur)[colnames(tab_sur) =="Std. Error"] <- "Std_Error"
-  tab_sur <- cbind(rownames(tab_sur), data.frame(tab_sur, row.names = NULL))
-  colnames(tab_sur)[1] <- 'DepVar' 
-  tab_sur$DepVar <- gsub('_treat', "", tab_sur$DepVar)
-  
-  knitr::kable(tab_sur, format = 'simple')
-}
-  
-```
+        sur_system <- list()
+        for (v in non_collinear) {
+          sur_system[[v]] <- formula(paste(v, "~ treat"))
+        }
+        # null_system <- map(vars, function(x) formula(paste(x, "~ 1")))
+        sur_fit <- systemfit::systemfit(formula=sur_system, data=subset, method="SUR")
+        
+        coeffs <- (summary(sur_fit)$coefficients)
+        
+        # keep only _treat_ coefficients
+        coeffs <- coeffs[grep("treat", rownames(coeffs)), ]
+        # generate a table of each opv's estimate, std. error, and p-value
+        tab_sur <- data.frame(opv = rownames(coeffs),
+                              stratum = stratum_i,
+                              estimate = coeffs[, "Estimate"], 
+                              std_error = coeffs[, "Std. Error"], 
+                              p_value = coeffs[, "Pr(>|t|)"])
+        
+        stratum_tables <- append(stratum_tables, list(tab_sur))
+      }
+      ```
+
+      ```{r, echo=FALSE}
+      bound_df <- bind_rows(stratum_tables)
+      knitr::kable(bound_df, row.names = FALSE)
+      ```
 
     c. (10 p) Let $N_{s}^{T}$ denote the number of treated units in stratum $s$ with $s=1,...,10$. Let $N^{T}=\sum_{s=1}^{10}N_{s}^{T}$. Let $\overline{re78}_{s}^{1}$ (respectively, $\overline{re78}_{s}^{0}$) denote average post-treatment earnings for treated (respectively, control) units in stratum $s$. Estimate the ATT of the offer of training using stratification matching estimator (\ref{strata_ATT}). Explain in plain English why this is an estimator of the ATT. \textcolor{gray}{\textbf{Programming Guidance:} To compute a weighted average use \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/weighted.mean}{\texttt{stats::weighted.mean( )}} where you let the argument \texttt{w} be a vector with the counts of treated units in each stratum. Verify that you get \$1,563.}\label{item:naive-ATT-estimate}
 
@@ -214,6 +230,7 @@ for(stratum_i in 1: 10){
 
 
 ## Part 2: Fancier Matching On the PScore (50 Points)
+
 \input{figures/part2_background.tex}
 \newpage
 

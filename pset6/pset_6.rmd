@@ -271,6 +271,52 @@ From above, we see that our calculated estimate of the ATT to be \$1562.73 which
 
 4. (6 p) Denote the outcome variable by $y$. Show that under unconditional random assignment (RA), $\widehat{ATT}^{m}=\overline{y}^{1}-\overline{y}^{0},$ $\forall m\in \left\{ NNM,RM,KM\right\}$. That is, if there are no observable confounders, all three estimators reduce to the Treatment-Control Comparison estimator. \textcolor{gray}{\textbf{Hint:} Assign treatment by the flip of a balanced coin, i.e., let $\widehat{p}_{i}=0.5$ for all $i$. Then, simplify expressions (\ref{ATT_m}) and (\ref{w_ij}). Do read carefully the background information presented above.}
 
+**Solution:** First leverage that $\hat{p}_i = 0.5 \ \forall i$ and (2) to show that 
+\begin{align*}
+  C^{NNM}(i) &= \{j \in C : |\hat{p}_j - \hat{p}_i| \leq |\hat{p}_{j'} - \hat{p}_i| \ \forall j' \in C\}\\
+  &= \{j \in C : |0.5 - 0.5| \leq |0.5 - 0.5| \}\\
+  &= \{j \in C : 0 \leq 0 \}\\ 
+  &= \{j \in C : True \}\\ 
+  &= C 
+\end{align*}
+
+Then recognize that with the same assumption in (3), we show that 
+\begin{align*}
+  C^{RM}(i) &= \{j \in C : |\hat{p}_j - \hat{p}_i| < r\}\\
+  &= \{j \in C : |0.5 - 0.5| < r \}\\
+  &= \{j \in C : 0 < r \}\\ 
+  &= C \text{, given that we choose $r > 0$}. 
+\end{align*}
+
+We have from (\ref{ATT_m}) and (\ref{w_ij}) for $m \in \{NNM, RM\}$ that: 
+
+\begin{align*}
+    \widehat{ATT}^{m} &= \frac{1}{N^T}\sum_{i\in T} \left[y_i - \sum_{j \in C^{m}(i)} w_{ij}^m y_j\right]\\ 
+                      &= \frac{1}{N^T}\sum_{i \in T} \left[  y_i - \sum_{j \in C} \frac{1}{N^C} y_j\right] \text{, by previous derivation showing that $C^{m}(i) = C$, }\\
+                      &= \frac{1}{N^T}\sum_{i \in T}  \left[ y_i - \frac{1}{N^C} \sum_{j \in C\left( i\right)} y_j \right] \text{ from lin. of $\sum$}\\
+                      &= \frac{1}{N^T}\sum_{i \in T}  \left[ y_i - \bar{y}^0 \right] \text{, by definition, }\\
+                      &= \frac{1}{N^T}\sum_{i \in T} [y_i] - \frac{1}{N_T} \sum_{i\in T} [\bar{y}^0]\text{, by $\sum$ properties, }\\
+                      &= \bar{y}^1 - \frac{1}{N^T} \cdot N^T \cdot \bar{y}^0 \text{, by summation over a constant, } \\
+                      &= \bar{y}^1 - \bar{y}^0. 
+\end{align*}
+
+Now we show that this is also true for the KM estimator. We have from
+(\ref{ATT_m}) and (\ref{w_ij}) that: \begin{align*}
+    \widehat{ATT}^{KM} &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left( \frac{\hat{p}_{j} - \hat{p}_{i}}{h}\right)}{\sum_{k \in C}K \left( \frac{\hat{p}_{k}-\hat{p}_{i}}{h}\right)} y_j \right ] \\
+  \end{align*}
+
+Under RA, we can set probabilities
+\(\hat{p_k}, \ \hat{p_i}, \ \hat{p_j}\) equal to 0.5 and simplify the
+expression to:
+
+\begin{align*}
+    \widehat{ATT}^{KM} &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left(0\right)}{\sum_{k \in C} K \left(0\right)} y_j \right] \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left(0\right)}{N^c \cdot K \left(0\right)} y_j \right] \text{ from summation over a constant,} \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C^{KM}\left( i\right)} y_j \right] \text{ via lin. of $\sum$,} \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C} y_j \right] \\
+                       &= \frac{1}{N^T} \left[ \sum_{i \in T} y_i - \bar{y}^0 \right] = \overline{y}^{1} - \overline{y}^{0}. & \blacksquare
+  \end{align*}
+
 5. (9 p) Show that $\widehat{ATT}^{m}$ in expression (\ref{ATT_m}) rewrites as:
 
 \begin{equation} \label{ATT_m_bis}

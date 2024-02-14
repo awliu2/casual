@@ -447,6 +447,28 @@ stratum.
   \textcolor{gray}{\textbf{Programming Guidance:} Use SUR estimation as you did in PSet 3, but now do this within each stratum. Skip strata that do not have both control and treated units. Within some of the strata, some of the pre-treatment variables are perfectly collinear or do not vary. This causes \texttt{systemfit::systemfit( )} to produce an error. To avoid it, you first identify which of the pre-determined variables exhibit the problem, then you exclude them from the list of dependent variables of the SUR system, then you invoke \texttt{systemfit::systemfit( )}. To loop over strata, use the \texttt{for} loop: \texttt{for(stratrum in 1:10) \{ $<$ script $>$\}}. Below is a user-defined function that returns the names of the collinear columns in a dataframe, feel free to use it:}
 \end{enumerate}
 
+\textbf{Solution:} We may want to run this test to ensure that the
+pretreatment variables are balanced across the treated and control
+groups within each stratum. This is important because we want to ensure
+that the strata are balanced and that the treatment effect is not
+confounded by differences in observables - in other words, we want to
+ensure that within a specific range of propensity scores, we have
+similar distributions of pretreatment variables between the treated and
+control groups. If this were not the case, we may want to consider if
+some amount of confounding or selection bias is present in our sample -
+for example, if we observe that within a specific stratum with
+\(0.1 < p < 0.2\), the treated group is significantly older than the
+control group, we may want to consider if the likelihood of being
+treated is correlated with age, and if so, whether the treatment effect
+is confounded by age.
+
+We see below that in general, our OPVs remain balanced across strata,
+and there seems to be no trends in the differences between the treated
+and control groups across the strata. This is a good sign - it suggests
+that the treatment selection has not been confounded by the pretreatment
+variables, and thus there are no signs that the treatment effect is
+confounded by differences in observables.
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# Declare a function that identifies perfectly collinear covariates.}
@@ -667,23 +689,35 @@ Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}
   \textcolor{gray}{\textbf{Hint:} Assign treatment by the flip of a balanced coin, i.e., let $\widehat{p}_{i}=0.5$ for all $i$. Then, simplify expressions (\ref{ATT_m}) and (\ref{w_ij}). Do read carefully the background information presented above.}
 \end{enumerate}
 
-\textbf{Solution:} First we show this is true for NNM and RM estimators.
-We have from (\ref{ATT_m}) and (\ref{w_ij}) that: \begin{align*}
-    \widehat{ATT}^{m} &= \frac{1}{N^T}\sum_{i \in T} \left[  y_i - \sum_{j \in C^{m}\left( i\right)} \frac{1}{N^C} y_j\right], m \in \{NNM, RM\} \\
-                      &= \frac{1}{N^T}\sum_{i \in T}  \left[ y_i - \frac{1}{N^C} \sum_{j \in C^{m}\left( i\right)} y_j \right] \text{ from lin. of $\sum$}\\
-  \end{align*}
+\textbf{Solution:} First leverage that \(\hat{p}_i = 0.5 \ \forall i\)
+and (2) to show that \begin{align*}
+  C^{NNM}(i) &= \{j \in C : |\hat{p}_j - \hat{p}_i| \leq |\hat{p}_{j'} - \hat{p}_i| \ \forall j' \in C\}\\
+  &= \{j \in C : |0.5 - 0.5| \leq |0.5 - 0.5| \}\\
+  &= \{j \in C : 0 \leq 0 \}\\ 
+  &= \{j \in C : True \}\\ 
+  &= C 
+\end{align*}
 
-Under unconditional random assignment, each unit has an equal chance of
-being assigned to the treatment. Furthermore, as that the weights of
-controls are the same across all matching methods, we get that for NNM,
-RM, and KM, \begin{equation}\label{eq:RA_cond}
-    \sum_{j \in C^{m}\left( i\right)} y_j = \sum_{j \in C} y_j = N^C \cdot y_j 
-  \end{equation}
+Then recognize that with the same assumption in (3), we show that
+\begin{align*}
+  C^{RM}(i) &= \{j \in C : |\hat{p}_j - \hat{p}_i| < r\}\\
+  &= \{j \in C : |0.5 - 0.5| < r \}\\
+  &= \{j \in C : 0 < r \}\\ 
+  &= C \text{, given that we choose $r > 0$}. 
+\end{align*}
 
-Therefore, we can simplify the expression to: \begin{align*}
-    \widehat{ATT}^{m} &= \frac{1}{N^T} \left[ \sum_{i \in T} y_i - y_j \right], m \in \{NNM, RM\} \text{ from (\ref{eq:RA_cond}),} \\
-                      &= \overline{y}^{1} - \overline{y}^{0}
-  \end{align*}
+We have from (\ref{ATT_m}) and (\ref{w_ij}) for \(m \in \{NNM, RM\}\)
+that:
+
+\begin{align*}
+    \widehat{ATT}^{m} &= \frac{1}{N^T}\sum_{i\in T} \left[y_i - \sum_{j \in C^{m}(i)} w_{ij}^m y_j\right]\\ 
+                      &= \frac{1}{N^T}\sum_{i \in T} \left[  y_i - \sum_{j \in C} \frac{1}{N^C} y_j\right] \text{, by previous derivation showing that $C^{m}(i) = C$, }\\
+                      &= \frac{1}{N^T}\sum_{i \in T}  \left[ y_i - \frac{1}{N^C} \sum_{j \in C\left( i\right)} y_j \right] \text{ from lin. of $\sum$}\\
+                      &= \frac{1}{N^T}\sum_{i \in T}  \left[ y_i - \bar{y}^0 \right] \text{, by definition, }\\
+                      &= \frac{1}{N^T}\sum_{i \in T} [y_i] - \frac{1}{N_T} \sum_{i\in T} [\bar{y}^0]\text{, by $\sum$ properties, }\\
+                      &= \bar{y}^1 - \frac{1}{N^T} \cdot N^T \cdot \bar{y}^0 \text{, by summation over a constant, } \\
+                      &= \bar{y}^1 - \bar{y}^0. 
+\end{align*}
 
 Now we show that this is also true for the KM estimator. We have from
 (\ref{ATT_m}) and (\ref{w_ij}) that: \begin{align*}
@@ -698,8 +732,8 @@ expression to:
     \widehat{ATT}^{KM} &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left(0\right)}{\sum_{k \in C} K \left(0\right)} y_j \right] \\
                        &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left(0\right)}{N^c \cdot K \left(0\right)} y_j \right] \text{ from summation over a constant,} \\
                        &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C^{KM}\left( i\right)} y_j \right] \text{ via lin. of $\sum$,} \\
-                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C} y_j \right] \text{ from (\ref{eq:RA_cond}),} \\
-                       &= \frac{1}{N^T} \left[ \sum_{i \in T} y_i - y_j \right] = \overline{y}^{1} - \overline{y}^{0}. & \blacksquare
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C} y_j \right] \\
+                       &= \frac{1}{N^T} \left[ \sum_{i \in T} y_i - \bar{y}^0 \right] = \overline{y}^{1} - \overline{y}^{0}. & \blacksquare
   \end{align*}
 
 \begin{enumerate}
@@ -955,10 +989,10 @@ with multiple control units.
 
 \begin{verbatim}
 ## 
-## Estimate...  473.95 
-## SE.........  780.81 
-## T-stat.....  0.607 
-## p.val......  0.54385 
+## Estimate...  317.26 
+## SE.........  787.54 
+## T-stat.....  0.40285 
+## p.val......  0.68706 
 ## 
 ## Original number of observations..............  1325 
 ## Original number of treated obs...............  179 

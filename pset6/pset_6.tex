@@ -112,7 +112,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
@@ -136,10 +136,9 @@
 
 \newpage
 
-\hypertarget{part-1-naive-stratification-matching-on-the-propensity-score-50-points}{%
 \subsection{Part 1: Naive Stratification Matching on the Propensity
 Score (50
-Points)}\label{part-1-naive-stratification-matching-on-the-propensity-score-50-points}}
+Points)}\label{part-1-naive-stratification-matching-on-the-propensity-score-50-points}
 
 \input{figures/part1_background.tex}
 
@@ -648,9 +647,8 @@ and then we performed a weighted sum of these CATEs (weighed by
 proportion of treated within each stratum : total treated in the
 sample), which is by definition the ATT estimator.
 
-\hypertarget{part-2-fancier-matching-on-the-pscore-50-points}{%
 \subsection{Part 2: Fancier Matching On the PScore (50
-Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}}
+Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}
 
 \input{figures/part2_background.tex}
 \newpage
@@ -658,6 +656,7 @@ Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}}
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{3}
+\tightlist
 \item
   (6 p) Denote the outcome variable by \(y\). Show that under
   unconditional random assignment (RA),
@@ -666,6 +665,47 @@ Points)}\label{part-2-fancier-matching-on-the-pscore-50-points}}
   observable confounders, all three estimators reduce to the
   Treatment-Control Comparison estimator.
   \textcolor{gray}{\textbf{Hint:} Assign treatment by the flip of a balanced coin, i.e., let $\widehat{p}_{i}=0.5$ for all $i$. Then, simplify expressions (\ref{ATT_m}) and (\ref{w_ij}). Do read carefully the background information presented above.}
+\end{enumerate}
+
+\textbf{Solution:} First we show this is true for NNM and RM estimators.
+We have from (\ref{ATT_m}) and (\ref{w_ij}) that: \begin{align*}
+    \widehat{ATT}^{m} &= \frac{1}{N^T}\sum_{i \in T} \left[  y_i - \sum_{j \in C^{m}\left( i\right)} \frac{1}{N^C} y_j\right], m \in \{NNM, RM\} \\
+                      &= \frac{1}{N^T}\sum_{i \in T}  \left[ y_i - \frac{1}{N^C} \sum_{j \in C^{m}\left( i\right)} y_j \right] \text{ from lin. of $\sum$}\\
+  \end{align*}
+
+Under unconditional random assignment, each unit has an equal chance of
+being assigned to the treatment. Furthermore, as that the weights of
+controls are the same across all matching methods, we get that for NNM,
+RM, and KM, \begin{equation}\label{eq:RA_cond}
+    \sum_{j \in C^{m}\left( i\right)} y_j = \sum_{j \in C} y_j = N^C \cdot y_j 
+  \end{equation}
+
+Therefore, we can simplify the expression to: \begin{align*}
+    \widehat{ATT}^{m} &= \frac{1}{N^T} \left[ \sum_{i \in T} y_i - y_j \right], m \in \{NNM, RM\} \text{ from (\ref{eq:RA_cond}),} \\
+                      &= \overline{y}^{1} - \overline{y}^{0}
+  \end{align*}
+
+Now we show that this is also true for the KM estimator. We have from
+(\ref{ATT_m}) and (\ref{w_ij}) that: \begin{align*}
+    \widehat{ATT}^{KM} &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left( \frac{\hat{p}_{j} - \hat{p}_{i}}{h}\right)}{\sum_{k \in C}K \left( \frac{\hat{p}_{k}-\hat{p}_{i}}{h}\right)} y_j \right ] \\
+  \end{align*}
+
+Under RA, we can set probabilities
+\(\hat{p_k}, \ \hat{p_i}, \ \hat{p_j}\) equal to 0.5 and simplify the
+expression to:
+
+\begin{align*}
+    \widehat{ATT}^{KM} &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left(0\right)}{\sum_{k \in C} K \left(0\right)} y_j \right] \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left(0\right)}{N^c \cdot K \left(0\right)} y_j \right] \text{ from summation over a constant,} \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C^{KM}\left( i\right)} y_j \right] \text{ via lin. of $\sum$,} \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C} y_j \right] \text{ from (\ref{eq:RA_cond}),} \\
+                       &= \frac{1}{N^T} \left[ \sum_{i \in T} y_i - y_j \right] = \overline{y}^{1} - \overline{y}^{0}. & \blacksquare
+  \end{align*}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
 \item
   (9 p) Show that \(\widehat{ATT}^{m}\) in expression (\ref{ATT_m})
   rewrites as:
@@ -915,10 +955,10 @@ with multiple control units.
 
 \begin{verbatim}
 ## 
-## Estimate...  468.28 
-## SE.........  778.27 
-## T-stat.....  0.60169 
-## p.val......  0.54738 
+## Estimate...  473.95 
+## SE.........  780.81 
+## T-stat.....  0.607 
+## p.val......  0.54385 
 ## 
 ## Original number of observations..............  1325 
 ## Original number of treated obs...............  179 

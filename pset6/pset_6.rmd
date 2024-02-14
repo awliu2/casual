@@ -267,6 +267,39 @@ From above, we see that our calculated estimate of the ATT to be \$1562.73 which
 
 4. (6 p) Denote the outcome variable by $y$. Show that under unconditional random assignment (RA), $\widehat{ATT}^{m}=\overline{y}^{1}-\overline{y}^{0},$ $\forall m\in \left\{ NNM,RM,KM\right\}$. That is, if there are no observable confounders, all three estimators reduce to the Treatment-Control Comparison estimator. \textcolor{gray}{\textbf{Hint:} Assign treatment by the flip of a balanced coin, i.e., let $\widehat{p}_{i}=0.5$ for all $i$. Then, simplify expressions (\ref{ATT_m}) and (\ref{w_ij}). Do read carefully the background information presented above.}
 
+  **Solution:** First we show this is true for NNM and RM estimators. We have from (\ref{ATT_m}) and (\ref{w_ij}) that:
+  \begin{align*}
+    \widehat{ATT}^{m} &= \frac{1}{N^T}\sum_{i \in T} \left[  y_i - \sum_{j \in C^{m}\left( i\right)} \frac{1}{N^C} y_j\right], m \in \{NNM, RM\} \\
+                      &= \frac{1}{N^T}\sum_{i \in T}  \left[ y_i - \frac{1}{N^C} \sum_{j \in C^{m}\left( i\right)} y_j \right] \text{ from lin. of $\sum$}\\
+  \end{align*}
+
+  Under unconditional random assignment, each unit has an equal chance of being assigned to the treatment. Furthermore, as that the weights of controls are the same across all matching methods, we get that for NNM, RM, and KM,
+  \begin{equation}\label{eq:RA_cond}
+    \sum_{j \in C^{m}\left( i\right)} y_j = \sum_{j \in C} y_j = N^C \cdot y_j 
+  \end{equation}
+
+  Therefore, we can simplify the expression to:
+  \begin{align*}
+    \widehat{ATT}^{m} &= \frac{1}{N^T} \left[ \sum_{i \in T} y_i - y_j \right], m \in \{NNM, RM\} \text{ from (\ref{eq:RA_cond}),} \\
+                      &= \overline{y}^{1} - \overline{y}^{0}
+  \end{align*}
+
+  Now we show that this is also true for the KM estimator. We have from (\ref{ATT_m}) and (\ref{w_ij}) that:
+  \begin{align*}
+    \widehat{ATT}^{KM} &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left( \frac{\hat{p}_{j} - \hat{p}_{i}}{h}\right)}{\sum_{k \in C}K \left( \frac{\hat{p}_{k}-\hat{p}_{i}}{h}\right)} y_j \right ] \\
+  \end{align*}
+
+  Under RA, we can set probabilities $\hat{p_k}, \ \hat{p_i}, \ \hat{p_j}$ equal to 0.5 and simplify the expression to:
+  
+  \begin{align*}
+    \widehat{ATT}^{KM} &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left(0\right)}{\sum_{k \in C} K \left(0\right)} y_j \right] \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \sum_{j \in C^{KM}\left( i\right)}\frac{K\left(0\right)}{N^c \cdot K \left(0\right)} y_j \right] \text{ from summation over a constant,} \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C^{KM}\left( i\right)} y_j \right] \text{ via lin. of $\sum$,} \\
+                       &= \frac{1}{N^T} \sum_{i \in T} \left[  y_i - \frac{1}{N^c} \sum_{j \in C} y_j \right] \text{ from (\ref{eq:RA_cond}),} \\
+                       &= \frac{1}{N^T} \left[ \sum_{i \in T} y_i - y_j \right] = \overline{y}^{1} - \overline{y}^{0}. & \blacksquare
+  \end{align*}
+  
+
 5. (9 p) Show that $\widehat{ATT}^{m}$ in expression (\ref{ATT_m}) rewrites as:
 
 \begin{equation} \label{ATT_m_bis}

@@ -377,8 +377,7 @@ We can continue to then show that
 
 In plain English we recognize that the matching approach is a difference between the sample average of the treated sample and a weighted average of the control sample. 
 In particular each method uses a different weighting mechanism by leveraging (2), (3), (4) and (6) together. For nearest neighbors, we weight by a set of control units that 
-have closest distance in terms of propensity score. In radius matching, we choose control units that are within certain neighborhood of propensity scores. 
-For radius matching we choose controls that are within a certain neibhorhood of propensity scores. For kernel matching we choose a kernel function as the distance metric and weight propensity by similarity.
+have closest distance in terms of propensity score. In radius matching, we choose control units that are within certain neighborhood of propensity scores. For kernel matching we choose a kernel function as the distance metric and weight propensity by similarity.
 
 
 

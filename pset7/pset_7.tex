@@ -280,36 +280,8 @@ has 370 rows.
 \end{Highlighting}
 \end{Shaded}
 
-\begin{table}[!htbp] \centering 
-  \caption{Linear Regression Implementation of Specification 2} 
-  \label{item:lms2} 
-\begin{tabular}{@{\extracolsep{5pt}}lc} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
- & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-2} 
-\\[-1.8ex] & earns \\ 
-\hline \\[-1.8ex] 
- dyear2 & 4,817.090$^{***}$ \\ 
-  & (624.974) \\ 
-  & \\ 
- Constant & 1,532.056$^{***}$ \\ 
-  & (441.923) \\ 
-  & \\ 
-\hline \\[-1.8ex] 
-Observations & 370 \\ 
-R$^{2}$ & 0.139 \\ 
-Adjusted R$^{2}$ & 0.137 \\ 
-Residual Std. Error & 6,010.808 (df = 368) \\ 
-F Statistic & 59.408$^{***}$ (df = 1; 368) \\ 
-\hline 
-\hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
-\end{tabular} 
-\end{table}
-
 We estimate \(\rho\) to be 4,817.090 as witnessed in Table
-\ref{item:lms2}.
+\ref{item:lms2} in the Appendix.
 
 \newpage
 
@@ -373,5 +345,102 @@ treated in the post-treatment year \(ATT_{78}\) because there could be
 unaccounted biases for the computed \(ATT_{78}\) if
 \(\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]\).
 In which case, \(ATT_{78}\) would be a biased estimator.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  (3 p) Estimate the specification in expression (\ref{FD}) using OLS.
+  Denote the resulting estimate of the impact by
+  \(\widehat{ATT}_{78}^{FD}\).
+  \textcolor{gray}{\textbf{Programming Guidance:} It is most convenient to use the wide format dataframe for this task. Use \texttt{lm()}.}\label{item:fd}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dt\_psid}\SpecialCharTok{$}\NormalTok{earns\_diff }\OtherTok{=}\NormalTok{ dt\_psid}\SpecialCharTok{$}\NormalTok{re78 }\SpecialCharTok{{-}}\NormalTok{ dt\_psid}\SpecialCharTok{$}\NormalTok{re75}
+
+\NormalTok{pscore\_formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns\_diff }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat)}
+\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(pscore\_formula, }\AttributeTok{data =}\NormalTok{ dt\_psid)}
+\end{Highlighting}
+\end{Shaded}
+
+We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
+\ref{item:lms3} in the Appendix.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  (6 p) Estimate the specification in expression (\ref{TWFE}) using the
+  \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote
+  the estimate of the impact by \(\widehat{ATT}_{78}^{LSDV}\). LSDV
+  treats the individual effects \(\mu_i\) and the year effects
+  \(\delta_t\) as parameters to be estimated.
+  \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
+\end{enumerate}
+
+\newpage
+
+\hypertarget{appendix}{%
+\subsection{Appendix}\label{appendix}}
+
+\begin{table}[!htbp] \centering 
+  \caption{Linear Regression Implementation of Specification 2} 
+  \label{item:lms2} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & earns \\ 
+\hline \\[-1.8ex] 
+ dyear2 & 4,817.090$^{***}$ \\ 
+  & (624.974) \\ 
+  & \\ 
+ Constant & 1,532.056$^{***}$ \\ 
+  & (441.923) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 370 \\ 
+R$^{2}$ & 0.139 \\ 
+Adjusted R$^{2}$ & 0.137 \\ 
+Residual Std. Error & 6,010.808 (df = 368) \\ 
+F Statistic & 59.408$^{***}$ (df = 1; 368) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{Linear Regression Implementation of Specification 3} 
+  \label{item:lms3} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & earns\_diff \\ 
+\hline \\[-1.8ex] 
+ treat & 2,326.505$^{***}$ \\ 
+  & (813.859) \\ 
+  & \\ 
+ Constant & 2,490.585$^{***}$ \\ 
+  & (214.029) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 2,675 \\ 
+R$^{2}$ & 0.003 \\ 
+Adjusted R$^{2}$ & 0.003 \\ 
+Residual Std. Error & 10,680.040 (df = 2673) \\ 
+F Statistic & 8.172$^{***}$ (df = 1; 2673) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table}
 
 \end{document}

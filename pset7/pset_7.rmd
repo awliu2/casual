@@ -129,6 +129,47 @@ pscore_formula = as.formula(earns ~ dyear2)
 ols <- lm(pscore_formula, data = treatment)
 ```
 
+We estimate $\rho$ to be 4,817.090 as witnessed in Table \ref{item:lms2} in the Appendix.
+
+\newpage 
+
+d. (1 p) Verify that $\hat{\rho}$ obtained in \textbf{\ref{item:BAfter-rho}} is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$, that is, it equals the difference between average post-treatment and average pre-treatment earnings using only the 185 individuals in the treatment sample.\label{item:BAfter-diff} 
+
+```{r}
+pretreat75 <- treatment %>% filter(dyear2 == 0)
+posttreat78 <- treatment %>% filter(dyear2 == 1)
+
+print(mean(posttreat78$earns) - mean(pretreat75$earns))
+```
+
+We verify that $\hat{\rho}$ is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$. 
+
+e. (4 p) Explain why the BA approach may or may not identify the average effect for the treated in the post-treatment year, i.e., ${ATT}_{78}$. \textcolor{gray}{\textbf{Hint}: Use the result in \textbf{\ref{item:BAfter-diff}} to think about what this approach uses to identify the mean of potential outcomes w/ and w/out treatment and for different (sub)population. Feel free to utilize what we did in class.}
+
+Whilst we have the realized outcome of post-period earnings on the treated units allowing us to find $\overline{earn}_{78}^{1}$ as the sample analogue for $\mathbb{E}[y_{1i78} \mid E_i = 1]$ (where $E_i$ is $D_{i75} = 0, D_{i78} = 1$), we are unable tounable to learn the potential outcomes of post-period earnings if those same units had not been treated (thus unable to find a sample analogue for $\mathbb{E}[y_{0i78} \mid E_i = 1]$).   
+
+In order to produce an estimate for ${ATT}_{78}$ we choose to assume that the counterfactual for treated units are the same as earnings in the pre-treatment period, so that $\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]$. This allows us to take $\overline{earns}_{75}^{1}$ as the sample analogue.   
+
+However, the BA approach might not identity the average effect for the treated in the post-treatment year $ATT_{78}$ because there could be unaccounted biases for the computed $ATT_{78}$ if $\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]$. In which case, $ATT_{78}$ would be a biased estimator. 
+
+2. (3 p) Estimate the specification in expression (\ref{FD}) using OLS. Denote the resulting estimate of the impact by $\widehat{ATT}_{78}^{FD}$. \textcolor{gray}{\textbf{Programming Guidance:} It is most convenient to use the wide format dataframe for this task. Use \texttt{lm()}.}\label{item:fd}
+
+```{r}
+dt_psid$earns_diff = dt_psid$re78 - dt_psid$re75
+
+pscore_formula = as.formula(earns_diff ~ treat)
+ols <- lm(pscore_formula, data = dt_psid)
+
+```
+
+We estimate $\widehat{ATT}_{78}^{FD} = 2326.505$ as seen in Table \ref{item:lms3} in the Appendix. 
+
+3. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{LSDV}$. LSDV treats the individual effects $\mu_i$ and the year effects $\delta_t$ as parameters to be estimated. \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
+
+\newpage
+
+## Appendix 
+
 \begin{table}[!htbp] \centering 
   \caption{Linear Regression Implementation of Specification 2} 
   \label{item:lms2} 
@@ -157,25 +198,30 @@ F Statistic & 59.408$^{***}$ (df = 1; 368) \\
 \end{tabular} 
 \end{table} 
 
-We estimate $\rho$ to be 4,817.090 as witnessed in Table \ref{item:lms2}.
-
-\newpage 
-
-d. (1 p) Verify that $\hat{\rho}$ obtained in \textbf{\ref{item:BAfter-rho}} is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$, that is, it equals the difference between average post-treatment and average pre-treatment earnings using only the 185 individuals in the treatment sample.\label{item:BAfter-diff} 
-
-```{r}
-pretreat75 <- treatment %>% filter(dyear2 == 0)
-posttreat78 <- treatment %>% filter(dyear2 == 1)
-
-print(mean(posttreat78$earns) - mean(pretreat75$earns))
-```
-
-We verify that $\hat{\rho}$ is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$. 
-
-e. (4 p) Explain why the BA approach may or may not identify the average effect for the treated in the post-treatment year, i.e., ${ATT}_{78}$. \textcolor{gray}{\textbf{Hint}: Use the result in \textbf{\ref{item:BAfter-diff}} to think about what this approach uses to identify the mean of potential outcomes w/ and w/out treatment and for different (sub)population. Feel free to utilize what we did in class.}
-
-Whilst we have the realized outcome of post-period earnings on the treated units allowing us to find $\overline{earn}_{78}^{1}$ as the sample analogue for $\mathbb{E}[y_{1i78} \mid E_i = 1]$ (where $E_i$ is $D_{i75} = 0, D_{i78} = 1$), we are unable tounable to learn the potential outcomes of post-period earnings if those same units had not been treated (thus unable to find a sample analogue for $\mathbb{E}[y_{0i78} \mid E_i = 1]$).   
-
-In order to produce an estimate for ${ATT}_{78}$ we choose to assume that the counterfactual for treated units are the same as earnings in the pre-treatment period, so that $\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]$. This allows us to take $\overline{earns}_{75}^{1}$ as the sample analogue.   
-
-However, the BA approach might not identity the average effect for the treated in the post-treatment year $ATT_{78}$ because there could be unaccounted biases for the computed $ATT_{78}$ if $\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]$. In which case, $ATT_{78}$ would be a biased estimator. 
+\begin{table}[!htbp] \centering 
+  \caption{Linear Regression Implementation of Specification 3} 
+  \label{item:lms3} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & earns\_diff \\ 
+\hline \\[-1.8ex] 
+ treat & 2,326.505$^{***}$ \\ 
+  & (813.859) \\ 
+  & \\ 
+ Constant & 2,490.585$^{***}$ \\ 
+  & (214.029) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 2,675 \\ 
+R$^{2}$ & 0.003 \\ 
+Adjusted R$^{2}$ & 0.003 \\ 
+Residual Std. Error & 10,680.040 (df = 2673) \\ 
+F Statistic & 8.172$^{***}$ (df = 1; 2673) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table} 

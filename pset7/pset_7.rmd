@@ -1,0 +1,181 @@
+---
+title: "Problem Set 7: Estimation of TEs Using Matching Methods"
+author: "Tessie Dong, Derek Li, Andi Liu"
+date: Due Feb 22nd, 2024
+geometry: margin=1cm
+output:
+    pdf_document:
+        keep_tex: true
+        extra_dependencies: ['amsmath', 'optidef', 'accents','caption']
+    html_document: default
+colorlinks: true
+---
+
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Change root.dir to match your working directory location
+knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
+rmarkdown::pandoc_available()
+library(tidyverse)
+library(utils)
+library(dplyr)
+library(systemfit)
+library(knitr)
+library(readr)
+```
+
+## Part 1: Before and After and Difference in Difference Estimators (50 Points)
+
+\noindent \textcolor{Maroon}{\textbf{Background}. In Pset 4 you estimated the average treatment effect of the offer of training for the NSW treated units in 1978 using the  Treated Control Comparison (TCC) estimator, the Regression Adjusted TCC estimator, and the Double Machine Learning (DML) estimator. The latter two estimators attempted to control for observable confounders, namely, observed pre-treatment differences between the NSW treated sample and the PSID-1 sample. Here we focus on methods that control for unobservable confounders, namely, the Before After Comparison Estimator and the Difference in Differences Estimators.}\\
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: You use the \texttt{nswpsid.csv} dataset to estimate the treatment effect (TE) of the offer of training via \textcolor{ForestGreen}{regression-based approaches} associated with the following specifications of the outcome equation:
+\begin{eqnarray}
+re78_{i} &=&\alpha +\rho D_{i}+u_{i}\text{, }i=1,...,2675\text{,}
+\label{TCcomp} \\
+earns_{i,t} &=& \alpha + \rho D78_{t}+u_{i}, \forall i \text{ with } D_i=1, t \in \{75,78\}  \label{BAfter} \\
+earns_{i,78}-earns_{i,75} &=& \alpha + \rho D_i + u_{i}, i=1,\ldots,2675, t \in \{75,78\}  \label{FD} \\
+earns_{i,t} &=& \alpha + \rho D_{i,t}+ \mu_i + \delta_t + u_{i,t}, i=1,\ldots,2675, t \in \{75,78\}   \label{TWFE} \\
+earns_{i,t} &=& \alpha + \delta {D78}_{t} + \gamma D_i + \rho {D78}_t \times D_i +  u_{i,t}, i=1,\ldots,2675, t \in \{75,78\}  \label{DinD} 
+\end{eqnarray}
+\noindent Subscript $i$ denotes an individual. With reference to the original data (i.e., the data in wide format): 1) $re78_{i}$ represents the data field \texttt{re78}; 2) $D_{i}$ represents the data field \texttt{treat}. With reference to the long format data: 1) $earns_{i,t}$ captures the original content of the fields \texttt{re78} and \texttt{re75}, i.e., earnings of individual $i$ in year $t$; 2) ${D78}_{t}$ represent an indicator variable that equals 1 in the post-treatment year 1978 and zero in the pre-treatment year 1975. Table \ref{tab:reg-specs}'s column [1] references the regression specification. Column [2] gives the name of the approach. Column [3] indicates the regression coefficient of interest. You filled the first row's columns [4] and [5] in Pset4. Here you complete the rest of the table.}
+
+\definecolor{maroon(html/css)}{rgb}{0.5, 0.0, 0.0}{}
+\colorlet{lightmaroon}{Maroon!10}
+\begin{table}[ht!]
+\centering
+\colorbox{lightmaroon}{
+{\color{Maroon}
+\begin{tabular}{ccccc}
+\hline
+\textbf{Reference} & \multicolumn{1}{c}{\textbf{Name of the }} & \textbf{Parameter} & \multicolumn{1}{c}{\textbf{Estimate}} & \textbf{SE} \\
+\textbf{Model} & \multicolumn{1}{c}{\textbf{Estimation Approach}}            & \textbf{of Interest} &  &  \\ \hline
+[1] & [2] & [3] & [4] & [5]  \\ \hline
+expression (\ref{TCcomp})                 & Treatment-Control Comparison (TCC)                    & $\rho$             & -\$15.204.8  &  \$655.67  \\
+expression (\ref{BAfter})                 & Before After Comparison (BA) & $\rho$             &  &  \\
+expression (\ref{FD})                 & Difference-in-Differences via First Difference (FD) & $\rho$             &  &  \\
+expression (\ref{TWFE})                 & Difference-in-Differences via Least Square Dummy Variable (LSDV) & $\rho$             &  &  \\
+expression (\ref{TWFE})                 & Difference-in-Differences via Two-way Fixed Effects (TWFE) & $\rho$             &  &  \\
+expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho$             &  &  \\
+\hline
+\end{tabular}}}
+\caption{\textcolor{Maroon}{Treatment Effect Estimates Based on Five Regression-Based Approaches Applied to Observational Data.}}
+\label{tab:reg-specs}
+\end{table}
+
+\newpage
+
+1. (12 p) Use the specification in expression (2) to obtain the \textcolor{ForestGreen}{Before-After (BA) Estimator} of the treatment effect of the offer of training. Specifically:
+
+a. (4 p) Reshape the dataframe from \textcolor{ForestGreen}{wide format} to \textcolor{ForestGreen}{long format} so that for each sample individual there are 2 rows, one row for 1975 (pre-treatment) and one for 1978 (post-treatment). Verify that the reshaped dataframe has $5,350$ rows. \textcolor{gray}{\textbf{Programming Guidance:} The original dataframe is in wide format because each row pertains to one individual, and columns \texttt{re75} and \texttt{re78} store the individual's earnings in 1975 and 1978. The long (i.e., panel) format has 2 rows for each individual (one for 1975, one for 1978), and 1 column storing the earnings for the corresponding year. We named the earnings column \texttt{earns}. Also, we added two columns: a) \texttt{dyear2} for $D78_{t}$, i.e., takes value 1 when the year is 1978 and 0 otherwise; b) \texttt{tdyear2} is the product of \texttt{dyear2} and \texttt{treat} and corresponds to $D78_t \times D_i$. To reshape a dataframe to long, use \href{https://tidyr.tidyverse.org/reference/gather.html}{\texttt{tidyr::gather( )}}. Find a worked out example \href{https://uc-r.github.io/tidyr}{here}. Or use \texttt{data.table::melt()}.}\label{item:BAfter-reshape}
+
+```{r}
+load_data <- function(filename){
+  dt <- data.table::as.data.table(
+    readr::read_csv(filename,
+                     col_names = TRUE,
+                     col_types = readr::cols(
+                       treat = readr::col_integer(),
+                       age = readr::col_integer(),
+                       edu = readr::col_integer(),
+                       black = readr::col_integer(),
+                       hisp = readr::col_integer(),
+                       married = readr::col_integer(),
+                       re74 = readr::col_double(),
+                       re75 = readr::col_double(),
+                       re78 = readr::col_double(),
+                       u74 = readr::col_integer(),
+                       u75 = readr::col_integer(),
+                       nodegree = readr::col_integer()
+                     ))
+  )
+  return(dt)
+}
+```
+
+```{r}
+filename_psid = "starter-files/nswpsid.csv"
+
+dt_psid <- load_data(filename = filename_psid)
+```
+
+```{r}
+long_psid <- dt_psid %>% gather(dyear2, earns, re75:re78) 
+long_psid$dyear2 <- ifelse(long_psid$dyear2 == 're75', 0, 1)
+long_psid$tdyear2 <- long_psid$dyear2 * long_psid$earns
+```
+
+```{r}
+nrow(long_psid)
+```
+
+
+We confirm that the reshaped dataframe has 5350 rows.
+
+
+b. (1 p) Take the reshaped dataframe created in \textbf{\ref{item:BAfter-reshape}}; keep only the rows pertaining to the treated individuals, and check that the resulting dataframe has $370$ rows because $370=185 \text{ treated individuals } \times 2 \text{ years for each individual}$.\label{item:BAfter-filter} 
+
+```{r}
+treatment <- long_psid %>% filter(treat == 1)
+nrow(treatment)
+```
+
+We confirm that after filtering on treatment, the resulting dataframe has 370 rows. 
+
+c. (2 p) Use the dataframe created in \textbf{\ref{item:BAfter-filter}} and \texttt{stats::lm( )} to estimate $\rho$ in the specification of expression (\ref{BAfter}).\label{item:BAfter-rho}
+
+```{r}
+pscore_formula = as.formula(earns ~ dyear2)
+ols <- lm(pscore_formula, data = treatment)
+```
+
+\begin{table}[!htbp] \centering 
+  \caption{Linear Regression Implementation of Specification 2} 
+  \label{item:lms2} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & earns \\ 
+\hline \\[-1.8ex] 
+ dyear2 & 4,817.090$^{***}$ \\ 
+  & (624.974) \\ 
+  & \\ 
+ Constant & 1,532.056$^{***}$ \\ 
+  & (441.923) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 370 \\ 
+R$^{2}$ & 0.139 \\ 
+Adjusted R$^{2}$ & 0.137 \\ 
+Residual Std. Error & 6,010.808 (df = 368) \\ 
+F Statistic & 59.408$^{***}$ (df = 1; 368) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table} 
+
+We estimate $\rho$ to be 4,817.090 as witnessed in Table \ref{item:lms2}.
+
+\newpage 
+
+d. (1 p) Verify that $\hat{\rho}$ obtained in \textbf{\ref{item:BAfter-rho}} is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$, that is, it equals the difference between average post-treatment and average pre-treatment earnings using only the 185 individuals in the treatment sample.\label{item:BAfter-diff} 
+
+```{r}
+pretreat75 <- treatment %>% filter(dyear2 == 0)
+posttreat78 <- treatment %>% filter(dyear2 == 1)
+
+print(mean(posttreat78$earns) - mean(pretreat75$earns))
+```
+
+We verify that $\hat{\rho}$ is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$. 
+
+e. (4 p) Explain why the BA approach may or may not identify the average effect for the treated in the post-treatment year, i.e., ${ATT}_{78}$. \textcolor{gray}{\textbf{Hint}: Use the result in \textbf{\ref{item:BAfter-diff}} to think about what this approach uses to identify the mean of potential outcomes w/ and w/out treatment and for different (sub)population. Feel free to utilize what we did in class.}
+
+Whilst we have the realized outcome of post-period earnings on the treated units allowing us to find $\overline{earn}_{78}^{1}$ as the sample analogue for $\mathbb{E}[y_{1i78} \mid E_i = 1]$ (where $E_i$ is $D_{i75} = 0, D_{i78} = 1$), we are unable tounable to learn the potential outcomes of post-period earnings if those same units had not been treated (thus unable to find a sample analogue for $\mathbb{E}[y_{0i78} \mid E_i = 1]$).   
+
+In order to produce an estimate for ${ATT}_{78}$ we choose to assume that the counterfactual for treated units are the same as earnings in the pre-treatment period, so that $\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]$. This allows us to take $\overline{earns}_{75}^{1}$ as the sample analogue.   
+
+However, the BA approach might not identity the average effect for the treated in the post-treatment year $ATT_{78}$ because there could be unaccounted biases for the computed $ATT_{78}$ if $\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]$. In which case, $ATT_{78}$ would be a biased estimator. 

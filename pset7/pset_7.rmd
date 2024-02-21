@@ -15,7 +15,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
+knitr::opts_knit$set(root.dir = "~/Documents/casual/pset7")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -23,6 +23,7 @@ library(dplyr)
 library(systemfit)
 library(knitr)
 library(readr)
+options(tinytex.install_packages = FALSE)
 ```
 
 ## Part 1: Before and After and Difference in Difference Estimators (50 Points)
@@ -125,7 +126,7 @@ We confirm that after filtering on treatment, the resulting dataframe has 370 ro
 c. (2 p) Use the dataframe created in \textbf{\ref{item:BAfter-filter}} and \texttt{stats::lm( )} to estimate $\rho$ in the specification of expression (\ref{BAfter}).\label{item:BAfter-rho}
 
 ```{r}
-pscore_formula = as.formula(earns ~ dyear2)
+pscore_formula <- as.formula(earns ~ dyear2)
 ols <- lm(pscore_formula, data = treatment)
 ```
 
@@ -166,7 +167,92 @@ We estimate $\widehat{ATT}_{78}^{FD} = 2326.505$ as seen in Table \ref{item:lms3
 
 3. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{LSDV}$. LSDV treats the individual effects $\mu_i$ and the year effects $\delta_t$ as parameters to be estimated. \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
 
+4. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Two-way Fixed Effect Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{TWFE}$. \textcolor{Gray}{\textbf{Programming Guidance:} Use \href{https://www.rdocumentation.org/packages/plm/versions/2.6-3/topics/plm}{\texttt{plm()}}.}\label{item:twfe}
+
+5. (6 p) Estimate the specification in expression (\ref{DinD}) using OLS. Denote the estimate of the impact by $\widehat{ATT}_{78}^{DD}$.\label{item:dd} 
+
+6. (6 p ) Compare $\widehat{ATT}_{78}^{FD}$, $\widehat{ATT}_{78}^{LSDV}$ $\widehat{ATT}_{78}^{TWFE}$, $\widehat{ATT}_{78}^{DD}$. Surprised?
+
+7. (5 p) Consider again the prototypical DD specification estimated in \textbf{\ref{item:dd}}.
+  a. (2 p) Verify that $\widehat{ATT}_{78}^{DD}$ is numerically identical to 3 equivalent expressions:\label{item:DinD-diff} 
+    \begin{align}
+    \left( \overline{earn}_{78}^{1}-\overline{earn}_{78}^{0}\right) &-\left( \overline{earn}_{75}^{1}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv1} \\
+    \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
+    \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
+    \end{align}
+  b. (1 p) Verify that $\hat{\alpha}$ is numerically identical to $\overline{earn}_{75}^{0}$.
+  c. (1 p) Verify that $\hat{\delta}$ is numerically identical to $\overline{earn}_{78}^{0}-\overline{earn}_{75}^{0}$.
+  d. (1 p) Verify that $\hat{\gamma}$ is numerically identical to $\overline{earn}_{75}^{1}-\overline{earn}_{75}^{0}$.
+
 \newpage
+
+\begin{center}
+{\LARGE Part 2: Replicate Card and Krueger's 1994 Minimum Wage Article (50 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: You focus on the article by David Card and Alan Kruger ``Minimum Wages and Employment: A Case Study of the Fast-Food Industry in New Jersey and Pennsylvania,'' \textit{The American Economic Review}, Vol. 84, No. 4. (Sep., 1994), pp. 772-793. This article (along with subsequent work on related subjects) is a core contribution upon which Card won the 2021 Nobel Prize in Economics. In this study the authors examine the impact of a change in the minimum wage (MW) on fast food employment in New Jersey. Here's what happened: in 1992 New Jersey (NJ) raised their MW from \$4.25 an hour to \$5.05 an hour. The neighboring state of Pennsylvania (PA) did not. The authors surveyed 410 fast food restaurants in NJ and in Eastern PA in February 1992 (before the MW change took effect) and again in November/December 1992 (after the MW change). They compare employment growth at stores across the two states to estimate the effect of the higher MW in NJ. They did not find evidence of a negative impact on employment. This result took the economics profession by surprise. The reason is that models of the labor market that assume perfect competition imply that a raise in MW will reduce employment as workers whose productivity is below the now higher MW will not find firms willing to employ them. The approach used in this paper to estimate the impact of the change in MW is \textcolor{ForestGreen}{Difference in Differences}. You replicate several of the authors' results. As a rule, replicating past analyses is a great way to learn about how in practice researchers estimates TEs.}
+
+9. (2 p) Carefully read the article up to Section III, subsections A through B included. You find it at \\ \texttt{Canvas/Files/Literature/CardKrueger\_MinimumWages\_AER1994.pdf}.
+
+10. (1 p) Load the data from \texttt{fast-food-data.csv}. Familiarize yourself with the columns in the dataframe by reading \texttt{fast-food-codebook.txt}. Do the authors have access to \textcolor{ForestGreen}{panel data (PD)} or \textcolor{ForestGreen}{repeated cross sectional (RCS) data}? \textcolor{gray}{\textbf{Hint:} We added a column named \texttt{store\_id} for convenience. The columns whose name ends with ``\texttt{2}'' are measured after the MW change. For example, \texttt{empft} is the number of full-time workers at a store before the MW change (wave 1 of the survey) and \texttt{empft2} is the number of full-time workers at a store after the MW change (wave 2 of the survey).} \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{utils::read.csv( )} to read the CSV file.}
+
+11. (4 p) Reproduce the counts in the rectangle superimposed over Table \ref{fig:CK_Tab1}. What is the purpose of this Table? \textcolor{gray}{\textbf{Hint:} You want to read carefully the notes to the table and the codebook.}
+
+12. The outcome of interest is full-time equivalent (FTE) employment. At page 775 of the article the authors explain how FTE employment is constructed. 
+    a. Add FTE employment for wave 1 and wave 2 as columns to your dataframe. \textcolor{gray}{\textbf{Programming guidance:} Columns \texttt{empft}, \texttt{nmgrs}, and \texttt{emppt} report employment by full-time (FT) workers, employment by managers (considered FT employees), and employment by part-time (PT) workers. In our script we named \texttt{fte}, and respectively \texttt{fte2}, wave 1's and wave 2's FTE employment columns. You have some NAs in \texttt{fte} and/or \texttt{fte2} because the underlying counts of FT workers, PT workers and managers may have NAs. To check that you have constructed \texttt{fte} and \texttt{fte2} correctly, use \texttt{mean( )} to calculate sample averages: to disregard NAs you specify an additional argument, e.g., \texttt{mean(df\$fte, na.rm=TRUE)} where \texttt{na.rm} stands for ``NAs removed".} 
+
+    b. (1 p) Check that you have constructed these two columns correctly by computing their sample averages and comparing what you obtain to the values reported in the rectangles superimposed to Table \ref{fig:CK_Tab2}, e.g., 20.4 FTE workers per store on average in NJ-wave 1 and 23.3 FTE workers per store on average in PA-wave 1. 
+
+    c. (1 p) What is the purpose of the two panels ``1. Distribution of Stores Types'' and ``2. Means in Wave 1''? 
+
+13. (6 p) Here you reproduce the statistics in the \underline{top} rectangle superimposed to Table \ref{fig:CK_Tab3}.\label{item:table3-rows-1-2}
+
+  a. (4 p) Reproduce the statistics in the top rectangle superimposed to Table \ref{fig:CK_Tab3},  i.e., rows 1 and 2, columns (i) through (iii); this includes sample averages, their SEs, differences in sample averages and their SEs. \textcolor{gray}{\textbf{Programming guidance:} Leverage \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/t.test}{\texttt{stats::t.test( )}} which test that the difference between the sample averages of a variable is zero across two groups. This function returns on object that has useful information for you to grab. Say you name the object \texttt{ttest}. Go to the command line and type \texttt{ttest} and append a dollar (\$) sign: you see all the information that you can grab. In particular, you can grab the group-specific sample averages and the standard error of the difference in sample averages. To compute the standard error of each sample average you want to remember that $Var(\bar{x})=Var(x_i)/n$ where $n$ is the number of observations used to compute the average and $se(\bar{x})=\sqrt{Var(\bar{x})}$. To reproduce exactly the numbers in the table, round your results to the 2nd digit using \texttt{round(, digits = 2)} from base R. }
+
+  b. (2 p) Which statistics does Table \ref{fig:CK_Tab3} row 3, columns (i) through (iii), report? Are any of them interpretable as estimates of the impact of NJ's MW change? Explain.
+
+14. (10 p) Here you reproduce the statistics in the \underline{bottom} rectangle superimposed to Table \ref{fig:CK_Tab3}.\label{item:table3-rows-4-5} 
+
+  a. (1 p) Why do the authors refer to the stores used to produce the statistics in row 4 as the ``balanced sample?'' On what grounds is this sample preferable to the sample used to produce the impact estimates reported in row 3?
+
+  b. (4 p) Reproduce the statistics in the bottom rectangle superimposed to Table \ref{fig:CK_Tab3}, i.e., rows 4 and 5, columns (i) through (iii); this includes sample averages, their SEs, differences in sample averages and their SEs. \textcolor{gray}{\textbf{Programming guidance:} Add a column equal to the difference between \texttt{fte2} and \texttt{fte} to your dataframe, we named it \texttt{diff\_fte}. The reason is that rows 4 and 5, columns (i) through (ii), report averages of \texttt{diff\_fte} for NJ and PA respectively. We suggest that you add a column that tags all the stores that were temporarily closed in wave 2 (read the text of the article and the codebook to understand how to use the existing columns to create this new column). In our script we named it \texttt{temp\_closed\_2nd\_wave} so that whenever we want to do anything (e.g., exclude from the analysis) to stores that were temporarily closed in wave 2 we can simply use the filter \texttt{temp\_closed\_2nd\_wave==1}. When reproducing the statistics in row 5, read the Table's notes ``d'' very carefully. To reproduce exactly the numbers in the table, round your results to the 2nd digit.}
+
+  c. (2 p) Consider row 4: which of the columns (i) through (iii) yields the \textcolor{ForestGreen}{Before After (BA) estimator} of the impact of the change in NJ's MW? Describe the impact estimate in plain English.
+
+  d. (2 p) Consider row 4: which of the columns (i) through (iii) yields the \textcolor{ForestGreen}{Difference in Differences (DD) estimator} of the impact of the change in NJ's MW? Describe the impact estimate in plain English. Why is it different from the BA estimate?
+  
+  e. (1 p) Why do the authors produce the statistics in row 5?
+
+15. (2 p) Instead of computing averages and differences in averages etc., as done in \textbf{\ref{item:table3-rows-1-2}} and \textbf{\ref{item:table3-rows-4-5}}, you can estimate the parameters of linear regression models. As an interim step, reshape your original dataframe from wide to long so that each store has two rows: one for wave 1 and one for wave 2. \textcolor{gray}{\textbf{Programming guidance:} In our script we named the new column \texttt{wave} with value 0 for 1st wave and 1 for 2nd wave and we named the long-format dataframe \texttt{df\_long}.}\label{item:CK_longformat}
+
+16. (5 p) Use the long-format data from \textbf{\ref{item:CK_longformat}} and estimate the following linear regression model specification using all the stores that have employment information in both waves: 
+\begin{equation}\label{eq:CK_DD}
+\texttt{fte}_{i,t}=\alpha + \delta \times \texttt{wave}_t + \gamma \times \texttt{state}_i + \rho \times \texttt{state}_i\times\texttt{wave}_{t}+u_{i,t},
+\end{equation}
+\noindent where $i$ is a store and $t$ is 1st or 2nd wave. Verify that the regression coefficients $(\hat{\delta}, \hat{\rho})$ and their standard errors are identical to the statistics reported in Table \ref{fig:CK_Tab3} row 4 columns (i) and (iii). Are you surprised? \textcolor{gray}{\textbf{Programming guidance:} You could use \texttt{stats:lm( )} but we ask you to cluster standard errors by store and to do so you use \texttt{miceadds::lm.cluster( )} which allows you to specify \texttt{cluster=``store\_id''}.}
+
+17. (3 p) Use the long-format data from Q\ref{item:CK_longformat}, reset FTE employment to zero for all the stores that were temporarily closed in 2nd wave, and \underline{then} estimate specification (\ref{eq:CK_DD}) using all the stores that have employment information in both waves. Verify that the estimates of the regression coefficients $(\hat{\delta}, \hat{\rho})$, and their standard errors, are identical to those reported in Table \ref{fig:CK_Tab3} row 5 columns (i) and (iii). Why is that?
+
+18. (5 p) Here you reproduce some of the estimates and statistics in the rectangle superimposed to Table \ref{fig:CK_Tab4}.\label{item:CK_tab4-col-i-ii}
+
+  a. (1 p) Go back to the wide-format dataframe. Reset to 0 the wages in the 2nd wave for those stores that were permanently closed in that wave. Then, apply the sample selection described in Table \ref{fig:CK_Tab4}'s notes. Per those notes, the resulting sample consists of 357 stores. Verify that this is indeed the case.\label{item:CK_tab4-col-i-ii-dataset}
+
+  b. (1 p) Verify that the average and standard deviation of the dependent variable, namely \texttt{diff\_fte}, are -0.237 and 8.825 respectively, per the notes to Table \ref{fig:CK_Tab4}.
+
+  c. (2 p) Reproduce the estimates and statistics in the rectangle superimposed to Table \ref{fig:CK_Tab4} columns (i) through (ii). \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{stats::lm( )}.}
+
+  d. (1 p) What is the interpretation of the estimate of the coefficient of the NJ dummy in column (i)? In column (ii)?
+
+19. (4 p) Continue using the wide-format dataframe obtained in \textbf{\ref{item:CK_tab4-col-i-ii-dataset}}. Here you reproduce the rest of the estimates and statistics in the rectangle superimposed over Table \ref{fig:CK_Tab4} columns (iii) through (v). 
+  a. (1 p) Add a column named \texttt{gap} according to the description given at page 779 of the article. 
+
+  b. (2 p) Reproduce the estimates and statistics in the rectangle superimposed over Table \ref{fig:CK_Tab4} columns (iii) through (v). \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{stats::lm( )}. You can reproduce exactly the results in columns (iii) and (iv), you will find a slight discrepancy for column (v).}
+
+  c. (1 p) Which coefficient estimates are interpretable as estimates of the impact of NJ's MW change in columns (iii) through (v), respectively? Why?
+
+20. (2 p) At page 772 the authors write \textcolor{BlueViolet}{``Comparison within New Jersey between initially high-wage stores (those paying more than the minimum rate prior to its effective date) and other stores provides an alternative estimate of the impact of the new law.''} At page 773 they further write \textcolor{BlueViolet}{``Wage variation across stores in New Jersey, ..., allows us to compare the experience of high-wage and low-wage stores within New Jersey and to \textit{test} the validity of the Pennsylvania control group."} Explain what the authors mean.
+
+21. (2 p) At page 773 the authors write \textcolor{BlueViolet}{``We have complete information on store closings and take account of employment changes at the closed stores in our analyses. We therefore measure the overall effect of the minimum wage on average employment, and not simply its effect on surviving establishments.''} Explain why this may be important.
 
 ## Appendix 
 
@@ -225,3 +311,40 @@ F Statistic & 8.172$^{***}$ (df = 1; 2673) \\
 \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
 \end{table} 
+
+
+\newpage
+
+
+\setcounter{table}{0} \renewcommand{\thetable}{\arabic{table}} 
+
+
+\begin{table}[!htb]
+\centering
+  \includegraphics[width=0.63\textwidth]{figures/CardKrueger_Table1.png}
+  \caption{Table 1 from Card and Krueger (1994).}
+  \label{fig:CK_Tab1}
+\end{table}
+
+
+\begin{table}[!htb]
+\centering
+  \includegraphics[width=0.63\textwidth]{figures/CardKrueger_Table2.png}
+  \caption{Table 2 from Card and Krueger (1994).}
+  \label{fig:CK_Tab2}
+\end{table}
+
+\newpage
+\begin{table}[!htb]
+\centering
+  \includegraphics[width=0.75\textwidth]{figures/CardKrueger_Table3.png}
+  \caption{Table 3 from Card and Krueger (1994).}
+  \label{fig:CK_Tab3}
+\end{table}
+
+\begin{table}[!htb]
+\centering
+  \includegraphics[width=0.75\textwidth]{figures/CardKrueger_Table4.png}
+  \caption{Table 4 from Card and Krueger (1994).}
+  \label{fig:CK_Tab4}
+\end{table}

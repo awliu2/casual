@@ -14,7 +14,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset6")
+knitr::opts_knit$set(root.dir = "~/Documents/casual/pset6")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -424,7 +424,10 @@ a. (2 p) How many treated units are paired with at least one control unit?
     **Solution:** 179 treated units are paired with at least one control unit.
       
   b. (2 p) How many treated units are paired with exactly one control unit? \newline
-    **Solution:** 179 treated units are paired with at least one control unit. Since we set M=1 in the Match function, each treated unit is matched with exactly one control unit. Therefore, the number of treated units paired with exactly one control unit would be the same as the number of treated units that were paired as in part (a).
+      **Solution:** 151 treated units are paired with at exactly one control unit, as seen below.
+      ```{r}
+      nrow(data.frame(table(matched$index.treated)) %>% filter(Freq == 1))
+      ```
 
   c. (2 p) What percentage of control units serve as a match to at least one treated unit? \newline
       **Solution:** About 46.68\% of control units serve as a match to at least one treated unit.
@@ -544,3 +547,12 @@ In the context of Imbens (2015)'s recommendations, we would want to consider the
   2. We would want to perform trimming of the sample to remove extreme observations that may be driving our results. This would mitigate p-score imbalances and thus improve the quality of matches and thus the performance of our matching estimators.
 
   3. Imbens suggests a step-wise MLE approach for estimating pscores - we would want to consider this approach to ensure that our pscores are estimated as accurately as possible. The more accurate our pscores, the better our matching estimators will perform (regardless of which matching algorithm we might choose).
+
+
+\newpage
+\begin{figure}[!htb]
+\centering
+  \includegraphics[width=0.9\textwidth]{figures/figures_end.png}
+  \caption{Scatter plot of \texttt{re78} against the Logit-based $\widehat{p}_{i}$ estimates, separately for the treated and the control group. Each panel also includes a fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ (blue line).}
+  \label{fig:propensity_vs_earnings}
+\end{figure}

@@ -691,6 +691,43 @@ expression to:
 the essence of each matching approach.
 \textcolor{gray}{\textbf{Hint:} Find the expression for $\pi _{j}^{m}$ in expression (\ref{ATT_m_bis_w}) for each $m\in \left\{NNM,RM,KM\right\} $}.
 
+\textbf{Solution:} Consider the following: \begin{align*}
+ \hat{ATT}^m &= \frac{1}{N^T} \sum_{i\in T}\left[y_i - \sum_{j\in C^m(i)} w_{ij}^m y_j\right], \text{, by definition, }\\
+ &= \frac{1}{N^T} \sum_{i\in T}[y_i] - \frac{1}{N^T} \sum_{i\in T}\sum_{j\in C^m(i)} w_{ij}^m y_j \text{, by properties of $\sum$, }\\
+ &= \bar{y}^1 - \frac{1}{N^T} \sum_{i\in T}\left[\sum_{j\in C^m(i)} w_{ij}^m y_j\right] \text{, by definition. }
+\end{align*}
+
+Now let \(m \in \{NNM, RM\}\), for arbitrary treatment unit \(i\),
+\begin{align*}
+    \sum_{j\in C}w_{ij}^m y_j &= \sum_{j\in C^m(i)} w_{ij}^m y_j + \sum_{j\in C\setminus C^m(i)} 0 \cdot y_j \text{, by (6), }\\
+    &= \sum_{j\in C^m(i)} w_{ij}^m y_j + 0 \\
+    &= \sum_{j\in C^m(i)} w_{ij}^m y_j.  
+\end{align*}
+
+Similarly, for \(m = KN\) we have by definition (6) that \(C^m(i) = C\).
+For all \(m\) we thus have,
+\[\sum_{j\in C}w_{ij}^m y_j = \sum_{j\in C^m(i)} w_{ij}^m y_j.\]
+
+We can continue to then show that \begin{align*}
+    \hat{ATT}^m &= \bar{y}^1 - \frac{1}{N^T} \sum_{i\in T}\left[\sum_{j\in C^m(i)} w_{ij}^m y_j\right] \\ 
+    &= \bar{y}^1 - \frac{1}{N^T} \sum_{i\in T}\left[\sum_{j\in C} w_{ij}^m y_j\right]\\ 
+    &= \bar{y}^1 - \frac{1}{N^T} \sum_{j\in C} \left[ \left(\sum_{i\in T} w_{ij}^m \right) y_j \right] \text{, because $T,C$ are disjoint and $i,j$ are independent,  }\\ 
+    &= \bar{y}^1 - \frac{1}{N^C} \cdot \frac{N^C}{N^T} \cdot \sum_{j\in C} \left[ \left(\sum_{i\in T} w_{ij}^m\right) y_j \right] \text{, by multiplying by 1, }\\
+    &= \bar{y}^1 - \frac{1}{N^C} \sum_{j\in C} \left[ \left(\frac{N^C}{N^T} \sum_{i\in T} w_{ij}^m \right) y_j \right]\text{, by linearity of summation, }\\ 
+    &= \bar{y}^1 - \frac{1}{N^C} \sum_{j\in C} \pi_{j}^m y_j \text{, where } \pi_j^m = \frac{N^C}{N^T} \sum_{i\in T} w_{ij}^m \text{,}\\
+    &= \bar{y}^1 - \bar{y_m^0} \text{, by definition.}  
+\end{align*}
+
+In plain English we recognize that the matching approach is a difference
+between the sample average of the treated sample and a weighted average
+of the control sample. In particular each method uses a different
+weighting mechanism by leveraging (2), (3), (4) and (6) together. For
+nearest neighbors, we weight by a set of control units that have closest
+distance in terms of propensity score. In radius matching, we choose
+control units that are within certain neighborhood of propensity scores.
+For kernel matching we choose a kernel function as the distance metric
+and weight propensity by similarity.
+
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{5}
@@ -800,11 +837,18 @@ provided.
   control unit.
 \item
   (2 p) How many treated units are paired with exactly one control unit?
-  \newline \textbf{Solution:} 179 treated units are paired with at least
-  one control unit. Since we set M=1 in the Match function, each treated
-  unit is matched with exactly one control unit. Therefore, the number
-  of treated units paired with exactly one control unit would be the
-  same as the number of treated units that were paired as in part (a).
+  \newline \textbf{Solution:} 151 treated units are paired with at
+  exactly one control unit, as seen below.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{nrow}\NormalTok{(}\FunctionTok{data.frame}\NormalTok{(}\FunctionTok{table}\NormalTok{(matched}\SpecialCharTok{$}\NormalTok{index.treated)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(Freq }\SpecialCharTok{==} \DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 151
+\end{verbatim}
 \item
   (2 p) What percentage of control units serve as a match to at least
   one treated unit? \newline \textbf{Solution:} About 46.68\% of control
@@ -912,10 +956,10 @@ provided.
 
 \begin{verbatim}
 ## 
-## Estimate...  301.96 
-## SE.........  777.18 
-## T-stat.....  0.38853 
-## p.val......  0.69762 
+## Estimate...  442.61 
+## SE.........  769.62 
+## T-stat.....  0.57511 
+## p.val......  0.56522 
 ## 
 ## Original number of observations..............  1325 
 ## Original number of treated obs...............  179 
@@ -1072,5 +1116,13 @@ when we only have access to observational data:
   the better our matching estimators will perform (regardless of which
   matching algorithm we might choose).
 \end{enumerate}
+
+\newpage
+\begin{figure}[!htb]
+\centering
+  \includegraphics[width=0.9\textwidth]{figures/figures_end.png}
+  \caption{Scatter plot of \texttt{re78} against the Logit-based $\widehat{p}_{i}$ estimates, separately for the treated and the control group. Each panel also includes a fitted non-parametric regression of \texttt{re78} on $\widehat{p}_{i}$ (blue line).}
+  \label{fig:propensity_vs_earnings}
+\end{figure}
 
 \end{document}

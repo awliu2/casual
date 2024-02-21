@@ -214,6 +214,7 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 \NormalTok{filename\_psid }\OtherTok{=} \StringTok{"starter{-}files/nswpsid.csv"}
 
 \NormalTok{dt\_psid }\OtherTok{\textless{}{-}} \FunctionTok{load\_data}\NormalTok{(}\AttributeTok{filename =}\NormalTok{ filename\_psid)}
+\NormalTok{dt\_psid}\SpecialCharTok{$}\NormalTok{individual }\OtherTok{=} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{nrow}\NormalTok{(dt\_psid)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -373,6 +374,7 @@ We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{2}
+\tightlist
 \item
   (6 p) Estimate the specification in expression (\ref{TWFE}) using the
   \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote
@@ -380,11 +382,81 @@ We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
   treats the individual effects \(\mu_i\) and the year effects
   \(\delta_t\) as parameters to be estimated.
   \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{long\_psid}\SpecialCharTok{$}\NormalTok{dit }\OtherTok{=}\NormalTok{ long\_psid}\SpecialCharTok{$}\NormalTok{treat }\SpecialCharTok{*}\NormalTok{ long\_psid}\SpecialCharTok{$}\NormalTok{dyear2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dit }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(individual) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(dyear2) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ long\_psid)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ols}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{\textquotesingle{}dit\textquotesingle{}}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      dit 
+## 2326.505
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula2 }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dit }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(individual) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(dyear2))}
+\NormalTok{ols2 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula2, }\AttributeTok{data =}\NormalTok{ long\_psid)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ols2}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{\textquotesingle{}dit\textquotesingle{}}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      dit 
+## 2326.505
+\end{verbatim}
+
+In our linear regression we confirm that both with and without a
+constant in the regression we can successfully estimate
+\(\widehat{ATT}_{78}^{LSDV} = 2326.505\).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
 \item
   (6 p) Estimate the specification in expression (\ref{TWFE}) using the
   \textcolor{ForestGreen}{Two-way Fixed Effect Approach}. Denote the
   estimate of the impact by \(\widehat{ATT}_{78}^{TWFE}\).
   \textcolor{Gray}{\textbf{Programming Guidance:} Use \href{https://www.rdocumentation.org/packages/plm/versions/2.6-3/topics/plm}{\texttt{plm()}}.}\label{item:twfe}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit\_plm }\OtherTok{\textless{}{-}} \FunctionTok{plm}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dit, }
+               \AttributeTok{data =}\NormalTok{ long\_psid, }
+               \AttributeTok{index =} \FunctionTok{c}\NormalTok{(}\StringTok{"individual"}\NormalTok{, }\StringTok{"dyear2"}\NormalTok{), }
+               \AttributeTok{model =} \StringTok{"within"}\NormalTok{, }
+               \AttributeTok{effect =} \StringTok{"twoways"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We estimate \(\widehat{ATT}_{78}^{TWFE} = 2326.505\) as seen in Table
+\ref{item:plms4} in the Appendix.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
 \item
   (6 p) Estimate the specification in expression (\ref{DinD}) using OLS.
   Denote the estimate of the impact by
@@ -678,6 +750,30 @@ Observations & 2,675 \\
 R$^{2}$ & 0.003 \\ 
 Adjusted R$^{2}$ & 0.003 \\ 
 Residual Std. Error & 10,680.040 (df = 2673) \\ 
+F Statistic & 8.172$^{***}$ (df = 1; 2673) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{PLM Implementation of Specification 4} 
+  \label{item:plms4} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & earns \\ 
+\hline \\[-1.8ex] 
+ dit & 2,326.505$^{***}$ \\ 
+  & (813.859) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 5,350 \\ 
+R$^{2}$ & 0.003 \\ 
+Adjusted R$^{2}$ & $-$0.995 \\ 
 F Statistic & 8.172$^{***}$ (df = 1; 2673) \\ 
 \hline 
 \hline \\[-1.8ex] 

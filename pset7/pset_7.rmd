@@ -23,6 +23,7 @@ library(dplyr)
 library(systemfit)
 library(knitr)
 library(readr)
+library(plm)
 options(tinytex.install_packages = FALSE)
 ```
 
@@ -168,21 +169,40 @@ We estimate $\widehat{ATT}_{78}^{FD} = 2326.505$ as seen in Table \ref{item:lms3
 3. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{LSDV}$. LSDV treats the individual effects $\mu_i$ and the year effects $\delta_t$ as parameters to be estimated. \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
 
 ```{r}
-formula = as.formula(earns ~ treat + factor(individual) + factor(dyear2) - 1)
+long_psid$dit = long_psid$treat * long_psid$dyear2
+```
+
+```{r}
+formula = as.formula(earns ~ dit + factor(individual) + factor(dyear2) - 1)
 ols <- lm(formula, data = long_psid)
 ```
 
 ```{r}
-ols$coefficients['treat']
+ols$coefficients['dit']
 ```
 
-In our linear regression we drop the constant due to the dummy variable trap and successfully estimate $\widehat{ATT}_{78}^{LSDV} = 5657.098$.
+```{r}
+formula2 = as.formula(earns ~ dit + factor(individual) + factor(dyear2))
+ols2 <- lm(formula2, data = long_psid)
+```
+
+```{r}
+ols2$coefficients['dit']
+```
+
+In our linear regression we confirm that both with and without a constant in the regression we can successfully estimate $\widehat{ATT}_{78}^{LSDV} = 2326.505$.
 
 4. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Two-way Fixed Effect Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{TWFE}$. \textcolor{Gray}{\textbf{Programming Guidance:} Use \href{https://www.rdocumentation.org/packages/plm/versions/2.6-3/topics/plm}{\texttt{plm()}}.}\label{item:twfe}
 
 ```{r}
-
+fit_plm <- plm(earns ~ dit, 
+               data = long_psid, 
+               index = c("individual", "dyear2"), 
+               model = "within", 
+               effect = "twoways")
 ```
+
+We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:plms4} in the Appendix. 
 
 5. (6 p) Estimate the specification in expression (\ref{DinD}) using OLS. Denote the estimate of the impact by $\widehat{ATT}_{78}^{DD}$.\label{item:dd} 
 
@@ -331,6 +351,29 @@ F Statistic & 8.172$^{***}$ (df = 1; 2673) \\
 \end{tabular} 
 \end{table} 
 
+\begin{table}[!htbp] \centering 
+  \caption{PLM Implementation of Specification 4} 
+  \label{item:plms4} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & earns \\ 
+\hline \\[-1.8ex] 
+ dit & 2,326.505$^{***}$ \\ 
+  & (813.859) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 5,350 \\ 
+R$^{2}$ & 0.003 \\ 
+Adjusted R$^{2}$ & $-$0.995 \\ 
+F Statistic & 8.172$^{***}$ (df = 1; 2673) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table} 
 
 \newpage
 

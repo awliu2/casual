@@ -15,7 +15,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/casual/pset7")
+knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -126,8 +126,8 @@ We confirm that after filtering on treatment, the resulting dataframe has 370 ro
 c. (2 p) Use the dataframe created in \textbf{\ref{item:BAfter-filter}} and \texttt{stats::lm( )} to estimate $\rho$ in the specification of expression (\ref{BAfter}).\label{item:BAfter-rho}
 
 ```{r}
-pscore_formula <- as.formula(earns ~ dyear2)
-ols <- lm(pscore_formula, data = treatment)
+formula <- as.formula(earns ~ dyear2)
+ols <- lm(formula, data = treatment)
 ```
 
 We estimate $\rho$ to be 4,817.090 as witnessed in Table \ref{item:lms2} in the Appendix.
@@ -147,20 +147,19 @@ We verify that $\hat{\rho}$ is numerically identical to $\left( \overline{earn}_
 
 e. (4 p) Explain why the BA approach may or may not identify the average effect for the treated in the post-treatment year, i.e., ${ATT}_{78}$. \textcolor{gray}{\textbf{Hint}: Use the result in \textbf{\ref{item:BAfter-diff}} to think about what this approach uses to identify the mean of potential outcomes w/ and w/out treatment and for different (sub)population. Feel free to utilize what we did in class.}
 
-Whilst we have the realized outcome of post-period earnings on the treated units allowing us to find $\overline{earn}_{78}^{1}$ as the sample analogue for $\mathbb{E}[y_{1i78} \mid E_i = 1]$ (where $E_i$ is $D_{i75} = 0, D_{i78} = 1$), we are unable tounable to learn the potential outcomes of post-period earnings if those same units had not been treated (thus unable to find a sample analogue for $\mathbb{E}[y_{0i78} \mid E_i = 1]$).   
+Whilst we have the realized outcome of post-period earnings on the treated units allowing us to find $\overline{earn}_{78}^{1}$ as the sample analogue for $\mathbb{E}[y_{1i78} \mid E_i = 1]$ (where $E_i$ is $D_{i75} = 0, D_{i78} = 1$), we are unable to learn the potential outcomes of post-period earnings in the case that those same units had not been treated (i.e. we are unable to find a sample analogue for $\mathbb{E}[y_{0i78} \mid E_i = 1]$).   
 
 In order to produce an estimate for ${ATT}_{78}$ we choose to assume that the counterfactual for treated units are the same as earnings in the pre-treatment period, so that $\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]$. This allows us to take $\overline{earns}_{75}^{1}$ as the sample analogue.   
 
-However, the BA approach might not identity the average effect for the treated in the post-treatment year $ATT_{78}$ because there could be unaccounted biases for the computed $ATT_{78}$ if $\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]$. In which case, $ATT_{78}$ would be a biased estimator. 
+However, the BA approach might not identity the average effect for the treated in the post-treatment year $ATT_{78}$ because there could be unaccounted biases for the computed $ATT_{78}$. In particular, if it is the case that $\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]$, $ATT_{78}$ would then be a biased estimator. 
 
 2. (3 p) Estimate the specification in expression (\ref{FD}) using OLS. Denote the resulting estimate of the impact by $\widehat{ATT}_{78}^{FD}$. \textcolor{gray}{\textbf{Programming Guidance:} It is most convenient to use the wide format dataframe for this task. Use \texttt{lm()}.}\label{item:fd}
 
 ```{r}
 dt_psid$earns_diff = dt_psid$re78 - dt_psid$re75
 
-pscore_formula = as.formula(earns_diff ~ treat)
-ols <- lm(pscore_formula, data = dt_psid)
-
+formula = as.formula(earns_diff ~ treat)
+ols <- lm(formula, data = dt_psid)
 ```
 
 We estimate $\widehat{ATT}_{78}^{FD} = 2326.505$ as seen in Table \ref{item:lms3} in the Appendix. 

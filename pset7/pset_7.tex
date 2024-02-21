@@ -5,20 +5,21 @@
 %
 \documentclass[
 ]{article}
+\title{Problem Set 7: Estimation of TEs Using Matching Methods}
+\author{Tessie Dong, Derek Li, Andi Liu}
+\date{Due Feb 22nd, 2024}
+
 \usepackage{amsmath,amssymb}
+\usepackage{lmodern}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math} % this also loads fontspec
+  \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
-\fi
-\usepackage{lmodern}
-\ifPDFTeX\else
-  % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -37,6 +38,18 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Problem Set 7: Estimation of TEs Using Matching Methods},
+  pdfauthor={Tessie Dong, Derek Li, Andi Liu},
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=1cm]{geometry}
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -49,13 +62,13 @@
 \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
 \newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
 \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
 \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
 \newcommand{\BuiltInTok}[1]{#1}
 \newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
 \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
 \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
 \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
@@ -63,7 +76,7 @@
 \newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
 \newcommand{\ExtensionTok}[1]{#1}
 \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\ImportTok}[1]{#1}
 \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
@@ -72,7 +85,7 @@
 \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
 \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
 \newcommand{\RegionMarkerTok}[1]{#1}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
@@ -102,29 +115,14 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\usepackage{bookmark}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same}
-\hypersetup{
-  pdftitle={Problem Set 7: Estimation of TEs Using Matching Methods},
-  pdfauthor={Tessie Dong, Derek Li, Andi Liu},
-  colorlinks=true,
-  linkcolor={Maroon},
-  filecolor={Maroon},
-  citecolor={Blue},
-  urlcolor={Blue},
-  pdfcreator={LaTeX via pandoc}}
-
-\title{Problem Set 7: Estimation of TEs Using Matching Methods}
-\author{Tessie Dong, Derek Li, Andi Liu}
-\date{Due Feb 22nd, 2024}
 
 \begin{document}
 \maketitle
 
+\hypertarget{part-1-before-and-after-and-difference-in-difference-estimators-50-points}{%
 \subsection{Part 1: Before and After and Difference in Difference
 Estimators (50
-Points)}\label{part-1-before-and-after-and-difference-in-difference-estimators-50-points}
+Points)}\label{part-1-before-and-after-and-difference-in-difference-estimators-50-points}}
 
 \noindent \textcolor{Maroon}{\textbf{Background}. In Pset 4 you estimated the average treatment effect of the offer of training for the NSW treated units in 1978 using the  Treated Control Comparison (TCC) estimator, the Regression Adjusted TCC estimator, and the Double Machine Learning (DML) estimator. The latter two estimators attempted to control for observable confounders, namely, observed pre-treatment differences between the NSW treated sample and the PSID-1 sample. Here we focus on methods that control for unobservable confounders, namely, the Before After Comparison Estimator and the Difference in Differences Estimators.}\textbackslash{}
 
@@ -277,8 +275,8 @@ has 370 rows.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{pscore\_formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dyear2)}
-\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(pscore\_formula, }\AttributeTok{data =}\NormalTok{ treatment)}
+\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dyear2)}
+\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ treatment)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -330,9 +328,9 @@ We verify that \(\hat{\rho}\) is numerically identical to
 Whilst we have the realized outcome of post-period earnings on the
 treated units allowing us to find \(\overline{earn}_{78}^{1}\) as the
 sample analogue for \(\mathbb{E}[y_{1i78} \mid E_i = 1]\) (where \(E_i\)
-is \(D_{i75} = 0, D_{i78} = 1\)), we are unable tounable to learn the
-potential outcomes of post-period earnings if those same units had not
-been treated (thus unable to find a sample analogue for
+is \(D_{i75} = 0, D_{i78} = 1\)), we are unable to learn the potential
+outcomes of post-period earnings in the case that those same units had
+not been treated (i.e.~we are unable to find a sample analogue for
 \(\mathbb{E}[y_{0i78} \mid E_i = 1]\)).
 
 In order to produce an estimate for \({ATT}_{78}\) we choose to assume
@@ -344,9 +342,10 @@ analogue.
 
 However, the BA approach might not identity the average effect for the
 treated in the post-treatment year \(ATT_{78}\) because there could be
-unaccounted biases for the computed \(ATT_{78}\) if
-\(\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]\).
-In which case, \(ATT_{78}\) would be a biased estimator.
+unaccounted biases for the computed \(ATT_{78}\). In particular, if it
+is the case that
+\(\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]\),
+\(ATT_{78}\) would then be a biased estimator.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -363,8 +362,8 @@ In which case, \(ATT_{78}\) would be a biased estimator.
 \begin{Highlighting}[]
 \NormalTok{dt\_psid}\SpecialCharTok{$}\NormalTok{earns\_diff }\OtherTok{=}\NormalTok{ dt\_psid}\SpecialCharTok{$}\NormalTok{re78 }\SpecialCharTok{{-}}\NormalTok{ dt\_psid}\SpecialCharTok{$}\NormalTok{re75}
 
-\NormalTok{pscore\_formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns\_diff }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat)}
-\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(pscore\_formula, }\AttributeTok{data =}\NormalTok{ dt\_psid)}
+\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns\_diff }\SpecialCharTok{\textasciitilde{}}\NormalTok{ treat)}
+\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ dt\_psid)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -627,7 +626,8 @@ We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
   Explain why this may be important.
 \end{enumerate}
 
-\subsection{Appendix}\label{appendix}
+\hypertarget{appendix}{%
+\subsection{Appendix}\label{appendix}}
 
 \begin{table}[!htbp] \centering 
   \caption{Linear Regression Implementation of Specification 2} 

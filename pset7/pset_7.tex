@@ -78,6 +78,16 @@
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -102,7 +112,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
@@ -122,10 +132,9 @@
 \begin{document}
 \maketitle
 
-\hypertarget{part-1-before-and-after-and-difference-in-difference-estimators-50-points}{%
 \subsection{Part 1: Before and After and Difference in Difference
 Estimators (50
-Points)}\label{part-1-before-and-after-and-difference-in-difference-estimators-50-points}}
+Points)}\label{part-1-before-and-after-and-difference-in-difference-estimators-50-points}
 
 \noindent \textcolor{Maroon}{\textbf{Background}. In Pset 4 you estimated the average treatment effect of the offer of training for the NSW treated units in 1978 using the  Treated Control Comparison (TCC) estimator, the Regression Adjusted TCC estimator, and the Double Machine Learning (DML) estimator. The latter two estimators attempted to control for observable confounders, namely, observed pre-treatment differences between the NSW treated sample and the PSID-1 sample. Here we focus on methods that control for unobservable confounders, namely, the Before After Comparison Estimator and the Difference in Differences Estimators.}\textbackslash{}
 
@@ -176,7 +185,6 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
-\tightlist
 \item
   (4 p) Reshape the dataframe from \textcolor{ForestGreen}{wide format}
   to \textcolor{ForestGreen}{long format} so that for each sample
@@ -184,28 +192,29 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
   for 1978 (post-treatment). Verify that the reshaped dataframe has
   \(5,350\) rows.
   \textcolor{gray}{\textbf{Programming Guidance:} The original dataframe is in wide format because each row pertains to one individual, and columns \texttt{re75} and \texttt{re78} store the individual's earnings in 1975 and 1978. The long (i.e., panel) format has 2 rows for each individual (one for 1975, one for 1978), and 1 column storing the earnings for the corresponding year. We named the earnings column \texttt{earns}. Also, we added two columns: a) \texttt{dyear2} for $D78_{t}$, i.e., takes value 1 when the year is 1978 and 0 otherwise; b) \texttt{tdyear2} is the product of \texttt{dyear2} and \texttt{treat} and corresponds to $D78_t \times D_i$. To reshape a dataframe to long, use \href{https://tidyr.tidyverse.org/reference/gather.html}{\texttt{tidyr::gather( )}}. Find a worked out example \href{https://uc-r.github.io/tidyr}{here}. Or use \texttt{data.table::melt()}.}\label{item:BAfter-reshape}
-\end{enumerate}
+
+  We reshape the data as follows:
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{load\_data }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(filename)\{}
 \NormalTok{  dt }\OtherTok{\textless{}{-}}\NormalTok{ data.table}\SpecialCharTok{::}\FunctionTok{as.data.table}\NormalTok{(}
 \NormalTok{    readr}\SpecialCharTok{::}\FunctionTok{read\_csv}\NormalTok{(filename,}
-                     \AttributeTok{col\_names =} \ConstantTok{TRUE}\NormalTok{,}
-                     \AttributeTok{col\_types =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{cols}\NormalTok{(}
-                       \AttributeTok{treat =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
-                       \AttributeTok{age =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
-                       \AttributeTok{edu =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
-                       \AttributeTok{black =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
-                       \AttributeTok{hisp =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
-                       \AttributeTok{married =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
-                       \AttributeTok{re74 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_double}\NormalTok{(),}
-                       \AttributeTok{re75 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_double}\NormalTok{(),}
-                       \AttributeTok{re78 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_double}\NormalTok{(),}
-                       \AttributeTok{u74 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
-                       \AttributeTok{u75 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
-                       \AttributeTok{nodegree =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{()}
-\NormalTok{                     ))}
+                    \AttributeTok{col\_names =} \ConstantTok{TRUE}\NormalTok{,}
+                    \AttributeTok{col\_types =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{cols}\NormalTok{(}
+                      \AttributeTok{treat =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
+                      \AttributeTok{age =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
+                      \AttributeTok{edu =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
+                      \AttributeTok{black =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
+                      \AttributeTok{hisp =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
+                      \AttributeTok{married =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
+                      \AttributeTok{re74 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_double}\NormalTok{(),}
+                      \AttributeTok{re75 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_double}\NormalTok{(),}
+                      \AttributeTok{re78 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_double}\NormalTok{(),}
+                      \AttributeTok{u74 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
+                      \AttributeTok{u75 =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{(),}
+                      \AttributeTok{nodegree =}\NormalTok{ readr}\SpecialCharTok{::}\FunctionTok{col\_integer}\NormalTok{()}
+\NormalTok{                    ))}
 \NormalTok{  )}
   \FunctionTok{return}\NormalTok{(dt)}
 \NormalTok{\}}
@@ -239,19 +248,13 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 ## [1] 5350
 \end{verbatim}
 
-We confirm that the reshaped dataframe has 5350 rows.
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{1}
-\tightlist
+  We confirm that the reshaped dataframe has 5350 rows.
 \item
   (1 p) Take the reshaped dataframe created in
   \textbf{\ref{item:BAfter-reshape}}; keep only the rows pertaining to
   the treated individuals, and check that the resulting dataframe has
   \(370\) rows because
   \(370=185 \text{ treated individuals } \times 2 \text{ years for each individual}\).\label{item:BAfter-filter}
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -264,18 +267,12 @@ We confirm that the reshaped dataframe has 5350 rows.
 ## [1] 370
 \end{verbatim}
 
-We confirm that after filtering on treatment, the resulting dataframe
-has 370 rows.
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
+  We confirm that after filtering on treatment, the resulting dataframe
+  has 370 rows.
 \item
   (2 p) Use the dataframe created in \textbf{\ref{item:BAfter-filter}}
   and \texttt{stats::lm( )} to estimate \(\rho\) in the specification of
   expression (\ref{BAfter}).\label{item:BAfter-rho}
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -284,15 +281,8 @@ has 370 rows.
 \end{Highlighting}
 \end{Shaded}
 
-We estimate \(\rho\) to be 4,817.090 as witnessed in Table
-\ref{item:lms2} in the Appendix.
-
-\newpage
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{3}
-\tightlist
+  We estimate \(\rho\) to be 4,817.090 as witnessed in Table
+  \ref{item:lms2} in the Appendix. \newpage 
 \item
   (1 p) Verify that \(\hat{\rho}\) obtained in
   \textbf{\ref{item:BAfter-rho}} is numerically identical to
@@ -300,7 +290,6 @@ We estimate \(\rho\) to be 4,817.090 as witnessed in Table
   that is, it equals the difference between average post-treatment and
   average pre-treatment earnings using only the 185 individuals in the
   treatment sample.\label{item:BAfter-diff}
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -315,41 +304,36 @@ We estimate \(\rho\) to be 4,817.090 as witnessed in Table
 ## [1] 4817.09
 \end{verbatim}
 
-We verify that \(\hat{\rho}\) is numerically identical to
-\(\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)\).
-
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{4}
-\tightlist
+  We verify that \(\hat{\rho}\) is numerically identical to
+  \(\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)\).
 \item
   (4 p) Explain why the BA approach may or may not identify the average
   effect for the treated in the post-treatment year, i.e.,
   \({ATT}_{78}\).
   \textcolor{gray}{\textbf{Hint}: Use the result in \textbf{\ref{item:BAfter-diff}} to think about what this approach uses to identify the mean of potential outcomes w/ and w/out treatment and for different (sub)population. Feel free to utilize what we did in class.}
+
+  Whilst we have the realized outcome of post-period earnings on the
+  treated units allowing us to find \(\overline{earn}_{78}^{1}\) as the
+  sample analogue for \(\mathbb{E}[y_{1i78} \mid E_i = 1]\) (where
+  \(E_i\) is \(D_{i75} = 0, D_{i78} = 1\)), we are unable to learn the
+  potential outcomes of post-period earnings in the case that those same
+  units had not been treated (i.e.~we are unable to find a sample
+  analogue for \(\mathbb{E}[y_{0i78} \mid E_i = 1]\)).
+
+  In order to produce an estimate for \({ATT}_{78}\) we choose to assume
+  that the counterfactual for treated units are the same as earnings in
+  the pre-treatment period, so that
+  \(\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]\).
+  This allows us to take \(\overline{earns}_{75}^{1}\) as the sample
+  analogue.
+
+  However, the BA approach might not identity the average effect for the
+  treated in the post-treatment year \(ATT_{78}\) because there could be
+  unaccounted biases for the computed \(ATT_{78}\). In particular, if it
+  is the case that
+  \(\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]\),
+  \(ATT_{78}\) would then be a biased estimator.
 \end{enumerate}
-
-Whilst we have the realized outcome of post-period earnings on the
-treated units allowing us to find \(\overline{earn}_{78}^{1}\) as the
-sample analogue for \(\mathbb{E}[y_{1i78} \mid E_i = 1]\) (where \(E_i\)
-is \(D_{i75} = 0, D_{i78} = 1\)), we are unable to learn the potential
-outcomes of post-period earnings in the case that those same units had
-not been treated (i.e.~we are unable to find a sample analogue for
-\(\mathbb{E}[y_{0i78} \mid E_i = 1]\)).
-
-In order to produce an estimate for \({ATT}_{78}\) we choose to assume
-that the counterfactual for treated units are the same as earnings in
-the pre-treatment period, so that
-\(\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]\).
-This allows us to take \(\overline{earns}_{75}^{1}\) as the sample
-analogue.
-
-However, the BA approach might not identity the average effect for the
-treated in the post-treatment year \(ATT_{78}\) because there could be
-unaccounted biases for the computed \(ATT_{78}\). In particular, if it
-is the case that
-\(\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]\),
-\(ATT_{78}\) would then be a biased estimator.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -447,10 +431,10 @@ constant in the regression we can successfully estimate
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{fit\_plm }\OtherTok{\textless{}{-}} \FunctionTok{plm}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ tdyear2, }
-               \AttributeTok{data =}\NormalTok{ long\_psid, }
-               \AttributeTok{index =} \FunctionTok{c}\NormalTok{(}\StringTok{"individual"}\NormalTok{, }\StringTok{"dyear2"}\NormalTok{), }
-               \AttributeTok{model =} \StringTok{"within"}\NormalTok{, }
-               \AttributeTok{effect =} \StringTok{"twoways"}\NormalTok{)}
+              \AttributeTok{data =}\NormalTok{ long\_psid, }
+              \AttributeTok{index =} \FunctionTok{c}\NormalTok{(}\StringTok{"individual"}\NormalTok{, }\StringTok{"dyear2"}\NormalTok{), }
+              \AttributeTok{model =} \StringTok{"within"}\NormalTok{, }
+              \AttributeTok{effect =} \StringTok{"twoways"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -489,7 +473,12 @@ We estimate \(\widehat{ATT}_{78}^{TWFE} = 2326.505\) as seen in Table
 
 We find that
 \(\widehat{ATT}_{78}^{FD} = \widehat{ATT}_{78}^{LSDV} = \widehat{ATT}_{78}^{TWFE} = \widehat{ATT}_{78}^{DD}\)
-in this case with all estimates equalling 2326.505.
+in this case with all estimates equalling 2326.505. This was initially
+surprising because these are different specifications, so we expected to
+have different estimation results However, we realized that the
+estimates all being equal could mean that there is no additional bias
+between the factual and the counterfactual for one specification
+compared to another.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -506,57 +495,53 @@ in this case with all estimates equalling 2326.505.
 \item
   (2 p) Verify that \(\widehat{ATT}_{78}^{DD}\) is numerically identical
   to 3 equivalent expressions:\label{item:DinD-diff} \begin{align}
-      \left( \overline{earn}_{78}^{1}-\overline{earn}_{78}^{0}\right) &-\left( \overline{earn}_{75}^{1}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv1} \\
-      \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
-      \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
-      \end{align}
+    \left( \overline{earn}_{78}^{1}-\overline{earn}_{78}^{0}\right) &-\left( \overline{earn}_{75}^{1}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv1} \\
+    \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
+    \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
+    \end{align}
 \end{enumerate}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{treatment }\OtherTok{\textless{}{-}}\NormalTok{ long\_psid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
-\NormalTok{control }\OtherTok{\textless{}{-}}\NormalTok{ long\_psid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
-
-\NormalTok{treat75 }\OtherTok{\textless{}{-}}\NormalTok{ treatment }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
-\NormalTok{treat78 }\OtherTok{\textless{}{-}}\NormalTok{ treatment }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
-
-\NormalTok{control75 }\OtherTok{\textless{}{-}}\NormalTok{ control }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
-\NormalTok{control78 }\OtherTok{\textless{}{-}}\NormalTok{ control }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{print}\NormalTok{((}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns)) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns)))}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
+```r
+treatment <- long_psid %>% filter(treat == 1)
+control <- long_psid %>% filter(treat == 0)
+
+treat75 <- treatment %>% filter(dyear2 == 0)
+treat78 <- treatment %>% filter(dyear2 == 1)
+
+control75 <- control %>% filter(dyear2 == 0)
+control78 <- control %>% filter(dyear2 == 1)
+```
+
+
+```r
+print((mean(treat78$earns) - mean(control78$earns)) - (mean(treat75$earns) - mean(control75$earns)))
+```
+
+```
 ## [1] 2326.505
-\end{verbatim}
+```
+  
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{print}\NormalTok{((}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns)) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns)))}
-\end{Highlighting}
-\end{Shaded}
+```r
+print((mean(treat78$earns) - mean(treat75$earns)) - (mean(control78$earns) - mean(control75$earns)))
+```
 
-\begin{verbatim}
+```
 ## [1] 2326.505
-\end{verbatim}
+```
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))))}
-\end{Highlighting}
-\end{Shaded}
 
-\begin{verbatim}
+```r
+print(mean(treat78$earns) - (mean(treat75$earns) + (mean(control78$earns) - mean(control75$earns))))
+```
+
+```
 ## [1] 2326.505
-\end{verbatim}
+```
 
-We verify that \(\widehat{ATT}_{78}^{DD}\) is numerically equivalent to
-all the above expressions.
+  We verify that $\widehat{ATT}_{78}^{DD}$ is numerically equivalent to all the above expressions. 
+\end{verbatim}
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
@@ -567,18 +552,17 @@ all the above expressions.
   \(\overline{earn}_{75}^{0}\).
 \end{enumerate}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
-## [1] 19063.34
-\end{verbatim}
+```r
+print(mean(control75$earns))
+```
 
-We verify that \(\hat{\alpha} = 19063.340\) as seen in Table
-\ref{item:lms5} in the Appendix.
+```
+## [1] 19063.34
+```
+
+We verify that $\hat{\alpha} = 19063.340$ as seen in Table \ref{item:lms5} in the Appendix. 
+\end{verbatim}
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
@@ -589,18 +573,17 @@ We verify that \(\hat{\alpha} = 19063.340\) as seen in Table
   \(\overline{earn}_{78}^{0}-\overline{earn}_{75}^{0}\).
 \end{enumerate}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
-## [1] 2490.585
-\end{verbatim}
+```r
+print(mean(control78$earns) - mean(control75$earns))
+```
 
-We verify that \(\hat{\delta} = 2490.585\) as seen in Table
-\ref{item:lms5} in the Appendix.
+```
+## [1] 2490.585
+```
+
+We verify that $\hat{\delta} = 2490.585$ as seen in Table \ref{item:lms5} in the Appendix.
+\end{verbatim}
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
@@ -611,18 +594,16 @@ We verify that \(\hat{\delta} = 2490.585\) as seen in Table
   \(\overline{earn}_{75}^{1}-\overline{earn}_{75}^{0}\).
 \end{enumerate}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
-## [1] -17531.28
-\end{verbatim}
+```r
+print(mean(treat75$earns) - mean(control75$earns))
+```
 
-We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
-\ref{item:lms5} in the Appendix.
+```
+## [1] -17531.28
+```
+We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
+\end{verbatim}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -634,6 +615,18 @@ We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
   identification of average treatment effects.
   \textcolor{gray}{\textbf{Hint}: Feel free to utilize what we did in class.}
 \end{enumerate}
+
+The DD approach may be regarded as an improvement over the TCC approach
+and the BA approach because, first of all, it inherently uses more data.
+The TCC approach only uses the data from one time period (for both the
+treatment and control group) while the BA approach only uses data from
+the treatment group (for all time periods). The DD approach, on the
+other hand, uses the data from both groups from all periods. It is an
+extension of the TCC and BA approaches and controls for both unobserved
+differences between treatment and control groups as well as changes over
+time that affect both groups. It does this by comparing the difference
+in outcomes before and after the treatment for the treatment group to
+the same difference for the control group.
 
 \newpage
 
@@ -648,8 +641,8 @@ We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
 \setcounter{enumi}{8}
 \item
   (2 p) Carefully read the article up to Section III, subsections A
-  through B included. You find it at \textbackslash{}
-  \texttt{Canvas/Files/Literature/CardKrueger\_MinimumWages\_AER1994.pdf}.
+  through B included. You find it at
+  \newline \texttt{Canvas/Files/Literature/CardKrueger\_MinimumWages\_AER1994.pdf}.
 \item
   (1 p) Load the data from \texttt{fast-food-data.csv}. Familiarize
   yourself with the columns in the dataframe by reading
@@ -658,10 +651,72 @@ We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
   \textcolor{ForestGreen}{repeated cross sectional (RCS) data}?
   \textcolor{gray}{\textbf{Hint:} We added a column named \texttt{store\_id} for convenience. The columns whose name ends with ``\texttt{2}'' are measured after the MW change. For example, \texttt{empft} is the number of full-time workers at a store before the MW change (wave 1 of the survey) and \texttt{empft2} is the number of full-time workers at a store after the MW change (wave 2 of the survey).}
   \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{utils::read.csv( )} to read the CSV file.}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ff\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"starter{-}files/fast{-}food{-}data.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{10}
+\tightlist
 \item
   (4 p) Reproduce the counts in the rectangle superimposed over Table
   \ref{fig:CK_Tab1}. What is the purpose of this Table?
   \textcolor{gray}{\textbf{Hint:} You want to read carefully the notes to the table and the codebook.}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{group\_summary }\OtherTok{=}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{group\_by}\NormalTok{(state) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{num\_stores =} \FunctionTok{n}\NormalTok{(),}
+    \AttributeTok{num\_closed =} \FunctionTok{sum}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{3}\NormalTok{),}
+    \AttributeTok{num\_renovation =} \FunctionTok{sum}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{2}\NormalTok{),}
+    \AttributeTok{num\_temp\_closed =} \FunctionTok{sum}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{4} \SpecialCharTok{|}\NormalTok{ status2 }\SpecialCharTok{==} \DecValTok{5}\NormalTok{),}
+    \AttributeTok{num\_refusals =} \FunctionTok{sum}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{),}
+    \AttributeTok{num\_interviewed =} \FunctionTok{sum}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{),}
+\NormalTok{  )}
+\NormalTok{transposed }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(group\_summary)[}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{),]}
+\FunctionTok{rownames}\NormalTok{(transposed) }\OtherTok{=} \FunctionTok{c}\NormalTok{(}\StringTok{"Number of Stores"}\NormalTok{,}
+                         \StringTok{"Number closed"}\NormalTok{,}
+                         \StringTok{"Number under renovation"}\NormalTok{,}
+                         \StringTok{"Number temporarily closed"}\NormalTok{,}
+                         \StringTok{"Number of refusals"}\NormalTok{,}
+                         \StringTok{"Number interviewed"}\NormalTok{)}
+
+\FunctionTok{kable}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(transposed, transposed[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ transposed[,}\DecValTok{2}\NormalTok{]),}
+    \AttributeTok{col.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"NJ"}\NormalTok{, }\StringTok{"PA"}\NormalTok{, }\StringTok{"All"}\NormalTok{),}
+    \AttributeTok{caption=}\StringTok{"Table 2 Replication"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}lrrr@{}}
+\caption{Table 2 Replication}\tabularnewline
+\toprule\noalign{}
+& NJ & PA & All \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+& NJ & PA & All \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Number of Stores & 79 & 331 & 410 \\
+Number closed & 1 & 5 & 6 \\
+Number under renovation & 0 & 2 & 2 \\
+Number temporarily closed & 0 & 2 & 2 \\
+Number of refusals & 0 & 1 & 1 \\
+Number interviewed & 78 & 321 & 399 \\
+\end{longtable}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{11}
 \item
   The outcome of interest is full-time equivalent (FTE) employment. At
   page 775 of the article the authors explain how FTE employment is
@@ -669,21 +724,84 @@ We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
 
   \begin{enumerate}
   \def\labelenumii{\alph{enumii}.}
+  \tightlist
   \item
     Add FTE employment for wave 1 and wave 2 as columns to your
     dataframe.
     \textcolor{gray}{\textbf{Programming guidance:} Columns \texttt{empft}, \texttt{nmgrs}, and \texttt{emppt} report employment by full-time (FT) workers, employment by managers (considered FT employees), and employment by part-time (PT) workers. In our script we named \texttt{fte}, and respectively \texttt{fte2}, wave 1's and wave 2's FTE employment columns. You have some NAs in \texttt{fte} and/or \texttt{fte2} because the underlying counts of FT workers, PT workers and managers may have NAs. To check that you have constructed \texttt{fte} and \texttt{fte2} correctly, use \texttt{mean( )} to calculate sample averages: to disregard NAs you specify an additional argument, e.g., \texttt{mean(df\$fte, na.rm=TRUE)} where \texttt{na.rm} stands for ``NAs removed".}
+  \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ff\_df }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{fte =}\NormalTok{ empft }\SpecialCharTok{+}\NormalTok{ nmgrs }\SpecialCharTok{+} \FloatTok{0.5} \SpecialCharTok{*}\NormalTok{ emppt,}
+                          \AttributeTok{fte2 =}\NormalTok{ empft2 }\SpecialCharTok{+}\NormalTok{ nmgrs2 }\SpecialCharTok{+} \FloatTok{0.5} \SpecialCharTok{*}\NormalTok{ emppt2)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
   \item
     (1 p) Check that you have constructed these two columns correctly by
     computing their sample averages and comparing what you obtain to the
     values reported in the rectangles superimposed to Table
     \ref{fig:CK_Tab2}, e.g., 20.4 FTE workers per store on average in
     NJ-wave 1 and 23.3 FTE workers per store on average in PA-wave 1.
+  \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{avgs }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{group\_by}\NormalTok{(state) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{fte\_avg =} \FunctionTok{mean}\NormalTok{(fte, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{fte2\_avg =} \FunctionTok{mean}\NormalTok{(fte2, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  )}
+\FunctionTok{kable}\NormalTok{(avgs, }\AttributeTok{col.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"State"}\NormalTok{, }\StringTok{"FTE Wave 1"}\NormalTok{, }\StringTok{"FTE Wave 2"}\NormalTok{), }\AttributeTok{caption=}\StringTok{"Table 3 Replication, NJ = 1, PA = 0"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+  \begin{longtable}[]{@{}rrr@{}}
+  \caption{Table 3 Replication, NJ = 1, PA = 0}\tabularnewline
+  \toprule\noalign{}
+  State & FTE Wave 1 & FTE Wave 2 \\
+  \midrule\noalign{}
+  \endfirsthead
+  \toprule\noalign{}
+  State & FTE Wave 1 & FTE Wave 2 \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  0 & 23.33117 & 21.16558 \\
+  1 & 20.43941 & 21.02743 \\
+  \end{longtable}
+
+  We confirm that the sample averages are as expected.
+
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{2}
+  \tightlist
   \item
     (1 p) What is the purpose of the two panels
     \texttt{1.\ Distribution\ of\ Stores\ Types\textquotesingle{}\textquotesingle{}\ and}2.
-    Means in Wave 1'\,'?
+    Means in Wave 1'\,'? These panels server as summaries of the
+    pre-treatment characteristics of the scores in the sample. In the
+    context of the study, we want samples to be relatively similar
+    before and after treatment as to avoid confounding the treatment
+    effect with differences in the distributions between the two states.
   \end{enumerate}
+
+  We see that in panel 1 that the distribution of various fast food
+  chains are similar across the two states - this is important because
+  if, for example, NJ had significantly more Wendy's than PA, and
+  Wendy's implemented some new policy, this policy would affect the New
+  Jersey sample much more than the PA sample.
+
+  Similarly, in panel 2 we see that the FTE employment is similar across
+  the two states - thus differences in FTE employment are not likely to
+  be confounded with the treatment.
 \item
   (6 p) Here you reproduce the statistics in the \underline{top}
   rectangle superimposed to Table
@@ -692,17 +810,86 @@ We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
+\tightlist
 \item
   (4 p) Reproduce the statistics in the top rectangle superimposed to
   Table \ref{fig:CK_Tab3}, i.e., rows 1 and 2, columns (i) through
   (iii); this includes sample averages, their SEs, differences in sample
   averages and their SEs.
   \textcolor{gray}{\textbf{Programming guidance:} Leverage \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/t.test}{\texttt{stats::t.test( )}} which test that the difference between the sample averages of a variable is zero across two groups. This function returns on object that has useful information for you to grab. Say you name the object \texttt{ttest}. Go to the command line and type \texttt{ttest} and append a dollar (\$) sign: you see all the information that you can grab. In particular, you can grab the group-specific sample averages and the standard error of the difference in sample averages. To compute the standard error of each sample average you want to remember that $Var(\bar{x})=Var(x_i)/n$ where $n$ is the number of observations used to compute the average and $se(\bar{x})=\sqrt{Var(\bar{x})}$. To reproduce exactly the numbers in the table, round your results to the 2nd digit using \texttt{round(, digits = 2)} from base R. }
+\end{enumerate}
+
+\begin{verbatim}
+```r
+PA_mean_before <- mean(filter(ff_df, state == 0)$fte, na.rm=TRUE)
+PA_se_before <- t.test(filter(ff_df, state == 0)$fte)$stderr
+
+NJ_mean_before <- mean(filter(ff_df, state == 1)$fte, na.rm=TRUE)
+NJ_se_before <- t.test(filter(ff_df, state == 1)$fte)$stderr
+
+delta_mean_before <- PA_mean_before - NJ_mean_before
+
+delta_se_before <- sqrt(PA_se_before^2 + NJ_se_before^2)
+
+PA_mean_after <- mean(filter(ff_df, state == 0)$fte2, na.rm=TRUE)
+PA_se_after <- t.test(filter(ff_df, state == 0)$fte2)$stderr
+
+NJ_mean_after <- mean(filter(ff_df, state == 1)$fte2, na.rm=TRUE)
+NJ_se_after <- t.test(filter(ff_df, state == 1)$fte2)$stderr
+
+delta_mean_after <- PA_mean_after - NJ_mean_after
+delta_se_after <- sqrt(PA_se_after^2 + NJ_se_after^2)
+
+table3 <- as.data.frame(matrix(c(PA_mean_before, PA_se_before,
+                                 PA_mean_after, PA_se_after,
+                                 NJ_mean_before, NJ_se_before,
+                                 NJ_mean_after, NJ_se_after,
+                                 delta_mean_before, delta_se_before,
+                                 delta_mean_after, delta_se_after),
+                         nrow = 4, ncol = 3))
+colnames(table3) = c("PA", "NJ", "Difference")
+rownames(table3) = c("FTE before", "(stderr before)", "FTE after", "(stderr after)")
+
+kable(table3, caption="Table 4 Replication")
+```
+
+
+
+Table: Table 4 Replication
+
+|                |         PA|         NJ| Difference|
+|:---------------|----------:|----------:|----------:|
+|FTE before      | 23.3311688| 20.4394081|  2.8917607|
+|(stderr before) |  1.3511489|  0.5082607|  1.4435831|
+|FTE after       | 21.1655844| 21.0274295|  0.1381549|
+|(stderr after)  |  0.9432212|  0.5203094|  1.0772131|
+matching the results shown in Table \ref{fig:CK_Tab3}
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
 \item
   (2 p) Which statistics does Table \ref{fig:CK_Tab3} row 3, columns (i)
   through (iii), report? Are any of them interpretable as estimates of
-  the impact of NJ's MW change? Explain.
+  the impact of NJ's MW change? Explain. For columns 1 through 3, row 3
+  shows the (1) difference in Pennsylvaniamean full time employment
+  before vs after the introduction of the NJ Minimum Wage Law, (2) the
+  difference in New Jersey mean full time employment before vs after the
+  introduction of the NJ Minimum Wage Law, and (3) the difference
+  between these two differences of means. The differences in differences
+  figure (i.e column 3) is the most interpretable as an estimate of the
+  impact of the NJ minimum wage law - column (1) estimates the
+  difference between the two time periods unaffected by the law, column
+  (2) estimates the impact of the law in conjunction with any time
+  period differences, thus column (3) therefore isolates the difference
+  that can be attributed to just the law.
 \end{enumerate}
+
+\begin{verbatim}
+However, from these figures alone we cannot neccessarily simply conclude column (3) as the true causal impact of the law - we must consider any possible confounders such as differences between geographic and demographic regions, differences between various fast food chains, etc. That is to say, in order to confidently interpret these figures as an estimator of any sort of causal impact, we must have confidence in our data and the context in which it was collected and the assumptions that we make.
+\end{verbatim}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -720,7 +907,13 @@ We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
   (1 p) Why do the authors refer to the stores used to produce the
   statistics in row 4 as the ``balanced sample?'\,' On what grounds is
   this sample preferable to the sample used to produce the impact
-  estimates reported in row 3?
+  estimates reported in row 3? The authors refer to the stores used to
+  produce the statistics in row 4 as the ``balanced sample'' because
+  these are the stores that were open in both waves of the survey - thus
+  they represent two-period balanced data. This sample is preferable to
+  the sample used to produce the impact estimates reported in row 3
+  because stores missing a wave 2 observation may have unobserved
+  confounders that could result in less accurate estimations.
 \item
   (4 p) Reproduce the statistics in the bottom rectangle superimposed to
   Table \ref{fig:CK_Tab3}, i.e., rows 4 and 5, columns (i) through
@@ -842,8 +1035,7 @@ We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
   Explain why this may be important.
 \end{enumerate}
 
-\hypertarget{appendix}{%
-\subsection{Appendix}\label{appendix}}
+\subsection{Appendix}\label{appendix}
 
 \begin{table}[!htbp] \centering 
   \caption{Linear Regression Implementation of Specification 2} 

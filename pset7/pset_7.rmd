@@ -15,7 +15,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/casual/pset7")
+knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -24,6 +24,7 @@ library(systemfit)
 library(knitr)
 library(readr)
 library(plm)
+library(miceadds)
 options(tinytex.install_packages = FALSE)
 ```
 
@@ -71,135 +72,139 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 1. (12 p) Use the specification in expression (2) to obtain the \textcolor{ForestGreen}{Before-After (BA) Estimator} of the treatment effect of the offer of training. Specifically:
   a. (4 p) Reshape the dataframe from \textcolor{ForestGreen}{wide format} to \textcolor{ForestGreen}{long format} so that for each sample individual there are 2 rows, one row for 1975 (pre-treatment) and one for 1978 (post-treatment). Verify that the reshaped dataframe has $5,350$ rows. \textcolor{gray}{\textbf{Programming Guidance:} The original dataframe is in wide format because each row pertains to one individual, and columns \texttt{re75} and \texttt{re78} store the individual's earnings in 1975 and 1978. The long (i.e., panel) format has 2 rows for each individual (one for 1975, one for 1978), and 1 column storing the earnings for the corresponding year. We named the earnings column \texttt{earns}. Also, we added two columns: a) \texttt{dyear2} for $D78_{t}$, i.e., takes value 1 when the year is 1978 and 0 otherwise; b) \texttt{tdyear2} is the product of \texttt{dyear2} and \texttt{treat} and corresponds to $D78_t \times D_i$. To reshape a dataframe to long, use \href{https://tidyr.tidyverse.org/reference/gather.html}{\texttt{tidyr::gather( )}}. Find a worked out example \href{https://uc-r.github.io/tidyr}{here}. Or use \texttt{data.table::melt()}.}\label{item:BAfter-reshape}
 
-      We reshape the data as follows:
-      ```{r}
-      load_data <- function(filename){
-        dt <- data.table::as.data.table(
-          readr::read_csv(filename,
-                          col_names = TRUE,
-                          col_types = readr::cols(
-                            treat = readr::col_integer(),
-                            age = readr::col_integer(),
-                            edu = readr::col_integer(),
-                            black = readr::col_integer(),
-                            hisp = readr::col_integer(),
-                            married = readr::col_integer(),
-                            re74 = readr::col_double(),
-                            re75 = readr::col_double(),
-                            re78 = readr::col_double(),
-                            u74 = readr::col_integer(),
-                            u75 = readr::col_integer(),
-                            nodegree = readr::col_integer()
-                          ))
-        )
-        return(dt)
-      }
-      ```
-      ```{r}
-      filename_psid = "starter-files/nswpsid.csv"
+We reshape the data as follows:
+```{r}
+load_data <- function(filename){
+  dt <- data.table::as.data.table(
+    readr::read_csv(filename,
+                    col_names = TRUE,
+                    col_types = readr::cols(
+                      treat = readr::col_integer(),
+                      age = readr::col_integer(),
+                      edu = readr::col_integer(),
+                      black = readr::col_integer(),
+                      hisp = readr::col_integer(),
+                      married = readr::col_integer(),
+                      re74 = readr::col_double(),
+                      re75 = readr::col_double(),
+                      re78 = readr::col_double(),
+                      u74 = readr::col_integer(),
+                      u75 = readr::col_integer(),
+                      nodegree = readr::col_integer()
+                    ))
+  )
+  return(dt)
+}
+```
+```{r}
+filename_psid = "starter-files/nswpsid.csv"
 
-      dt_psid <- load_data(filename = filename_psid)
-      dt_psid$individual = 1:nrow(dt_psid)
-      ```
-      ```{r}
-      long_psid <- dt_psid %>% gather(dyear2, earns, re75:re78) 
-      long_psid$dyear2 <- ifelse(long_psid$dyear2 == 're75', 0, 1)
-      long_psid$tdyear2 <- long_psid$dyear2 * long_psid$treat
-      ```
+dt_psid <- load_data(filename = filename_psid)
+dt_psid$individual = 1:nrow(dt_psid)
+```
+```{r}
+long_psid <- dt_psid %>% gather(dyear2, earns, re75:re78) 
+long_psid$dyear2 <- ifelse(long_psid$dyear2 == 're75', 0, 1)
+long_psid$tdyear2 <- long_psid$dyear2 * long_psid$treat
+```
 
-      ```{r}
-      nrow(long_psid)
-      ```
-      We confirm that the reshaped dataframe has 5350 rows.
+```{r}
+nrow(long_psid)
+```
+We confirm that the reshaped dataframe has 5350 rows.
 
 
-  b. (1 p) Take the reshaped dataframe created in \textbf{\ref{item:BAfter-reshape}}; keep only the rows pertaining to the treated individuals, and check that the resulting dataframe has $370$ rows because $370=185 \text{ treated individuals } \times 2 \text{ years for each individual}$.\label{item:BAfter-filter}    
-      ```{r}
-      treatment <- long_psid %>% filter(treat == 1)
-      nrow(treatment)
-      ```
-      We confirm that after filtering on treatment, the resulting dataframe has 370 rows. 
+  b. (1 p) Take the reshaped dataframe created in \textbf{\ref{item:BAfter-reshape}}; keep only the rows pertaining to the treated individuals, and check that the resulting dataframe has $370$ rows because $370=185 \text{ treated individuals } \times 2 \text{ years for each individual}$.\label{item:BAfter-filter}
+  
+```{r}
+treatment <- long_psid %>% filter(treat == 1)
+nrow(treatment)
+```
+We confirm that after filtering on treatment, the resulting dataframe has 370 rows. 
 
   c. (2 p) Use the dataframe created in \textbf{\ref{item:BAfter-filter}} and \texttt{stats::lm( )} to estimate $\rho$ in the specification of expression (\ref{BAfter}).\label{item:BAfter-rho}
-      ```{r}
-      formula <- as.formula(earns ~ dyear2)
-      ols <- lm(formula, data = treatment)
-      ```
-      We estimate $\rho$ to be 4,817.090 as witnessed in Table \ref{item:lms2} in the Appendix.
-      \newpage 
+
+```{r}
+formula <- as.formula(earns ~ dyear2)
+ols <- lm(formula, data = treatment)
+```
+We estimate $\rho$ to be 4,817.090 as witnessed in Table \ref{item:lms2} in the Appendix.
+\newpage 
 
   d. (1 p) Verify that $\hat{\rho}$ obtained in \textbf{\ref{item:BAfter-rho}} is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$, that is, it equals the difference between average post-treatment and average pre-treatment earnings using only the 185 individuals in the treatment sample.\label{item:BAfter-diff} 
-      ```{r}
-      pretreat75 <- treatment %>% filter(dyear2 == 0)
-      posttreat78 <- treatment %>% filter(dyear2 == 1)
+  
+```{r}
+pretreat75 <- treatment %>% filter(dyear2 == 0)
+posttreat78 <- treatment %>% filter(dyear2 == 1)
 
-      print(mean(posttreat78$earns) - mean(pretreat75$earns))
-      ```
-      We verify that $\hat{\rho}$ is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$.
+print(mean(posttreat78$earns) - mean(pretreat75$earns))
+```
+We verify that $\hat{\rho}$ is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$.
 
   e. (4 p) Explain why the BA approach may or may not identify the average effect for the treated in the post-treatment year, i.e., ${ATT}_{78}$. \textcolor{gray}{\textbf{Hint}: Use the result in \textbf{\ref{item:BAfter-diff}} to think about what this approach uses to identify the mean of potential outcomes w/ and w/out treatment and for different (sub)population. Feel free to utilize what we did in class.}
 
-      Whilst we have the realized outcome of post-period earnings on the treated units allowing us to find $\overline{earn}_{78}^{1}$ as the sample analogue for $\mathbb{E}[y_{1i78} \mid E_i = 1]$ (where $E_i$ is $D_{i75} = 0, D_{i78} = 1$), we are unable to learn the potential outcomes of post-period earnings in the case that those same units had not been treated (i.e. we are unable to find a sample analogue for $\mathbb{E}[y_{0i78} \mid E_i = 1]$).   
+Whilst we have the realized outcome of post-period earnings on the treated units allowing us to find $\overline{earn}_{78}^{1}$ as the sample analogue for $\mathbb{E}[y_{1i78} \mid E_i = 1]$ (where $E_i$ is $D_{i75} = 0, D_{i78} = 1$), we are unable to learn the potential outcomes of post-period earnings in the case that those same units had not been treated (i.e. we are unable to find a sample analogue for $\mathbb{E}[y_{0i78} \mid E_i = 1]$).   
 
-      In order to produce an estimate for ${ATT}_{78}$ we choose to assume that the counterfactual for treated units are the same as earnings in the pre-treatment period, so that $\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]$. This allows us to take $\overline{earns}_{75}^{1}$ as the sample analogue.   
+In order to produce an estimate for ${ATT}_{78}$ we choose to assume that the counterfactual for treated units are the same as earnings in the pre-treatment period, so that $\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]$. This allows us to take $\overline{earns}_{75}^{1}$ as the sample analogue.   
 
-      However, the BA approach might not identity the average effect for the treated in the post-treatment year $ATT_{78}$ because there could be unaccounted biases for the computed $ATT_{78}$. In particular, if it is the case that $\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]$, $ATT_{78}$ would then be a biased estimator. 
+However, the BA approach might not identity the average effect for the treated in the post-treatment year $ATT_{78}$ because there could be unaccounted biases for the computed $ATT_{78}$. In particular, if it is the case that $\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]$, $ATT_{78}$ would then be a biased estimator. 
 
 2. (3 p) Estimate the specification in expression (\ref{FD}) using OLS. Denote the resulting estimate of the impact by $\widehat{ATT}_{78}^{FD}$. \textcolor{gray}{\textbf{Programming Guidance:} It is most convenient to use the wide format dataframe for this task. Use \texttt{lm()}.}\label{item:fd}
-    ```{r}
-    dt_psid$earns_diff = dt_psid$re78 - dt_psid$re75
 
-    formula = as.formula(earns_diff ~ treat)
-    ols <- lm(formula, data = dt_psid)
-    ```
+```{r}
+dt_psid$earns_diff = dt_psid$re78 - dt_psid$re75
 
-    We estimate $\widehat{ATT}_{78}^{FD} = 2326.505$ as seen in Table \ref{item:lms3} in the Appendix. 
+formula = as.formula(earns_diff ~ treat)
+ols <- lm(formula, data = dt_psid)
+```
+
+We estimate $\widehat{ATT}_{78}^{FD} = 2326.505$ as seen in Table \ref{item:lms3} in the Appendix. 
 
 3. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{LSDV}$. LSDV treats the individual effects $\mu_i$ and the year effects $\delta_t$ as parameters to be estimated. \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
 
-    ```{r}
-    long_psid$dit = long_psid$treat * long_psid$dyear2
-    ```
+```{r}
+long_psid$dit = long_psid$treat * long_psid$dyear2
+```
 
-    ```{r}
-    formula = as.formula(earns ~ tdyear2 + factor(individual) + factor(dyear2) - 1)
-    ols <- lm(formula, data = long_psid)
-    ```
+```{r}
+formula = as.formula(earns ~ tdyear2 + factor(individual) + factor(dyear2) - 1)
+ols <- lm(formula, data = long_psid)
+```
 
-    ```{r}
-    ols$coefficients['tdyear2']
-    ```
+```{r}
+ols$coefficients['tdyear2']
+```
 
-    ```{r}
-    formula2 = as.formula(earns ~ tdyear2 + factor(individual) + factor(dyear2))
-    ols2 <- lm(formula2, data = long_psid)
-    ```
+```{r}
+formula2 = as.formula(earns ~ tdyear2 + factor(individual) + factor(dyear2))
+ols2 <- lm(formula2, data = long_psid)
+```
 
-    ```{r}
-    ols2$coefficients['tdyear2']
-    ```
+```{r}
+ols2$coefficients['tdyear2']
+```
 
-    In our linear regression we confirm that both with and without a constant in the regression we can successfully estimate $\widehat{ATT}_{78}^{LSDV} = 2326.505$.
+In our linear regression we confirm that both with and without a constant in the regression we can successfully estimate $\widehat{ATT}_{78}^{LSDV} = 2326.505$.
 
 4. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Two-way Fixed Effect Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{TWFE}$. \textcolor{Gray}{\textbf{Programming Guidance:} Use \href{https://www.rdocumentation.org/packages/plm/versions/2.6-3/topics/plm}{\texttt{plm()}}.}\label{item:twfe}
-    ```{r}
-    fit_plm <- plm(earns ~ tdyear2, 
-                  data = long_psid, 
-                  index = c("individual", "dyear2"), 
-                  model = "within", 
-                  effect = "twoways")
-    ```
+```{r}
+fit_plm <- plm(earns ~ tdyear2, 
+              data = long_psid, 
+              index = c("individual", "dyear2"), 
+              model = "within", 
+              effect = "twoways")
+```
 
-  We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:plms4} in the Appendix. 
+We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:plms4} in the Appendix. 
 
 5. (6 p) Estimate the specification in expression (\ref{DinD}) using OLS. Denote the estimate of the impact by $\widehat{ATT}_{78}^{DD}$.\label{item:dd} 
 
-  ```{r}
-  formula = as.formula(earns ~ dyear2 + treat + tdyear2)
-  ols <- lm(formula, data = long_psid)
-  ```
+```{r}
+formula = as.formula(earns ~ dyear2 + treat + tdyear2)
+ols <- lm(formula, data = long_psid)
+```
 
-  We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:lms5} in the Appendix. 
+We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:lms5} in the Appendix. 
 
 6. (6 p ) Compare $\widehat{ATT}_{78}^{FD}$, $\widehat{ATT}_{78}^{LSDV}$ $\widehat{ATT}_{78}^{TWFE}$, $\widehat{ATT}_{78}^{DD}$. Surprised?
 
@@ -217,55 +222,54 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
   \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
   \end{align}
     
-    ```{r}
-    treatment <- long_psid %>% filter(treat == 1)
-    control <- long_psid %>% filter(treat == 0)
+```{r}
+treatment <- long_psid %>% filter(treat == 1)
+control <- long_psid %>% filter(treat == 0)
 
-    treat75 <- treatment %>% filter(dyear2 == 0)
-    treat78 <- treatment %>% filter(dyear2 == 1)
+treat75 <- treatment %>% filter(dyear2 == 0)
+treat78 <- treatment %>% filter(dyear2 == 1)
 
-    control75 <- control %>% filter(dyear2 == 0)
-    control78 <- control %>% filter(dyear2 == 1)
-    ```
+control75 <- control %>% filter(dyear2 == 0)
+control78 <- control %>% filter(dyear2 == 1)
+```
 
-    ```{r}
-    print((mean(treat78$earns) - mean(control78$earns)) - (mean(treat75$earns) - mean(control75$earns)))
-    ```
-      
-    ```{r}
-    print((mean(treat78$earns) - mean(treat75$earns)) - (mean(control78$earns) - mean(control75$earns)))
-    ```
+```{r}
+print((mean(treat78$earns) - mean(control78$earns)) - (mean(treat75$earns) - mean(control75$earns)))
+```
 
-    ```{r}
-    print(mean(treat78$earns) - (mean(treat75$earns) + (mean(control78$earns) - mean(control75$earns))))
-    ```
+```{r}
+print((mean(treat78$earns) - mean(treat75$earns)) - (mean(control78$earns) - mean(control75$earns)))
+```
 
-      We verify that $\widehat{ATT}_{78}^{DD}$ is numerically equivalent to all the above expressions. 
+```{r}
+print(mean(treat78$earns) - (mean(treat75$earns) + (mean(control78$earns) - mean(control75$earns))))
+```
+
+We verify that $\widehat{ATT}_{78}^{DD}$ is numerically equivalent to all the above expressions. 
 
   b. (1 p) Verify that $\hat{\alpha}$ is numerically identical to $\overline{earn}_{75}^{0}$.
-    ```{r}
-    print(mean(control75$earns))
-    ```
+```{r}
+print(mean(control75$earns))
+```
 
-    We verify that $\hat{\alpha} = 19063.340$ as seen in Table \ref{item:lms5} in the Appendix. 
-  
+We verify that $\hat{\alpha} = 19063.340$ as seen in Table \ref{item:lms5} in the Appendix. 
+
   c. (1 p) Verify that $\hat{\delta}$ is numerically identical to $\overline{earn}_{78}^{0}-\overline{earn}_{75}^{0}$.
-    ```{r}
-    print(mean(control78$earns) - mean(control75$earns))
-    ```
-  
-    We verify that $\hat{\delta} = 2490.585$ as seen in Table \ref{item:lms5} in the Appendix.
+```{r}
+print(mean(control78$earns) - mean(control75$earns))
+```
+
+We verify that $\hat{\delta} = 2490.585$ as seen in Table \ref{item:lms5} in the Appendix.
 
   d. (1 p) Verify that $\hat{\gamma}$ is numerically identical to $\overline{earn}_{75}^{1}-\overline{earn}_{75}^{0}$.
-    ```{r}
-    print(mean(treat75$earns) - mean(control75$earns))
-    ```
-    We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
+```{r}
+print(mean(treat75$earns) - mean(control75$earns))
+```
+We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
 
 8. (6 p) Explain why the DD approach may be regarded as an improvement over the TCC approach and the BA approach when it comes to credible identification of average treatment effects. \textcolor{gray}{\textbf{Hint}: Feel free to utilize what we did in class.}
 
   The DD approach may be regarded as an improvement over the TCC approach and the BA approach because, first of all, it inherently uses more data. The TCC approach only uses the data from one time period (for both the treatment and control group) while the BA approach only uses data from the treatment group (for all time periods). The DD approach, on the other hand, uses the data from both groups from all periods. It is an extension of the TCC and BA approaches and controls for both unobserved differences between treatment and control groups as well as changes over time that affect both groups. It does this by comparing the difference in outcomes before and after the treatment for the treatment group to the same difference for the control group.
-
 
 \newpage
 
@@ -279,106 +283,112 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
     \newline \texttt{Canvas/Files/Literature/CardKrueger\_MinimumWages\_AER1994.pdf}.
 
 10. (1 p) Load the data from \texttt{fast-food-data.csv}. Familiarize yourself with the columns in the dataframe by reading \texttt{fast-food-codebook.txt}. Do the authors have access to \textcolor{ForestGreen}{panel data (PD)} or \textcolor{ForestGreen}{repeated cross sectional (RCS) data}? \textcolor{gray}{\textbf{Hint:} We added a column named \texttt{store\_id} for convenience. The columns whose name ends with ``\texttt{2}'' are measured after the MW change. For example, \texttt{empft} is the number of full-time workers at a store before the MW change (wave 1 of the survey) and \texttt{empft2} is the number of full-time workers at a store after the MW change (wave 2 of the survey).} \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{utils::read.csv( )} to read the CSV file.}
-  ```{r}
-  ff_df <- read.csv("starter-files/fast-food-data.csv")
-  ```
+
+```{r}
+ff_df <- read.csv("starter-files/fast-food-data.csv")
+```
 
 11. (4 p) Reproduce the counts in the rectangle superimposed over Table \ref{fig:CK_Tab1}. What is the purpose of this Table? \textcolor{gray}{\textbf{Hint:} You want to read carefully the notes to the table and the codebook.}
-  ```{r}
-  group_summary = ff_df %>% group_by(state) %>%
-    dplyr::summarize(
-      num_stores = n(),
-      num_closed = sum(status2 == 3),
-      num_renovation = sum(status2 == 2),
-      num_temp_closed = sum(status2 == 4 | status2 == 5),
-      num_refusals = sum(status2 == 0),
-      num_interviewed = sum(status2 == 1),
-    )
-  transposed <- t(group_summary)[-c(1),]
-  rownames(transposed) = c("Number of Stores",
-                           "Number closed",
-                           "Number under renovation",
-                           "Number temporarily closed",
-                           "Number of refusals",
-                           "Number interviewed")
+```{r}
+group_summary = ff_df %>% group_by(state) %>%
+  dplyr::summarize(
+    num_stores = n(),
+    num_closed = sum(status2 == 3),
+    num_renovation = sum(status2 == 2),
+    num_temp_closed = sum(status2 == 4 | status2 == 5),
+    num_refusals = sum(status2 == 0),
+    num_interviewed = sum(status2 == 1),
+  )
+transposed <- t(group_summary)[-c(1),]
+rownames(transposed) = c("Number of Stores",
+                         "Number closed",
+                         "Number under renovation",
+                         "Number temporarily closed",
+                         "Number of refusals",
+                         "Number interviewed")
 
-  kable(cbind(transposed, transposed[,1] + transposed[,2]),
-      col.names = c("NJ", "PA", "All"),
-      caption="Table 2 Replication")
-  ```
+kable(cbind(transposed, transposed[,1] + transposed[,2]),
+    col.names = c("NJ", "PA", "All"),
+    caption="Table 2 Replication")
+```
+
 12. The outcome of interest is full-time equivalent (FTE) employment. At page 775 of the article the authors explain how FTE employment is constructed. 
     a. Add FTE employment for wave 1 and wave 2 as columns to your dataframe. \textcolor{gray}{\textbf{Programming guidance:} Columns \texttt{empft}, \texttt{nmgrs}, and \texttt{emppt} report employment by full-time (FT) workers, employment by managers (considered FT employees), and employment by part-time (PT) workers. In our script we named \texttt{fte}, and respectively \texttt{fte2}, wave 1's and wave 2's FTE employment columns. You have some NAs in \texttt{fte} and/or \texttt{fte2} because the underlying counts of FT workers, PT workers and managers may have NAs. To check that you have constructed \texttt{fte} and \texttt{fte2} correctly, use \texttt{mean( )} to calculate sample averages: to disregard NAs you specify an additional argument, e.g., \texttt{mean(df\$fte, na.rm=TRUE)} where \texttt{na.rm} stands for ``NAs removed".} 
       
-      ```{r}
-      ff_df <- ff_df %>% mutate(fte = empft + nmgrs + 0.5 * emppt,
-                                fte2 = empft2 + nmgrs2 + 0.5 * emppt2)
-      ```
+```{r}
+ff_df <- ff_df %>% mutate(fte = empft + nmgrs + 0.5 * emppt,
+                          fte2 = empft2 + nmgrs2 + 0.5 * emppt2)
+```
 
     b. (1 p) Check that you have constructed these two columns correctly by computing their sample averages and comparing what you obtain to the values reported in the rectangles superimposed to Table \ref{fig:CK_Tab2}, e.g., 20.4 FTE workers per store on average in NJ-wave 1 and 23.3 FTE workers per store on average in PA-wave 1. 
 
-      ```{r}
-      avgs <- ff_df %>% group_by(state) %>%
-        dplyr::summarize(
-          fte_avg = mean(fte, na.rm = TRUE),
-          fte2_avg = mean(fte2, na.rm = TRUE)
-        )
-      kable(avgs, col.names = c("State", "FTE Wave 1", "FTE Wave 2"), caption="Table 3 Replication, NJ = 1, PA = 0")
-      ```
-      We confirm that the sample averages are as expected.
+```{r}
+avgs <- ff_df %>% group_by(state) %>%
+  dplyr::summarize(
+    fte_avg = mean(fte, na.rm = TRUE),
+    fte2_avg = mean(fte2, na.rm = TRUE)
+  )
+kable(avgs, col.names = c("State", "FTE Wave 1", "FTE Wave 2"), caption="Table 3 Replication, NJ = 1, PA = 0")
+```
+We confirm that the sample averages are as expected.
 
-    c. (1 p) What is the purpose of the two panels ``1. Distribution of Stores Types'' and ``2. Means in Wave 1''? 
-      These panels server as summaries of the pre-treatment characteristics of the scores in the sample. In the context of the study, we want samples to be relatively similar before and after treatment as to avoid confounding the treatment effect with differences in the distributions between the two states. 
-      
-      We see that in panel 1 that the distribution of various fast food chains are similar across the two states - this is important because if, for example, NJ had significantly more Wendy's than PA, and Wendy's implemented some new policy, this policy would affect the New Jersey sample much more than the PA sample.
+    c. (1 p) What is the purpose of the two panels ``1. Distribution of Stores Types'' and ``2. Means in Wave 1''?
+    
+These panels server as summaries of the pre-treatment characteristics of the scores in the sample. In the context of the study, we want samples to be relatively similar before and after treatment as to avoid confounding the treatment effect with differences in the distributions between the two states. 
 
-      Similarly, in panel 2 we see that the FTE employment is similar across the two states - thus differences in FTE employment are not likely to be confounded with the treatment.
+We see that in panel 1 that the distribution of various fast food chains are similar across the two states - this is important because if, for example, NJ had significantly more Wendy's than PA, and Wendy's implemented some new policy, this policy would affect the New Jersey sample much more than the PA sample.
+
+Similarly, in panel 2 we see that the FTE employment is similar across the two states - thus differences in FTE employment are not likely to be confounded with the treatment.
 
 
 13. (6 p) Here you reproduce the statistics in the \underline{top} rectangle superimposed to Table \ref{fig:CK_Tab3}.\label{item:table3-rows-1-2}
   a. (4 p) Reproduce the statistics in the top rectangle superimposed to Table \ref{fig:CK_Tab3},  i.e., rows 1 and 2, columns (i) through (iii); this includes sample averages, their SEs, differences in sample averages and their SEs. \textcolor{gray}{\textbf{Programming guidance:} Leverage \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/t.test}{\texttt{stats::t.test( )}} which test that the difference between the sample averages of a variable is zero across two groups. This function returns on object that has useful information for you to grab. Say you name the object \texttt{ttest}. Go to the command line and type \texttt{ttest} and append a dollar (\$) sign: you see all the information that you can grab. In particular, you can grab the group-specific sample averages and the standard error of the difference in sample averages. To compute the standard error of each sample average you want to remember that $Var(\bar{x})=Var(x_i)/n$ where $n$ is the number of observations used to compute the average and $se(\bar{x})=\sqrt{Var(\bar{x})}$. To reproduce exactly the numbers in the table, round your results to the 2nd digit using \texttt{round(, digits = 2)} from base R. }
-    ```{r}
-    PA_mean_before <- mean(filter(ff_df, state == 0)$fte, na.rm=TRUE)
-    PA_se_before <- t.test(filter(ff_df, state == 0)$fte)$stderr
 
-    NJ_mean_before <- mean(filter(ff_df, state == 1)$fte, na.rm=TRUE)
-    NJ_se_before <- t.test(filter(ff_df, state == 1)$fte)$stderr
+```{r}
+PA_mean_before <- mean(filter(ff_df, state == 0)$fte, na.rm=TRUE)
+PA_se_before <- t.test(filter(ff_df, state == 0)$fte)$stderr
 
-    delta_mean_before <- PA_mean_before - NJ_mean_before
+NJ_mean_before <- mean(filter(ff_df, state == 1)$fte, na.rm=TRUE)
+NJ_se_before <- t.test(filter(ff_df, state == 1)$fte)$stderr
 
-    delta_se_before <- sqrt(PA_se_before^2 + NJ_se_before^2)
+delta_mean_before <- PA_mean_before - NJ_mean_before
 
-    PA_mean_after <- mean(filter(ff_df, state == 0)$fte2, na.rm=TRUE)
-    PA_se_after <- t.test(filter(ff_df, state == 0)$fte2)$stderr
+delta_se_before <- sqrt(PA_se_before^2 + NJ_se_before^2)
 
-    NJ_mean_after <- mean(filter(ff_df, state == 1)$fte2, na.rm=TRUE)
-    NJ_se_after <- t.test(filter(ff_df, state == 1)$fte2)$stderr
+PA_mean_after <- mean(filter(ff_df, state == 0)$fte2, na.rm=TRUE)
+PA_se_after <- t.test(filter(ff_df, state == 0)$fte2)$stderr
+
+NJ_mean_after <- mean(filter(ff_df, state == 1)$fte2, na.rm=TRUE)
+NJ_se_after <- t.test(filter(ff_df, state == 1)$fte2)$stderr
+
+delta_mean_after <- PA_mean_after - NJ_mean_after
+delta_se_after <- sqrt(PA_se_after^2 + NJ_se_after^2)
+
+table3 <- as.data.frame(matrix(c(PA_mean_before, PA_se_before,
+                                 PA_mean_after, PA_se_after,
+                                 NJ_mean_before, NJ_se_before,
+                                 NJ_mean_after, NJ_se_after,
+                                 delta_mean_before, delta_se_before,
+                                 delta_mean_after, delta_se_after),
+                         nrow = 4, ncol = 3))
+colnames(table3) = c("PA", "NJ", "Difference")
+rownames(table3) = c("FTE before", "(stderr before)", "FTE after", "(stderr after)")
+
+kable(table3, caption="Table 4 Replication")
+```
+matching the results shown in Table \ref{fig:CK_Tab3}
     
-    delta_mean_after <- PA_mean_after - NJ_mean_after
-    delta_se_after <- sqrt(PA_se_after^2 + NJ_se_after^2)
-
-    table3 <- as.data.frame(matrix(c(PA_mean_before, PA_se_before,
-                                     PA_mean_after, PA_se_after,
-                                     NJ_mean_before, NJ_se_before,
-                                     NJ_mean_after, NJ_se_after,
-                                     delta_mean_before, delta_se_before,
-                                     delta_mean_after, delta_se_after),
-                             nrow = 4, ncol = 3))
-    colnames(table3) = c("PA", "NJ", "Difference")
-    rownames(table3) = c("FTE before", "(stderr before)", "FTE after", "(stderr after)")
-
-    kable(table3, caption="Table 4 Replication")
-    ```
-    matching the results shown in Table \ref{fig:CK_Tab3}
   b. (2 p) Which statistics does Table \ref{fig:CK_Tab3} row 3, columns (i) through (iii), report? Are any of them interpretable as estimates of the impact of NJ's MW change? Explain.
-    For columns 1 through 3, row 3 shows the (1) difference in Pennsylvaniamean full time employment before vs after the introduction of the NJ Minimum Wage Law, (2) the difference in New Jersey mean full time employment before vs after the introduction of the NJ Minimum Wage Law, and (3) the difference between these two differences of means. The differences in differences figure (i.e column 3) is the most interpretable as an estimate of the impact of the NJ minimum wage law - column (1) estimates the difference between the two time periods unaffected by the law, column (2) estimates the impact of the law in conjunction with any time period differences, thus column (3) therefore isolates the difference that can be attributed to just the law.
+  
+For columns 1 through 3, row 3 shows the (1) difference in Pennsylvania mean full time employment before vs after the introduction of the NJ Minimum Wage Law, (2) the difference in New Jersey mean full time employment before vs after the introduction of the NJ Minimum Wage Law, and (3) the difference between these two differences of means. The differences in differences figure (i.e column 3) is the most interpretable as an estimate of the impact of the NJ minimum wage law - column (1) estimates the difference between the two time periods unaffected by the law, column (2) estimates the impact of the law in conjunction with any time period differences, thus column (3) therefore isolates the difference that can be attributed to just the law.
 
-    However, from these figures alone we cannot neccessarily simply conclude column (3) as the true causal impact of the law - we must consider any possible confounders such as differences between geographic and demographic regions, differences between various fast food chains, etc. That is to say, in order to confidently interpret these figures as an estimator of any sort of causal impact, we must have confidence in our data and the context in which it was collected and the assumptions that we make.
-
+However, from these figures alone we cannot neccessarily simply conclude column (3) as the true causal impact of the law - we must consider any possible confounders such as differences between geographic and demographic regions, differences between various fast food chains, etc. That is to say, in order to confidently interpret these figures as an estimator of any sort of causal impact, we must have confidence in our data and the context in which it was collected and the assumptions that we make.
 
 14. (10 p) Here you reproduce the statistics in the \underline{bottom} rectangle superimposed to Table \ref{fig:CK_Tab3}.\label{item:table3-rows-4-5} 
 
   a. (1 p) Why do the authors refer to the stores used to produce the statistics in row 4 as the ``balanced sample?'' On what grounds is this sample preferable to the sample used to produce the impact estimates reported in row 3?
-    The authors refer to the stores used to produce the statistics in row 4 as the "balanced sample" because these are the stores that were open in both waves of the survey - thus they represent two-period balanced data. This sample is preferable to the sample used to produce the impact estimates reported in row 3 because stores missing a wave 2 observation may have unobserved confounders that could result in less accurate estimations.
+
+The authors refer to the stores used to produce the statistics in row 4 as the "balanced sample" because these are the stores that were open in both waves of the survey - thus they represent two-period balanced data. This sample is preferable to the sample used to produce the impact estimates reported in row 3 because stores missing a wave 2 observation may have unobserved confounders that could result in less accurate estimations.
 
   b. (4 p) Reproduce the statistics in the bottom rectangle superimposed to Table \ref{fig:CK_Tab3}, i.e., rows 4 and 5, columns (i) through (iii); this includes sample averages, their SEs, differences in sample averages and their SEs. \textcolor{gray}{\textbf{Programming guidance:} Add a column equal to the difference between \texttt{fte2} and \texttt{fte} to your dataframe, we named it \texttt{diff\_fte}. The reason is that rows 4 and 5, columns (i) through (ii), report averages of \texttt{diff\_fte} for NJ and PA respectively. We suggest that you add a column that tags all the stores that were temporarily closed in wave 2 (read the text of the article and the codebook to understand how to use the existing columns to create this new column). In our script we named it \texttt{temp\_closed\_2nd\_wave} so that whenever we want to do anything (e.g., exclude from the analysis) to stores that were temporarily closed in wave 2 we can simply use the filter \texttt{temp\_closed\_2nd\_wave==1}. When reproducing the statistics in row 5, read the Table's notes ``d'' very carefully. To reproduce exactly the numbers in the table, round your results to the 2nd digit.}
 
@@ -390,11 +400,48 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 
 15. (2 p) Instead of computing averages and differences in averages etc., as done in \textbf{\ref{item:table3-rows-1-2}} and \textbf{\ref{item:table3-rows-4-5}}, you can estimate the parameters of linear regression models. As an interim step, reshape your original dataframe from wide to long so that each store has two rows: one for wave 1 and one for wave 2. \textcolor{gray}{\textbf{Programming guidance:} In our script we named the new column \texttt{wave} with value 0 for 1st wave and 1 for 2nd wave and we named the long-format dataframe \texttt{df\_long}.}\label{item:CK_longformat}
 
+```{r}
+df_long <- ff_df %>% gather(wave, fte, fte:fte2)
+df_long$wave <- ifelse(df_long$wave == 'fte', 0, 1)
+```
+
+
 16. (5 p) Use the long-format data from \textbf{\ref{item:CK_longformat}} and estimate the following linear regression model specification using all the stores that have employment information in both waves: 
 \begin{equation}\label{eq:CK_DD}
 \texttt{fte}_{i,t}=\alpha + \delta \times \texttt{wave}_t + \gamma \times \texttt{state}_i + \rho \times \texttt{state}_i\times\texttt{wave}_{t}+u_{i,t},
 \end{equation}
 \noindent where $i$ is a store and $t$ is 1st or 2nd wave. Verify that the regression coefficients $(\hat{\delta}, \hat{\rho})$ and their standard errors are identical to the statistics reported in Table \ref{fig:CK_Tab3} row 4 columns (i) and (iii). Are you surprised? \textcolor{gray}{\textbf{Programming guidance:} You could use \texttt{stats:lm( )} but we ask you to cluster standard errors by store and to do so you use \texttt{miceadds::lm.cluster( )} which allows you to specify \texttt{cluster=``store\_id''}.}
+
+```{r}
+#first drop stores that have missing employment in one of the two waves
+
+df_long <- ff_df %>% filter(fte != 'rm') %>% filter(fte2 != 'rm') %>% gather(wave, fte, fte:fte2)
+df_long$wave <- ifelse(df_long$wave == 'fte', 0, 1)
+df_long$st_wave <- df_long$wave * df_long$state
+```
+
+```{r}
+formula = as.formula(fte ~ wave + state + st_wave)
+ols <- miceadds::lm.cluster(formula, data = df_long, cluster = "store_id")
+```
+
+We verify that $(\hat{\delta}, \hat{\rho})$ and the standard errors are identical.
+
+\begin{table}[!htbp] \centering 
+  \caption{Regression Specification Q16} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & Estimate & Std. Error & t value & Pr(\textgreater \textbar t\textbar ) \\ 
+\hline \\[-1.8ex] 
+(Intercept) & $23.380$ & $1.382$ & $16.917$ & $0$ \\ 
+wave & $$-$2.283$ & $1.249$ & $$-$1.828$ & $0.068$ \\ 
+state & $$-$2.949$ & $1.478$ & $$-$1.995$ & $0.046$ \\ 
+st\_wave & $2.750$ & $1.339$ & $2.054$ & $0.040$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
 
 17. (3 p) Use the long-format data from Q\ref{item:CK_longformat}, reset FTE employment to zero for all the stores that were temporarily closed in 2nd wave, and \underline{then} estimate specification (\ref{eq:CK_DD}) using all the stores that have employment information in both waves. Verify that the estimates of the regression coefficients $(\hat{\delta}, \hat{\rho})$, and their standard errors, are identical to those reported in Table \ref{fig:CK_Tab3} row 5 columns (i) and (iii). Why is that?
 

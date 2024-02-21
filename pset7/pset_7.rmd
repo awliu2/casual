@@ -276,6 +276,8 @@ print(mean(treat75$earns) - mean(control75$earns))
 
 We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
 
+8. (6 p) Explain why the DD approach may be regarded as an improvement over the TCC approach and the BA approach when it comes to credible identification of average treatment effects. \textcolor{gray}{\textbf{Hint}: Feel free to utilize what we did in class.}
+
 \newpage
 
 \begin{center}

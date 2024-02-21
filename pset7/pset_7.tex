@@ -507,16 +507,119 @@ in this case with all estimates equalling 2326.505.
       \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
       \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
       \end{align}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{treatment }\OtherTok{\textless{}{-}}\NormalTok{ long\_psid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+\NormalTok{control }\OtherTok{\textless{}{-}}\NormalTok{ long\_psid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+
+\NormalTok{treat75 }\OtherTok{\textless{}{-}}\NormalTok{ treatment }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+\NormalTok{treat78 }\OtherTok{\textless{}{-}}\NormalTok{ treatment }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{control75 }\OtherTok{\textless{}{-}}\NormalTok{ control }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+\NormalTok{control78 }\OtherTok{\textless{}{-}}\NormalTok{ control }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{((}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns)) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2326.505
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{((}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns)) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2326.505
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2326.505
+\end{verbatim}
+
+We verify that \(\widehat{ATT}_{78}^{DD}\) is numerically equivalent to
+all the above expressions.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
 \item
   (1 p) Verify that \(\hat{\alpha}\) is numerically identical to
   \(\overline{earn}_{75}^{0}\).
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 19063.34
+\end{verbatim}
+
+We verify that \(\hat{\alpha} = 19063.340\) as seen in Table
+\ref{item:lms5} in the Appendix.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
 \item
   (1 p) Verify that \(\hat{\delta}\) is numerically identical to
   \(\overline{earn}_{78}^{0}-\overline{earn}_{75}^{0}\).
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2490.585
+\end{verbatim}
+
+We verify that \(\hat{\delta} = 2490.585\) as seen in Table
+\ref{item:lms5} in the Appendix.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
 \item
   (1 p) Verify that \(\hat{\gamma}\) is numerically identical to
   \(\overline{earn}_{75}^{1}-\overline{earn}_{75}^{0}\).
 \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -17531.28
+\end{verbatim}
+
+We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
+\ref{item:lms5} in the Appendix.
 
 \newpage
 

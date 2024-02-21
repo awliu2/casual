@@ -222,7 +222,7 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 \begin{Highlighting}[]
 \NormalTok{long\_psid }\OtherTok{\textless{}{-}}\NormalTok{ dt\_psid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{gather}\NormalTok{(dyear2, earns, re75}\SpecialCharTok{:}\NormalTok{re78) }
 \NormalTok{long\_psid}\SpecialCharTok{$}\NormalTok{dyear2 }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(long\_psid}\SpecialCharTok{$}\NormalTok{dyear2 }\SpecialCharTok{==} \StringTok{\textquotesingle{}re75\textquotesingle{}}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
-\NormalTok{long\_psid}\SpecialCharTok{$}\NormalTok{tdyear2 }\OtherTok{\textless{}{-}}\NormalTok{ long\_psid}\SpecialCharTok{$}\NormalTok{dyear2 }\SpecialCharTok{*}\NormalTok{ long\_psid}\SpecialCharTok{$}\NormalTok{earns}
+\NormalTok{long\_psid}\SpecialCharTok{$}\NormalTok{tdyear2 }\OtherTok{\textless{}{-}}\NormalTok{ long\_psid}\SpecialCharTok{$}\NormalTok{dyear2 }\SpecialCharTok{*}\NormalTok{ long\_psid}\SpecialCharTok{$}\NormalTok{treat}
 \end{Highlighting}
 \end{Shaded}
 
@@ -392,37 +392,37 @@ We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dit }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(individual) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(dyear2) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ tdyear2 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(individual) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(dyear2) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
 \NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ long\_psid)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{ols}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{\textquotesingle{}dit\textquotesingle{}}\NormalTok{]}
+\NormalTok{ols}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{\textquotesingle{}tdyear2\textquotesingle{}}\NormalTok{]}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-##      dit 
+##  tdyear2 
 ## 2326.505
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{formula2 }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dit }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(individual) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(dyear2))}
+\NormalTok{formula2 }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ tdyear2 }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(individual) }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(dyear2))}
 \NormalTok{ols2 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula2, }\AttributeTok{data =}\NormalTok{ long\_psid)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{ols2}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{\textquotesingle{}dit\textquotesingle{}}\NormalTok{]}
+\NormalTok{ols2}\SpecialCharTok{$}\NormalTok{coefficients[}\StringTok{\textquotesingle{}tdyear2\textquotesingle{}}\NormalTok{]}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-##      dit 
+##  tdyear2 
 ## 2326.505
 \end{verbatim}
 
@@ -443,7 +443,7 @@ constant in the regression we can successfully estimate
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fit\_plm }\OtherTok{\textless{}{-}} \FunctionTok{plm}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dit, }
+\NormalTok{fit\_plm }\OtherTok{\textless{}{-}} \FunctionTok{plm}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ tdyear2, }
                \AttributeTok{data =}\NormalTok{ long\_psid, }
                \AttributeTok{index =} \FunctionTok{c}\NormalTok{(}\StringTok{"individual"}\NormalTok{, }\StringTok{"dyear2"}\NormalTok{), }
                \AttributeTok{model =} \StringTok{"within"}\NormalTok{, }
@@ -457,14 +457,41 @@ We estimate \(\widehat{ATT}_{78}^{TWFE} = 2326.505\) as seen in Table
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{4}
+\tightlist
 \item
   (6 p) Estimate the specification in expression (\ref{DinD}) using OLS.
   Denote the estimate of the impact by
   \(\widehat{ATT}_{78}^{DD}\).\label{item:dd}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(earns }\SpecialCharTok{\textasciitilde{}}\NormalTok{ dyear2 }\SpecialCharTok{+}\NormalTok{ treat }\SpecialCharTok{+}\NormalTok{ tdyear2)}
+\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ long\_psid)}
+\end{Highlighting}
+\end{Shaded}
+
+We estimate \(\widehat{ATT}_{78}^{TWFE} = 2326.505\) as seen in Table
+\ref{item:lms5} in the Appendix.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
 \item
   (6 p ) Compare \(\widehat{ATT}_{78}^{FD}\),
   \(\widehat{ATT}_{78}^{LSDV}\) \(\widehat{ATT}_{78}^{TWFE}\),
   \(\widehat{ATT}_{78}^{DD}\). Surprised?
+\end{enumerate}
+
+We find that
+\(\widehat{ATT}_{78}^{FD} = \widehat{ATT}_{78}^{LSDV} = \widehat{ATT}_{78}^{TWFE} = \widehat{ATT}_{78}^{DD}\)
+in this case with all estimates equalling 2326.505.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
 \item
   (5 p) Consider again the prototypical DD specification estimated in
   \textbf{\ref{item:dd}}.
@@ -767,7 +794,7 @@ F Statistic & 8.172$^{***}$ (df = 1; 2673) \\
 \cline{2-2} 
 \\[-1.8ex] & earns \\ 
 \hline \\[-1.8ex] 
- dit & 2,326.505$^{***}$ \\ 
+ tdyear2 & 2,326.505$^{***}$ \\ 
   & (813.859) \\ 
   & \\ 
 \hline \\[-1.8ex] 
@@ -775,6 +802,42 @@ Observations & 5,350 \\
 R$^{2}$ & 0.003 \\ 
 Adjusted R$^{2}$ & $-$0.995 \\ 
 F Statistic & 8.172$^{***}$ (df = 1; 2673) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table}
+
+\newpage
+
+\begin{table}[!htbp] \centering 
+  \caption{OLS Implementation of Specification 5} 
+  \label{item:lms5} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & earns \\ 
+\hline \\[-1.8ex] 
+ dyear2 & 2,490.585$^{***}$ \\ 
+  & (402.022) \\ 
+  & \\ 
+ treat & $-$17,531.280$^{***}$ \\ 
+  & (1,080.962) \\ 
+  & \\ 
+ tdyear2 & 2,326.505 \\ 
+  & (1,528.712) \\ 
+  & \\ 
+ Constant & 19,063.340$^{***}$ \\ 
+  & (284.272) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 5,350 \\ 
+R$^{2}$ & 0.087 \\ 
+Adjusted R$^{2}$ & 0.086 \\ 
+Residual Std. Error & 14,185.160 (df = 5346) \\ 
+F Statistic & 169.204$^{***}$ (df = 3; 5346) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 

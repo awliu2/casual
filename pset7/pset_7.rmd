@@ -105,7 +105,7 @@ dt_psid$individual = 1:nrow(dt_psid)
 ```{r}
 long_psid <- dt_psid %>% gather(dyear2, earns, re75:re78) 
 long_psid$dyear2 <- ifelse(long_psid$dyear2 == 're75', 0, 1)
-long_psid$tdyear2 <- long_psid$dyear2 * long_psid$earns
+long_psid$tdyear2 <- long_psid$dyear2 * long_psid$treat
 ```
 
 ```{r}
@@ -173,21 +173,21 @@ long_psid$dit = long_psid$treat * long_psid$dyear2
 ```
 
 ```{r}
-formula = as.formula(earns ~ dit + factor(individual) + factor(dyear2) - 1)
+formula = as.formula(earns ~ tdyear2 + factor(individual) + factor(dyear2) - 1)
 ols <- lm(formula, data = long_psid)
 ```
 
 ```{r}
-ols$coefficients['dit']
+ols$coefficients['tdyear2']
 ```
 
 ```{r}
-formula2 = as.formula(earns ~ dit + factor(individual) + factor(dyear2))
+formula2 = as.formula(earns ~ tdyear2 + factor(individual) + factor(dyear2))
 ols2 <- lm(formula2, data = long_psid)
 ```
 
 ```{r}
-ols2$coefficients['dit']
+ols2$coefficients['tdyear2']
 ```
 
 In our linear regression we confirm that both with and without a constant in the regression we can successfully estimate $\widehat{ATT}_{78}^{LSDV} = 2326.505$.
@@ -195,7 +195,7 @@ In our linear regression we confirm that both with and without a constant in the
 4. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Two-way Fixed Effect Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{TWFE}$. \textcolor{Gray}{\textbf{Programming Guidance:} Use \href{https://www.rdocumentation.org/packages/plm/versions/2.6-3/topics/plm}{\texttt{plm()}}.}\label{item:twfe}
 
 ```{r}
-fit_plm <- plm(earns ~ dit, 
+fit_plm <- plm(earns ~ tdyear2, 
                data = long_psid, 
                index = c("individual", "dyear2"), 
                model = "within", 
@@ -204,13 +204,21 @@ fit_plm <- plm(earns ~ dit,
 
 We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:plms4} in the Appendix. 
 
+
 5. (6 p) Estimate the specification in expression (\ref{DinD}) using OLS. Denote the estimate of the impact by $\widehat{ATT}_{78}^{DD}$.\label{item:dd} 
 
 ```{r}
-
+formula = as.formula(earns ~ dyear2 + treat + tdyear2)
+ols <- lm(formula, data = long_psid)
 ```
 
+We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:lms5} in the Appendix. 
+
 6. (6 p ) Compare $\widehat{ATT}_{78}^{FD}$, $\widehat{ATT}_{78}^{LSDV}$ $\widehat{ATT}_{78}^{TWFE}$, $\widehat{ATT}_{78}^{DD}$. Surprised?
+
+We find that $\widehat{ATT}_{78}^{FD} = \widehat{ATT}_{78}^{LSDV} = \widehat{ATT}_{78}^{TWFE} = \widehat{ATT}_{78}^{DD}$ in this case with all estimates equalling 2326.505. 
+
+<!-- TODO: probably say a bit more about this  -->
 
 7. (5 p) Consider again the prototypical DD specification estimated in \textbf{\ref{item:dd}}.
   a. (2 p) Verify that $\widehat{ATT}_{78}^{DD}$ is numerically identical to 3 equivalent expressions:\label{item:DinD-diff} 
@@ -361,7 +369,7 @@ F Statistic & 8.172$^{***}$ (df = 1; 2673) \\
 \cline{2-2} 
 \\[-1.8ex] & earns \\ 
 \hline \\[-1.8ex] 
- dit & 2,326.505$^{***}$ \\ 
+ tdyear2 & 2,326.505$^{***}$ \\ 
   & (813.859) \\ 
   & \\ 
 \hline \\[-1.8ex] 
@@ -369,6 +377,42 @@ Observations & 5,350 \\
 R$^{2}$ & 0.003 \\ 
 Adjusted R$^{2}$ & $-$0.995 \\ 
 F Statistic & 8.172$^{***}$ (df = 1; 2673) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table} 
+
+\newpage
+
+\begin{table}[!htbp] \centering 
+  \caption{OLS Implementation of Specification 5} 
+  \label{item:lms5} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & earns \\ 
+\hline \\[-1.8ex] 
+ dyear2 & 2,490.585$^{***}$ \\ 
+  & (402.022) \\ 
+  & \\ 
+ treat & $-$17,531.280$^{***}$ \\ 
+  & (1,080.962) \\ 
+  & \\ 
+ tdyear2 & 2,326.505 \\ 
+  & (1,528.712) \\ 
+  & \\ 
+ Constant & 19,063.340$^{***}$ \\ 
+  & (284.272) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 5,350 \\ 
+R$^{2}$ & 0.087 \\ 
+Adjusted R$^{2}$ & 0.086 \\ 
+Residual Std. Error & 14,185.160 (df = 5346) \\ 
+F Statistic & 169.204$^{***}$ (df = 3; 5346) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 

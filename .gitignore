@@ -6,3 +6,4 @@
 *.synctex.gz
 *.vscode
 *.pdf
+.Rproj.user

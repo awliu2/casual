@@ -15,7 +15,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
+knitr::opts_knit$set(root.dir = "~/casual/pset7")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -215,7 +215,9 @@ We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:lm
 
 6. (6 p ) Compare $\widehat{ATT}_{78}^{FD}$, $\widehat{ATT}_{78}^{LSDV}$ $\widehat{ATT}_{78}^{TWFE}$, $\widehat{ATT}_{78}^{DD}$. Surprised?
 
-We find that $\widehat{ATT}_{78}^{FD} = \widehat{ATT}_{78}^{LSDV} = \widehat{ATT}_{78}^{TWFE} = \widehat{ATT}_{78}^{DD}$ in this case with all estimates equalling 2326.505. 
+We find that $\widehat{ATT}_{78}^{FD} = \widehat{ATT}_{78}^{LSDV} = \widehat{ATT}_{78}^{TWFE} = \widehat{ATT}_{78}^{DD}$ in this case with all estimates equalling 2326.505. This was initially surprising because these are different specifications, so we expected to have different estimation results However, we realized that the estimates all being equal could mean that there is no additional bias between the factual and the counterfactual for one specification compared to another.
+
+<!-- TODO: does this even make sense?  -->
 
 <!-- TODO: probably say a bit more about this  -->
 
@@ -277,6 +279,9 @@ print(mean(treat75$earns) - mean(control75$earns))
 We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
 
 8. (6 p) Explain why the DD approach may be regarded as an improvement over the TCC approach and the BA approach when it comes to credible identification of average treatment effects. \textcolor{gray}{\textbf{Hint}: Feel free to utilize what we did in class.}
+
+The DD approach may be regarded as an improvement over the TCC approach and the BA approach because, first of all, it inherently uses more data. The TCC approach only uses the data from one time period (for both the treatment and control group) while the BA approach only uses data from the treatment group (for all time periods). The DD approach, on the other hand, uses the data from both groups from all periods. It is an extension of the TCC and BA approaches and controls for both unobserved differences between treatment and control groups as well as changes over time that affect both groups. It does this by comparing the difference in outcomes before and after the treatment for the treatment group to the same difference for the control group.
+
 
 \newpage
 

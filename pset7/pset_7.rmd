@@ -98,6 +98,7 @@ load_data <- function(filename){
 filename_psid = "starter-files/nswpsid.csv"
 
 dt_psid <- load_data(filename = filename_psid)
+dt_psid$individual = 1:nrow(dt_psid)
 ```
 
 ```{r}
@@ -143,7 +144,7 @@ posttreat78 <- treatment %>% filter(dyear2 == 1)
 print(mean(posttreat78$earns) - mean(pretreat75$earns))
 ```
 
-We verify that $\hat{\rho}$ is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$. 
+We verify that $\hat{\rho}$ is numerically identical to $\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)$.
 
 e. (4 p) Explain why the BA approach may or may not identify the average effect for the treated in the post-treatment year, i.e., ${ATT}_{78}$. \textcolor{gray}{\textbf{Hint}: Use the result in \textbf{\ref{item:BAfter-diff}} to think about what this approach uses to identify the mean of potential outcomes w/ and w/out treatment and for different (sub)population. Feel free to utilize what we did in class.}
 
@@ -166,9 +167,28 @@ We estimate $\widehat{ATT}_{78}^{FD} = 2326.505$ as seen in Table \ref{item:lms3
 
 3. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{LSDV}$. LSDV treats the individual effects $\mu_i$ and the year effects $\delta_t$ as parameters to be estimated. \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
 
+```{r}
+formula = as.formula(earns ~ treat + factor(individual) + factor(dyear2) - 1)
+ols <- lm(formula, data = long_psid)
+```
+
+```{r}
+ols$coefficients['treat']
+```
+
+In our linear regression we drop the constant due to the dummy variable trap and successfully estimate $\widehat{ATT}_{78}^{LSDV} = 5657.098$.
+
 4. (6 p) Estimate the specification in expression (\ref{TWFE}) using the \textcolor{ForestGreen}{Two-way Fixed Effect Approach}. Denote the estimate of the impact by $\widehat{ATT}_{78}^{TWFE}$. \textcolor{Gray}{\textbf{Programming Guidance:} Use \href{https://www.rdocumentation.org/packages/plm/versions/2.6-3/topics/plm}{\texttt{plm()}}.}\label{item:twfe}
 
+```{r}
+
+```
+
 5. (6 p) Estimate the specification in expression (\ref{DinD}) using OLS. Denote the estimate of the impact by $\widehat{ATT}_{78}^{DD}$.\label{item:dd} 
+
+```{r}
+
+```
 
 6. (6 p ) Compare $\widehat{ATT}_{78}^{FD}$, $\widehat{ATT}_{78}^{LSDV}$ $\widehat{ATT}_{78}^{TWFE}$, $\widehat{ATT}_{78}^{DD}$. Surprised?
 

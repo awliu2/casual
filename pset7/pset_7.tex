@@ -1300,6 +1300,7 @@ st\_wave & $2.509$ & $1.342$ & $1.869$ & $0.062$ \\
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
+\tightlist
 \item
   (1 p) Go back to the wide-format dataframe. Reset to 0 the wages in
   the 2nd wave for those stores that were permanently closed in that
@@ -1307,18 +1308,112 @@ st\_wave & $2.509$ & $1.342$ & $1.869$ & $0.062$ \\
   \ref{fig:CK_Tab4}'s notes. Per those notes, the resulting sample
   consists of 357 stores. Verify that this is indeed the
   case.\label{item:CK_tab4-col-i-ii-dataset}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{df18 }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{wage\_st2 =} \FunctionTok{if\_else}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{3}\NormalTok{, }\DecValTok{0}\NormalTok{, wage\_st2)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(fte }\SpecialCharTok{!=} \StringTok{\textquotesingle{}rm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(fte2 }\SpecialCharTok{!=} \StringTok{\textquotesingle{}rm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(wage\_st }\SpecialCharTok{!=} \StringTok{\textquotesingle{}rm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(wage\_st2 }\SpecialCharTok{!=} \StringTok{\textquotesingle{}rm\textquotesingle{}}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{nrow}\NormalTok{(df18)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 357
+\end{verbatim}
+
+We verify that the sample consists of 357 stores.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
 \item
   (1 p) Verify that the average and standard deviation of the dependent
   variable, namely \texttt{diff\_fte}, are -0.237 and 8.825
   respectively, per the notes to Table \ref{fig:CK_Tab4}.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{df18}\SpecialCharTok{$}\NormalTok{diff\_fte }\OtherTok{=}\NormalTok{ df18}\SpecialCharTok{$}\NormalTok{fte2 }\SpecialCharTok{{-}}\NormalTok{ df18}\SpecialCharTok{$}\NormalTok{fte}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(df18}\SpecialCharTok{$}\NormalTok{diff\_fte))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -0.237535
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{sd}\NormalTok{(df18}\SpecialCharTok{$}\NormalTok{diff\_fte))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8.825485
+\end{verbatim}
+
+We verify that the average and standard deviation of \texttt{diff\_fte},
+are -0.237 and 8.825 respectively.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
 \item
   (2 p) Reproduce the estimates and statistics in the rectangle
   superimposed to Table \ref{fig:CK_Tab4} columns (i) through (ii).
   \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{stats::lm( )}.}
+\end{enumerate}
+
+We successfully reproduce the estimates and statistics for model (i) and
+(ii) in Table \ref{fig:CK_Tab4} as witnessed by Table 11 and 12 in the
+appendix.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{df18}\SpecialCharTok{$}\NormalTok{NJdummy }\OtherTok{=}\NormalTok{ df18}\SpecialCharTok{$}\NormalTok{southj }\SpecialCharTok{+}\NormalTok{ df18}\SpecialCharTok{$}\NormalTok{northj }\SpecialCharTok{+}\NormalTok{ df18}\SpecialCharTok{$}\NormalTok{centralj }\SpecialCharTok{+}\NormalTok{ df18}\SpecialCharTok{$}\NormalTok{shore}
+\NormalTok{df18 }\OtherTok{=}\NormalTok{ df18 }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{NJdummy =} \FunctionTok{if\_else}\NormalTok{(NJdummy }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# spec (i)}
+\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(diff\_fte }\SpecialCharTok{\textasciitilde{}}\NormalTok{ NJdummy)}
+\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ df18)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# spec (ii)}
+\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(diff\_fte }\SpecialCharTok{\textasciitilde{}}\NormalTok{ NJdummy }\SpecialCharTok{+} \FunctionTok{factor}\NormalTok{(chain) }\SpecialCharTok{+}\NormalTok{ co\_owned)}
+\NormalTok{ols }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ df18)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
 \item
   (1 p) What is the interpretation of the estimate of the coefficient of
   the NJ dummy in column (i)? In column (ii)?
 \end{enumerate}
+
+The interpretation of the estimate of the coefficient of the NJ dummy in
+both regressions is the relative increase in employment in New Jersey.
+That is, the change in the difference of mean full time
+employmentbetween NJ and PA.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -1349,32 +1444,39 @@ st\_wave & $2.509$ & $1.342$ & $1.869$ & $0.062$ \\
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{19}
+\tightlist
 \item
   (2 p) At page 772 the authors write
   \textcolor{BlueViolet}{``Comparison within New Jersey between initially high-wage stores (those paying more than the minimum rate prior to its effective date) and other stores provides an alternative estimate of the impact of the new law.''}
   At page 773 they further write
   \textcolor{BlueViolet}{``Wage variation across stores in New Jersey, ..., allows us to compare the experience of high-wage and low-wage stores within New Jersey and to \textit{test} the validity of the Pennsylvania control group."}
-  Explain what the authors mean. The authors suggest that the treatment
-  effect of increased wages can be alternatively estimated by comparing
-  the impact of the new law on ``control'' stores who were already
-  paying higher than minimum wage, effectively ``opting out'' of
-  treatment, to stores who were paying minimum wage and thus had to
-  increase wages. Thus, this provides a comparison of the treatment
-  effect in which various unit-level and temporal confounders, for
-  example, state-level differences such as tax policies, employee laws,
-  etc, are similar/the same between the groups (as both groups are from
-  New Jersey).
+  Explain what the authors mean.
+\end{enumerate}
 
-  The second part, from page 773, suggests that they use this
-  comparision to test the validity of the Pennsylvania control group.
-  This is the case because both Pennsylvania stores and high-paying New
-  Jersey stores should be unaffected by the New Jersey minimum wage
-  hike, thus, if the treatment effect/impact of this wage hike is found
-  to be very different between the Pennsylvania stores and the
-  high-paying New Jersey stores, this would suggest that the
-  Pennsylvania stores could not be used as a valid control group (likely
-  due to various unfixed confounders related to differences in state
-  policies and demographics, etc).
+The authors suggest that the treatment effect of increased wages can be
+alternatively estimated by comparing the impact of the new law on
+``control'' stores who were already paying higher than minimum wage,
+effectively ``opting out'' of treatment, to stores who were paying
+minimum wage and thus had to increase wages. Thus, this provides a
+comparison of the treatment effect in which various unit-level and
+temporal confounders, for example, state-level differences such as tax
+policies, employee laws, etc, are similar/the same between the groups
+(as both groups are from New Jersey).
+
+The second part, from page 773, suggests that they use this comparision
+to test the validity of the Pennsylvania control group. This is the case
+because both Pennsylvania stores and high-paying New Jersey stores
+should be unaffected by the New Jersey minimum wage hike, thus, if the
+treatment effect/impact of this wage hike is found to be very different
+between the Pennsylvania stores and the high-paying New Jersey stores,
+this would suggest that the Pennsylvania stores could not be used as a
+valid control group (likely due to various unfixed confounders related
+to differences in state policies and demographics, etc).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{20}
+\tightlist
 \item
   (2 p) At page 773 the authors write
   \textcolor{BlueViolet}{``We have complete information on store closings and take account of employment changes at the closed stores in our analyses. We therefore measure the overall effect of the minimum wage on average employment, and not simply its effect on surviving establishments.''}
@@ -1388,14 +1490,19 @@ st\_wave & $2.509$ & $1.342$ & $1.869$ & $0.062$ \\
   at closed stores, we would be ignoring a significant portion of the
   treatment effect and lead to bias towards higher employment levels
   than reality.
-
-  Secondly, if we were to ignore the employment changes at closed
-  stores, we would be ignoring the possiblility that employees of a
-  closing store might be able to find employment at another store. In
-  such a case, our employment estimate for these stores that remained
-  open would be biased upward, as we would not be taking into account
-  the decreased employment of stores that closed. \#\# Appendix
 \end{enumerate}
+
+Secondly, if we were to ignore the employment changes at closed stores,
+we would be ignoring the possiblility that employees of a closing store
+might be able to find employment at another store. In such a case, our
+employment estimate for these stores that remained open would be biased
+upward, as we would not be taking into account the decreased employment
+of stores that closed.
+
+\newpage
+
+\hypertarget{appendix}{%
+\subsection{Appendix}\label{appendix}}
 
 \begin{table}[!htbp] \centering 
   \caption{Linear Regression Implementation of Specification 2} 
@@ -1507,6 +1614,74 @@ R$^{2}$ & 0.087 \\
 Adjusted R$^{2}$ & 0.086 \\ 
 Residual Std. Error & 14,185.160 (df = 5346) \\ 
 F Statistic & 169.204$^{***}$ (df = 3; 5346) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{Regression Specification (i) for Q18} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & diff\_fte \\ 
+\hline \\[-1.8ex] 
+ NJdummy & 2.326$^{*}$ \\ 
+  & (1.192) \\ 
+  & \\ 
+ Constant & $-$2.127$^{**}$ \\ 
+  & (1.074) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 357 \\ 
+R$^{2}$ & 0.011 \\ 
+Adjusted R$^{2}$ & 0.008 \\ 
+Residual Std. Error & 8.791 (df = 355) \\ 
+F Statistic & 3.810$^{*}$ (df = 1; 355) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{Regression Specification (ii) for Q18} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & diff\_fte \\ 
+\hline \\[-1.8ex] 
+ NJdummy & 2.304$^{*}$ \\ 
+  & (1.196) \\ 
+  & \\ 
+ factor(chain)2 & 0.492 \\ 
+  & (1.299) \\ 
+  & \\ 
+ factor(chain)3 & $-$2.217$^{*}$ \\ 
+  & (1.310) \\ 
+  & \\ 
+ factor(chain)4 & $-$0.512 \\ 
+  & (1.498) \\ 
+  & \\ 
+ co\_owned & 0.308 \\ 
+  & (1.094) \\ 
+  & \\ 
+ Constant & $-$1.697 \\ 
+  & (1.210) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 357 \\ 
+R$^{2}$ & 0.023 \\ 
+Adjusted R$^{2}$ & 0.009 \\ 
+Residual Std. Error & 8.785 (df = 351) \\ 
+F Statistic & 1.663 (df = 5; 351) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 

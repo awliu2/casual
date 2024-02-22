@@ -560,7 +560,7 @@ st\_wave & $2.509$ & $1.342$ & $1.869$ & $0.062$ \\
 \end{tabular} 
 \end{table} 
 
-<!-- TODO: explanation  -->
+This is the case because when we set the FTE employment to 0 for all the stores that were temporarily closed in 2nd wave and then run the specification, we are essentially including them in our regression to estimate the coefficients. This is exactly what row 5 of the table tried to achieve by including all the stores that were temporarily closed in the calculation of mean FTE change.
 
 18. (5 p) Here you reproduce some of the estimates and statistics in the rectangle superimposed to Table \ref{fig:CK_Tab4}.\label{item:CK_tab4-col-i-ii}
 

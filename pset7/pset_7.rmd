@@ -15,7 +15,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/casual/pset7")
+knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -619,9 +619,38 @@ The interpretation of the estimate of the coefficient of the NJ dummy in both re
 
   a. (1 p) Add a column named \texttt{gap} according to the description given at page 779 of the article. 
 
+```{r}
+df19 = df18 %>% mutate(gap = (5.05 - wage_st)/wage_st) %>% 
+  mutate(gap = if_else(NJdummy == 0, 0, gap)) %>% 
+  mutate(gap = if_else(wage_st >= 5.05, 0, gap))
+```
+
   b. (2 p) Reproduce the estimates and statistics in the rectangle superimposed over Table \ref{fig:CK_Tab4} columns (iii) through (v). \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{stats::lm( )}. You can reproduce exactly the results in columns (iii) and (iv), you will find a slight discrepancy for column (v).}
 
+```{r}
+# spec (iii)
+formula = as.formula(diff_fte ~ gap)
+ols3 <- lm(formula, data = df19)
+```
+
+```{r}
+# spec (iv)
+formula = as.formula(diff_fte ~ gap + factor(chain) + co_owned)
+ols4 <- lm(formula, data = df19)
+```
+
+```{r}
+# spec (v)
+formula = as.formula(diff_fte ~ gap + factor(chain) + co_owned + southj + northj + centralj + pa1 + pa2)
+ols5 <- lm(formula, data = df19)
+```
+
+We successfully reproduce the statistics in Table \ref{item:tq19} in the Appendix with exact specifications for (iii) and (iv) and slightly different ones for (v).
+
   c. (1 p) Which coefficient estimates are interpretable as estimates of the impact of NJ's MW change in columns (iii) through (v), respectively? Why?
+
+Estimates (iii) and (iv)  can be interpretable as estimates of the impact of NJ's MW change due to the significance test where we can reject the null hypothesis of a zero employment effect of the minimum wage. The total effect measured by the coefficient on \texttt{gap} has varying interpretations based on the regresssion specification. However, the test is no longer significant for (v), which means we cannot directly reject the null hypothesis. 
+
 
 20. (2 p) At page 772 the authors write \textcolor{BlueViolet}{``Comparison within New Jersey between initially high-wage stores (those paying more than the minimum rate prior to its effective date) and other stores provides an alternative estimate of the impact of the new law.''} At page 773 they further write \textcolor{BlueViolet}{``Wage variation across stores in New Jersey, ..., allows us to compare the experience of high-wage and low-wage stores within New Jersey and to \textit{test} the validity of the Pennsylvania control group."} Explain what the authors mean.
 
@@ -823,6 +852,62 @@ F Statistic & 1.663 (df = 5; 351) \\
 \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
 \end{table} 
+
+\begin{table}[!htbp] \centering 
+  \caption{Regression Specifications (iii), (iv), (v) for Q19} 
+  \label{item:tq19} 
+\begin{tabular}{@{\extracolsep{5pt}}lccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{3}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-4} 
+\\[-1.8ex] & \multicolumn{3}{c}{diff\_fte} \\ 
+\\[-1.8ex] & (1) & (2) & (3)\\ 
+\hline \\[-1.8ex] 
+ gap & 15.653$^{**}$ & 14.916$^{**}$ & 11.979 \\ 
+  & (6.080) & (6.205) & (7.419) \\ 
+  & & & \\ 
+ factor(chain)2 &  & 0.659 & 0.665 \\ 
+  &  & (1.292) & (1.310) \\ 
+  & & & \\ 
+ factor(chain)3 &  & $-$1.912 & $-$2.090 \\ 
+  &  & (1.308) & (1.328) \\ 
+  & & & \\ 
+ factor(chain)4 &  & 0.014 & 0.270 \\ 
+  &  & (1.515) & (1.532) \\ 
+  & & & \\ 
+ co\_owned &  & 0.409 & 0.160 \\ 
+  &  & (1.092) & (1.110) \\ 
+  & & & \\ 
+ southj &  &  & $-$0.373 \\ 
+  &  &  & (1.913) \\ 
+  & & & \\ 
+ northj &  &  & $-$0.247 \\ 
+  &  &  & (1.747) \\ 
+  & & & \\ 
+ centralj &  &  & $-$1.617 \\ 
+  &  &  & (2.012) \\ 
+  & & & \\ 
+ pa1 &  &  & $-$3.835$^{*}$ \\ 
+  &  &  & (2.226) \\ 
+  & & & \\ 
+ pa2 &  &  &  \\ 
+  &  &  &  \\ 
+  & & & \\ 
+ Constant & $-$1.576$^{**}$ & $-$1.315 & $-$0.226 \\ 
+  & (0.697) & (0.957) & (1.540) \\ 
+  & & & \\ 
+\hline \\[-1.8ex] 
+Observations & 357 & 357 & 357 \\ 
+R$^{2}$ & 0.018 & 0.029 & 0.041 \\ 
+Adjusted R$^{2}$ & 0.016 & 0.015 & 0.016 \\ 
+Residual Std. Error & 8.757 (df = 355) & 8.759 (df = 351) & 8.752 (df = 347) \\ 
+F Statistic & 6.627$^{**}$ (df = 1; 355) & 2.082$^{*}$ (df = 5; 351) & 1.663$^{*}$ (df = 9; 347) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{3}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table}
 
 \newpage
 

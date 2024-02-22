@@ -216,61 +216,59 @@ We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:lm
 
 7. (5 p) Consider again the prototypical DD specification estimated in \textbf{\ref{item:dd}}.
   a. (2 p) Verify that $\widehat{ATT}_{78}^{DD}$ is numerically identical to 3 equivalent expressions:\label{item:DinD-diff} 
-  \begin{align}
-  \left( \overline{earn}_{78}^{1}-\overline{earn}_{78}^{0}\right) &-\left( \overline{earn}_{75}^{1}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv1} \\
-  \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
-  \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
-  \end{align}
-    
-```{r}
-treatment <- long_psid %>% filter(treat == 1)
-control <- long_psid %>% filter(treat == 0)
+      \begin{align}
+      \left( \overline{earn}_{78}^{1}-\overline{earn}_{78}^{0}\right) &-\left( \overline{earn}_{75}^{1}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv1} \\
+      \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
+      \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
+      \end{align}
+  
+      ```{r}
+      treatment <- long_psid %>% filter(treat == 1)
+      control <- long_psid %>% filter(treat == 0)
 
-treat75 <- treatment %>% filter(dyear2 == 0)
-treat78 <- treatment %>% filter(dyear2 == 1)
+      treat75 <- treatment %>% filter(dyear2 == 0)
+      treat78 <- treatment %>% filter(dyear2 == 1)
 
-control75 <- control %>% filter(dyear2 == 0)
-control78 <- control %>% filter(dyear2 == 1)
-```
+      control75 <- control %>% filter(dyear2 == 0)
+      control78 <- control %>% filter(dyear2 == 1)
+      ```
 
-```{r}
-print((mean(treat78$earns) - mean(control78$earns)) - (mean(treat75$earns) - mean(control75$earns)))
-```
+      ```{r}
+      print((mean(treat78$earns) - mean(control78$earns)) - (mean(treat75$earns) - mean(control75$earns)))
+      ```
+        
+      ```{r}
+      print((mean(treat78$earns) - mean(treat75$earns)) - (mean(control78$earns) - mean(control75$earns)))
+      ```
 
-```{r}
-print((mean(treat78$earns) - mean(treat75$earns)) - (mean(control78$earns) - mean(control75$earns)))
-```
-
-```{r}
-print(mean(treat78$earns) - (mean(treat75$earns) + (mean(control78$earns) - mean(control75$earns))))
-```
-
-We verify that $\widehat{ATT}_{78}^{DD}$ is numerically equivalent to all the above expressions. 
+      ```{r}
+      print(mean(treat78$earns) - (mean(treat75$earns) + (mean(control78$earns) - mean(control75$earns))))
+      ```
+      We verify that $\widehat{ATT}_{78}^{DD}$ is numerically equivalent to all the above expressions. 
 
   b. (1 p) Verify that $\hat{\alpha}$ is numerically identical to $\overline{earn}_{75}^{0}$.
-```{r}
-print(mean(control75$earns))
-```
+      ```{r}
+      print(mean(control75$earns))
+      ```
 
-We verify that $\hat{\alpha} = 19063.340$ as seen in Table \ref{item:lms5} in the Appendix. 
-
+      We verify that $\hat{\alpha} = 19063.340$ as seen in Table \ref{item:lms5} in the Appendix. 
+  
   c. (1 p) Verify that $\hat{\delta}$ is numerically identical to $\overline{earn}_{78}^{0}-\overline{earn}_{75}^{0}$.
-```{r}
-print(mean(control78$earns) - mean(control75$earns))
-```
-
-We verify that $\hat{\delta} = 2490.585$ as seen in Table \ref{item:lms5} in the Appendix.
+      ```{r}
+      print(mean(control78$earns) - mean(control75$earns))
+      ```
+  
+      We verify that $\hat{\delta} = 2490.585$ as seen in Table \ref{item:lms5} in the Appendix.
 
   d. (1 p) Verify that $\hat{\gamma}$ is numerically identical to $\overline{earn}_{75}^{1}-\overline{earn}_{75}^{0}$.
-```{r}
-print(mean(treat75$earns) - mean(control75$earns))
-```
-We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
+      ```{r}
+      print(mean(treat75$earns) - mean(control75$earns))
+      ```
+      We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
 
 8. (6 p) Explain why the DD approach may be regarded as an improvement over the TCC approach and the BA approach when it comes to credible identification of average treatment effects. \textcolor{gray}{\textbf{Hint}: Feel free to utilize what we did in class.}
 
-  The DD approach may be regarded as an improvement over the TCC approach and the BA approach because, first of all, it inherently uses more data. The TCC approach only uses the data from one time period (for both the treatment and control group) while the BA approach only uses data from the treatment group (for all time periods). The DD approach, on the other hand, uses the data from both groups from all periods. It is an extension of the TCC and BA approaches and controls for both unobserved differences between treatment and control groups as well as changes over time that affect both groups. It does this by comparing the difference in outcomes before and after the treatment for the treatment group to the same difference for the control group.
-
+    The DD approach may be regarded as an improvement over the TCC approach and the BA approach because, first of all, it inherently uses more data. The TCC approach only uses the data from one time period (for both the treatment and control group) while the BA approach only uses data from the treatment group (for all time periods). The DD approach, on the other hand, uses the data from both groups from all periods. It is an extension of the TCC and BA approaches and controls for both unobserved differences between treatment and control groups as well as changes over time that affect both groups. It does this by comparing the difference in outcomes before and after the treatment for the treatment group to the same difference for the control group.
 \newpage
 
 \begin{center}
@@ -283,34 +281,35 @@ We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in t
     \newline \texttt{Canvas/Files/Literature/CardKrueger\_MinimumWages\_AER1994.pdf}.
 
 10. (1 p) Load the data from \texttt{fast-food-data.csv}. Familiarize yourself with the columns in the dataframe by reading \texttt{fast-food-codebook.txt}. Do the authors have access to \textcolor{ForestGreen}{panel data (PD)} or \textcolor{ForestGreen}{repeated cross sectional (RCS) data}? \textcolor{gray}{\textbf{Hint:} We added a column named \texttt{store\_id} for convenience. The columns whose name ends with ``\texttt{2}'' are measured after the MW change. For example, \texttt{empft} is the number of full-time workers at a store before the MW change (wave 1 of the survey) and \texttt{empft2} is the number of full-time workers at a store after the MW change (wave 2 of the survey).} \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{utils::read.csv( )} to read the CSV file.}
-
-```{r}
-ff_df <- read.csv("starter-files/fast-food-data.csv")
-```
+  ```{r}
+  ff_df <- read.csv("starter-files/fast-food-data.csv")
+  ```
+  The authors have access to panel data - they are keeping track of the same restaurants over time.
 
 11. (4 p) Reproduce the counts in the rectangle superimposed over Table \ref{fig:CK_Tab1}. What is the purpose of this Table? \textcolor{gray}{\textbf{Hint:} You want to read carefully the notes to the table and the codebook.}
-```{r}
-group_summary = ff_df %>% group_by(state) %>%
-  dplyr::summarize(
-    num_stores = n(),
-    num_closed = sum(status2 == 3),
-    num_renovation = sum(status2 == 2),
-    num_temp_closed = sum(status2 == 4 | status2 == 5),
-    num_refusals = sum(status2 == 0),
-    num_interviewed = sum(status2 == 1),
-  )
-transposed <- t(group_summary)[-c(1),]
-rownames(transposed) = c("Number of Stores",
-                         "Number closed",
-                         "Number under renovation",
-                         "Number temporarily closed",
-                         "Number of refusals",
-                         "Number interviewed")
+  ```{r}
+  group_summary = ff_df %>% group_by(state) %>%
+    dplyr::summarize(
+      num_stores = n(),
+      num_closed = sum(status2 == 3),
+      num_renovation = sum(status2 == 2),
+      num_temp_closed = sum(status2 == 4 | status2 == 5),
+      num_refusals = sum(status2 == 0),
+      num_interviewed = sum(status2 == 1),
+    )
+  transposed <- t(group_summary)[-c(1),]
+  rownames(transposed) = c("Number of Stores",
+                           "Number closed",
+                           "Number under renovation",
+                           "Number temporarily closed",
+                           "Number of refusals",
+                           "Number interviewed")
 
-kable(cbind(transposed, transposed[,1] + transposed[,2]),
-    col.names = c("NJ", "PA", "All"),
-    caption="Table 2 Replication")
-```
+  kable(cbind(transposed, transposed[,1] + transposed[,2]),
+      col.names = c("NJ", "PA", "All"),
+      caption="Table 2 Replication")
+  ```
+  The purpose of this table is to provide a summary of the panel data by state. We see that across the two periods, we track 79 New Jersey stores and 331 Pennsylvania stores. However, we see that there are some amount of stores that were closed or otherwise could not participate in both waves of the survey, thus some attrition is present in our data. Understanding the proportion of stores that are part of the panel is important for understanding the participation rate of the stores and the validity of the sample/sample selection process.
 
 12. The outcome of interest is full-time equivalent (FTE) employment. At page 775 of the article the authors explain how FTE employment is constructed. 
     a. Add FTE employment for wave 1 and wave 2 as columns to your dataframe. \textcolor{gray}{\textbf{Programming guidance:} Columns \texttt{empft}, \texttt{nmgrs}, and \texttt{emppt} report employment by full-time (FT) workers, employment by managers (considered FT employees), and employment by part-time (PT) workers. In our script we named \texttt{fte}, and respectively \texttt{fte2}, wave 1's and wave 2's FTE employment columns. You have some NAs in \texttt{fte} and/or \texttt{fte2} because the underlying counts of FT workers, PT workers and managers may have NAs. To check that you have constructed \texttt{fte} and \texttt{fte2} correctly, use \texttt{mean( )} to calculate sample averages: to disregard NAs you specify an additional argument, e.g., \texttt{mean(df\$fte, na.rm=TRUE)} where \texttt{na.rm} stands for ``NAs removed".} 
@@ -502,9 +501,14 @@ st\_wave & $2.509$ & $1.342$ & $1.869$ & $0.062$ \\
   c. (1 p) Which coefficient estimates are interpretable as estimates of the impact of NJ's MW change in columns (iii) through (v), respectively? Why?
 
 20. (2 p) At page 772 the authors write \textcolor{BlueViolet}{``Comparison within New Jersey between initially high-wage stores (those paying more than the minimum rate prior to its effective date) and other stores provides an alternative estimate of the impact of the new law.''} At page 773 they further write \textcolor{BlueViolet}{``Wage variation across stores in New Jersey, ..., allows us to compare the experience of high-wage and low-wage stores within New Jersey and to \textit{test} the validity of the Pennsylvania control group."} Explain what the authors mean.
+    The authors suggest that the treatment effect of increased wages can be alternatively estimated by comparing the impact of the new law on "control" stores who were already paying higher than minimum wage, effectively "opting out" of treatment, to stores who were paying minimum wage and thus had to increase wages. Thus, this provides a comparison of the treatment effect in which various unit-level and temporal confounders, for example, state-level differences such as tax policies, employee laws, etc, are similar/the same between the groups (as both groups are from New Jersey). 
 
+    The second part, from page 773, suggests that they use this comparision to test the validity of the Pennsylvania control group. This is the case because both Pennsylvania stores and high-paying New Jersey stores should be unaffected by the New Jersey minimum wage hike, thus, if the treatment effect/impact of this wage hike is found to be very different between the Pennsylvania stores and the high-paying New Jersey stores, this would suggest that the Pennsylvania stores could not be used as a valid control group (likely due to various unfixed confounders related to differences in state policies and demographics, etc).
+    
 21. (2 p) At page 773 the authors write \textcolor{BlueViolet}{``We have complete information on store closings and take account of employment changes at the closed stores in our analyses. We therefore measure the overall effect of the minimum wage on average employment, and not simply its effect on surviving establishments.''} Explain why this may be important.
-
+    Taking account the employment changes at closes stores is an important factor of the analysis for a variety of reasons. Firstly, it is plausible that stores that closed might have been more affected by the minimum wage hike than stores that remained open - for example, if a store was already struggling to pay its employees, a minimum wage hike might be the final straw that causes it to close. Thus, if we were to ignore the employment changes at closed stores, we would be ignoring a significant portion of the treatment effect and lead to bias towards higher employment levels than reality. 
+    
+    Secondly, if we were to ignore the employment changes at closed stores, we would be ignoring the possiblility that employees of a closing store might be able to find employment at another store. In such a case, our employment estimate for these stores that remained open would be biased upward, as we would not be taking into account the decreased employment of stores that closed.
 ## Appendix 
 
 \begin{table}[!htbp] \centering 

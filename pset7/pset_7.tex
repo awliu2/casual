@@ -338,13 +338,11 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{1}
-\tightlist
 \item
   (3 p) Estimate the specification in expression (\ref{FD}) using OLS.
   Denote the resulting estimate of the impact by
   \(\widehat{ATT}_{78}^{FD}\).
   \textcolor{gray}{\textbf{Programming Guidance:} It is most convenient to use the wide format dataframe for this task. Use \texttt{lm()}.}\label{item:fd}
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -355,13 +353,8 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 \end{Highlighting}
 \end{Shaded}
 
-We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
-\ref{item:lms3} in the Appendix.
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
+  We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
+  \ref{item:lms3} in the Appendix.
 \item
   (6 p) Estimate the specification in expression (\ref{TWFE}) using the
   \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote
@@ -369,7 +362,6 @@ We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
   treats the individual effects \(\mu_i\) and the year effects
   \(\delta_t\) as parameters to be estimated.
   \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -413,20 +405,14 @@ We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
 ## 2326.505
 \end{verbatim}
 
-In our linear regression we confirm that both with and without a
-constant in the regression we can successfully estimate
-\(\widehat{ATT}_{78}^{LSDV} = 2326.505\).
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{3}
-\tightlist
+  In our linear regression we confirm that both with and without a
+  constant in the regression we can successfully estimate
+  \(\widehat{ATT}_{78}^{LSDV} = 2326.505\).
 \item
   (6 p) Estimate the specification in expression (\ref{TWFE}) using the
   \textcolor{ForestGreen}{Two-way Fixed Effect Approach}. Denote the
   estimate of the impact by \(\widehat{ATT}_{78}^{TWFE}\).
   \textcolor{Gray}{\textbf{Programming Guidance:} Use \href{https://www.rdocumentation.org/packages/plm/versions/2.6-3/topics/plm}{\texttt{plm()}}.}\label{item:twfe}
-\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -437,6 +423,7 @@ constant in the regression we can successfully estimate
               \AttributeTok{effect =} \StringTok{"twoways"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+\end{enumerate}
 
 We estimate \(\widehat{ATT}_{78}^{TWFE} = 2326.505\) as seen in Table
 \ref{item:plms4} in the Appendix.
@@ -491,144 +478,131 @@ compared to another.
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
-\tightlist
 \item
   (2 p) Verify that \(\widehat{ATT}_{78}^{DD}\) is numerically identical
   to 3 equivalent expressions:\label{item:DinD-diff} \begin{align}
-    \left( \overline{earn}_{78}^{1}-\overline{earn}_{78}^{0}\right) &-\left( \overline{earn}_{75}^{1}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv1} \\
-    \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
-    \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
-    \end{align}
-\end{enumerate}
+   \left( \overline{earn}_{78}^{1}-\overline{earn}_{78}^{0}\right) &-\left( \overline{earn}_{75}^{1}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv1} \\
+   \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
+   \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
+   \end{align}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{treatment }\OtherTok{\textless{}{-}}\NormalTok{ long\_psid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+\NormalTok{control }\OtherTok{\textless{}{-}}\NormalTok{ long\_psid }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+
+\NormalTok{treat75 }\OtherTok{\textless{}{-}}\NormalTok{ treatment }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+\NormalTok{treat78 }\OtherTok{\textless{}{-}}\NormalTok{ treatment }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{control75 }\OtherTok{\textless{}{-}}\NormalTok{ control }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+\NormalTok{control78 }\OtherTok{\textless{}{-}}\NormalTok{ control }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(dyear2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{((}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns)) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns)))}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{verbatim}
-```r
-treatment <- long_psid %>% filter(treat == 1)
-control <- long_psid %>% filter(treat == 0)
-
-treat75 <- treatment %>% filter(dyear2 == 0)
-treat78 <- treatment %>% filter(dyear2 == 1)
-
-control75 <- control %>% filter(dyear2 == 0)
-control78 <- control %>% filter(dyear2 == 1)
-```
-
-
-```r
-print((mean(treat78$earns) - mean(control78$earns)) - (mean(treat75$earns) - mean(control75$earns)))
-```
-
-```
 ## [1] 2326.505
-```
-  
-
-```r
-print((mean(treat78$earns) - mean(treat75$earns)) - (mean(control78$earns) - mean(control75$earns)))
-```
-
-```
-## [1] 2326.505
-```
-
-
-```r
-print(mean(treat78$earns) - (mean(treat75$earns) + (mean(control78$earns) - mean(control75$earns))))
-```
-
-```
-## [1] 2326.505
-```
-
-  We verify that $\widehat{ATT}_{78}^{DD}$ is numerically equivalent to all the above expressions. 
 \end{verbatim}
 
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{1}
-\tightlist
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{((}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns)) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2326.505
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(treat78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2326.505
+\end{verbatim}
+
+  We verify that \(\widehat{ATT}_{78}^{DD}\) is numerically equivalent
+  to all the above expressions.
 \item
   (1 p) Verify that \(\hat{\alpha}\) is numerically identical to
   \(\overline{earn}_{75}^{0}\).
-\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{verbatim}
-```r
-print(mean(control75$earns))
-```
-
-```
 ## [1] 19063.34
-```
-
-We verify that $\hat{\alpha} = 19063.340$ as seen in Table \ref{item:lms5} in the Appendix. 
 \end{verbatim}
 
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
+  We verify that \(\hat{\alpha} = 19063.340\) as seen in Table
+  \ref{item:lms5} in the Appendix.
 \item
   (1 p) Verify that \(\hat{\delta}\) is numerically identical to
   \(\overline{earn}_{78}^{0}-\overline{earn}_{75}^{0}\).
-\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(control78}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{verbatim}
-```r
-print(mean(control78$earns) - mean(control75$earns))
-```
-
-```
 ## [1] 2490.585
-```
-
-We verify that $\hat{\delta} = 2490.585$ as seen in Table \ref{item:lms5} in the Appendix.
 \end{verbatim}
 
-\begin{enumerate}
-\def\labelenumi{\alph{enumi}.}
-\setcounter{enumi}{3}
-\tightlist
+  We verify that \(\hat{\delta} = 2490.585\) as seen in Table
+  \ref{item:lms5} in the Appendix.
 \item
   (1 p) Verify that \(\hat{\gamma}\) is numerically identical to
   \(\overline{earn}_{75}^{1}-\overline{earn}_{75}^{0}\).
-\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{mean}\NormalTok{(treat75}\SpecialCharTok{$}\NormalTok{earns) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(control75}\SpecialCharTok{$}\NormalTok{earns))}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{verbatim}
-```r
-print(mean(treat75$earns) - mean(control75$earns))
-```
-
-```
 ## [1] -17531.28
-```
-We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
 \end{verbatim}
+
+  We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
+  \ref{item:lms5} in the Appendix.
+\end{enumerate}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{7}
-\tightlist
 \item
   (6 p) Explain why the DD approach may be regarded as an improvement
   over the TCC approach and the BA approach when it comes to credible
   identification of average treatment effects.
   \textcolor{gray}{\textbf{Hint}: Feel free to utilize what we did in class.}
+
+  The DD approach may be regarded as an improvement over the TCC
+  approach and the BA approach because, first of all, it inherently uses
+  more data. The TCC approach only uses the data from one time period
+  (for both the treatment and control group) while the BA approach only
+  uses data from the treatment group (for all time periods). The DD
+  approach, on the other hand, uses the data from both groups from all
+  periods. It is an extension of the TCC and BA approaches and controls
+  for both unobserved differences between treatment and control groups
+  as well as changes over time that affect both groups. It does this by
+  comparing the difference in outcomes before and after the treatment
+  for the treatment group to the same difference for the control group.
+  \newpage
 \end{enumerate}
-
-The DD approach may be regarded as an improvement over the TCC approach
-and the BA approach because, first of all, it inherently uses more data.
-The TCC approach only uses the data from one time period (for both the
-treatment and control group) while the BA approach only uses data from
-the treatment group (for all time periods). The DD approach, on the
-other hand, uses the data from both groups from all periods. It is an
-extension of the TCC and BA approaches and controls for both unobserved
-differences between treatment and control groups as well as changes over
-time that affect both groups. It does this by comparing the difference
-in outcomes before and after the treatment for the treatment group to
-the same difference for the control group.
-
-\newpage
 
 \begin{center}
 {\LARGE Part 2: Replicate Card and Krueger's 1994 Minimum Wage Article (50 p)}
@@ -658,6 +632,9 @@ the same difference for the control group.
 \NormalTok{ff\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"starter{-}files/fast{-}food{-}data.csv"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+The authors have access to panel data - they are keeping track of the
+same restaurants over time.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -713,6 +690,15 @@ Number temporarily closed & 0 & 2 & 2 \\
 Number of refusals & 0 & 1 & 1 \\
 Number interviewed & 78 & 321 & 399 \\
 \end{longtable}
+
+The purpose of this table is to provide a summary of the panel data by
+state. We see that across the two periods, we track 79 New Jersey stores
+and 331 Pennsylvania stores. However, we see that there are some amount
+of stores that were closed or otherwise could not participate in both
+waves of the survey, thus some attrition is present in our data.
+Understanding the proportion of stores that are part of the panel is
+important for understanding the participation rate of the stores and the
+validity of the sample/sample selection process.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}

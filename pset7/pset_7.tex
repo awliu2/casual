@@ -112,7 +112,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\usepackage{bookmark}
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
@@ -132,9 +132,10 @@
 \begin{document}
 \maketitle
 
+\hypertarget{part-1-before-and-after-and-difference-in-difference-estimators-50-points}{%
 \subsection{Part 1: Before and After and Difference in Difference
 Estimators (50
-Points)}\label{part-1-before-and-after-and-difference-in-difference-estimators-50-points}
+Points)}\label{part-1-before-and-after-and-difference-in-difference-estimators-50-points}}
 
 \noindent \textcolor{Maroon}{\textbf{Background}. In Pset 4 you estimated the average treatment effect of the offer of training for the NSW treated units in 1978 using the  Treated Control Comparison (TCC) estimator, the Regression Adjusted TCC estimator, and the Double Machine Learning (DML) estimator. The latter two estimators attempted to control for observable confounders, namely, observed pre-treatment differences between the NSW treated sample and the PSID-1 sample. Here we focus on methods that control for unobservable confounders, namely, the Before After Comparison Estimator and the Difference in Differences Estimators.}\textbackslash{}
 
@@ -185,6 +186,7 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
+\tightlist
 \item
   (4 p) Reshape the dataframe from \textcolor{ForestGreen}{wide format}
   to \textcolor{ForestGreen}{long format} so that for each sample
@@ -192,8 +194,9 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
   for 1978 (post-treatment). Verify that the reshaped dataframe has
   \(5,350\) rows.
   \textcolor{gray}{\textbf{Programming Guidance:} The original dataframe is in wide format because each row pertains to one individual, and columns \texttt{re75} and \texttt{re78} store the individual's earnings in 1975 and 1978. The long (i.e., panel) format has 2 rows for each individual (one for 1975, one for 1978), and 1 column storing the earnings for the corresponding year. We named the earnings column \texttt{earns}. Also, we added two columns: a) \texttt{dyear2} for $D78_{t}$, i.e., takes value 1 when the year is 1978 and 0 otherwise; b) \texttt{tdyear2} is the product of \texttt{dyear2} and \texttt{treat} and corresponds to $D78_t \times D_i$. To reshape a dataframe to long, use \href{https://tidyr.tidyverse.org/reference/gather.html}{\texttt{tidyr::gather( )}}. Find a worked out example \href{https://uc-r.github.io/tidyr}{here}. Or use \texttt{data.table::melt()}.}\label{item:BAfter-reshape}
+\end{enumerate}
 
-  We reshape the data as follows:
+We reshape the data as follows:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -248,13 +251,19 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 ## [1] 5350
 \end{verbatim}
 
-  We confirm that the reshaped dataframe has 5350 rows.
+We confirm that the reshaped dataframe has 5350 rows.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
 \item
   (1 p) Take the reshaped dataframe created in
   \textbf{\ref{item:BAfter-reshape}}; keep only the rows pertaining to
   the treated individuals, and check that the resulting dataframe has
   \(370\) rows because
   \(370=185 \text{ treated individuals } \times 2 \text{ years for each individual}\).\label{item:BAfter-filter}
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -267,12 +276,18 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 ## [1] 370
 \end{verbatim}
 
-  We confirm that after filtering on treatment, the resulting dataframe
-  has 370 rows.
+We confirm that after filtering on treatment, the resulting dataframe
+has 370 rows.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
 \item
   (2 p) Use the dataframe created in \textbf{\ref{item:BAfter-filter}}
   and \texttt{stats::lm( )} to estimate \(\rho\) in the specification of
   expression (\ref{BAfter}).\label{item:BAfter-rho}
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -281,8 +296,13 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 \end{Highlighting}
 \end{Shaded}
 
-  We estimate \(\rho\) to be 4,817.090 as witnessed in Table
-  \ref{item:lms2} in the Appendix. \newpage 
+We estimate \(\rho\) to be 4,817.090 as witnessed in Table
+\ref{item:lms2} in the Appendix. \newpage 
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
 \item
   (1 p) Verify that \(\hat{\rho}\) obtained in
   \textbf{\ref{item:BAfter-rho}} is numerically identical to
@@ -290,6 +310,7 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
   that is, it equals the difference between average post-treatment and
   average pre-treatment earnings using only the 185 individuals in the
   treatment sample.\label{item:BAfter-diff}
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -304,45 +325,52 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 ## [1] 4817.09
 \end{verbatim}
 
-  We verify that \(\hat{\rho}\) is numerically identical to
-  \(\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)\).
+We verify that \(\hat{\rho}\) is numerically identical to
+\(\left( \overline{earn}_{78}^{1}-\overline{earns}_{75}^{1}\right)\).
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
 \item
   (4 p) Explain why the BA approach may or may not identify the average
   effect for the treated in the post-treatment year, i.e.,
   \({ATT}_{78}\).
   \textcolor{gray}{\textbf{Hint}: Use the result in \textbf{\ref{item:BAfter-diff}} to think about what this approach uses to identify the mean of potential outcomes w/ and w/out treatment and for different (sub)population. Feel free to utilize what we did in class.}
-
-  Whilst we have the realized outcome of post-period earnings on the
-  treated units allowing us to find \(\overline{earn}_{78}^{1}\) as the
-  sample analogue for \(\mathbb{E}[y_{1i78} \mid E_i = 1]\) (where
-  \(E_i\) is \(D_{i75} = 0, D_{i78} = 1\)), we are unable to learn the
-  potential outcomes of post-period earnings in the case that those same
-  units had not been treated (i.e.~we are unable to find a sample
-  analogue for \(\mathbb{E}[y_{0i78} \mid E_i = 1]\)).
-
-  In order to produce an estimate for \({ATT}_{78}\) we choose to assume
-  that the counterfactual for treated units are the same as earnings in
-  the pre-treatment period, so that
-  \(\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]\).
-  This allows us to take \(\overline{earns}_{75}^{1}\) as the sample
-  analogue.
-
-  However, the BA approach might not identity the average effect for the
-  treated in the post-treatment year \(ATT_{78}\) because there could be
-  unaccounted biases for the computed \(ATT_{78}\). In particular, if it
-  is the case that
-  \(\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]\),
-  \(ATT_{78}\) would then be a biased estimator.
 \end{enumerate}
+
+Whilst we have the realized outcome of post-period earnings on the
+treated units allowing us to find \(\overline{earn}_{78}^{1}\) as the
+sample analogue for \(\mathbb{E}[y_{1i78} \mid E_i = 1]\) (where \(E_i\)
+is \(D_{i75} = 0, D_{i78} = 1\)), we are unable to learn the potential
+outcomes of post-period earnings in the case that those same units had
+not been treated (i.e.~we are unable to find a sample analogue for
+\(\mathbb{E}[y_{0i78} \mid E_i = 1]\)).
+
+In order to produce an estimate for \({ATT}_{78}\) we choose to assume
+that the counterfactual for treated units are the same as earnings in
+the pre-treatment period, so that
+\(\mathbb{E}[y_{0i78} \mid E_i = 1] = \mathbb{E}[y_{0i75} \mid E_i = 1]\).
+This allows us to take \(\overline{earns}_{75}^{1}\) as the sample
+analogue.
+
+However, the BA approach might not identity the average effect for the
+treated in the post-treatment year \(ATT_{78}\) because there could be
+unaccounted biases for the computed \(ATT_{78}\). In particular, if it
+is the case that
+\(\mathbb{E}[y_{0i78} \mid E_i = 1] \neq \mathbb{E}[y_{0i75} \mid E_i = 1]\),
+\(ATT_{78}\) would then be a biased estimator.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{1}
+\tightlist
 \item
   (3 p) Estimate the specification in expression (\ref{FD}) using OLS.
   Denote the resulting estimate of the impact by
   \(\widehat{ATT}_{78}^{FD}\).
   \textcolor{gray}{\textbf{Programming Guidance:} It is most convenient to use the wide format dataframe for this task. Use \texttt{lm()}.}\label{item:fd}
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -353,8 +381,13 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 \end{Highlighting}
 \end{Shaded}
 
-  We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
-  \ref{item:lms3} in the Appendix.
+We estimate \(\widehat{ATT}_{78}^{FD} = 2326.505\) as seen in Table
+\ref{item:lms3} in the Appendix.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
 \item
   (6 p) Estimate the specification in expression (\ref{TWFE}) using the
   \textcolor{ForestGreen}{Least Square Dummy Variable Approach}. Denote
@@ -362,6 +395,7 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
   treats the individual effects \(\mu_i\) and the year effects
   \(\delta_t\) as parameters to be estimated.
   \textcolor{Gray}{\textbf{Programming Guidance:} Do not manually add to your dataframe dummies for each individual and each years. Instead use \texttt{factor()} in the formula that you supply to \texttt{lm()} and R will do the job. Be prepared that this regression will take a bit to run, be patient. Make sure that you understand the output and only show the estimate of ${ATT}_{78}$ in your solutions as there are too many other estimated coefficients returned.}\label{item:lsdv}
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -405,14 +439,20 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
 ## 2326.505
 \end{verbatim}
 
-  In our linear regression we confirm that both with and without a
-  constant in the regression we can successfully estimate
-  \(\widehat{ATT}_{78}^{LSDV} = 2326.505\).
+In our linear regression we confirm that both with and without a
+constant in the regression we can successfully estimate
+\(\widehat{ATT}_{78}^{LSDV} = 2326.505\).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
 \item
   (6 p) Estimate the specification in expression (\ref{TWFE}) using the
   \textcolor{ForestGreen}{Two-way Fixed Effect Approach}. Denote the
   estimate of the impact by \(\widehat{ATT}_{78}^{TWFE}\).
   \textcolor{Gray}{\textbf{Programming Guidance:} Use \href{https://www.rdocumentation.org/packages/plm/versions/2.6-3/topics/plm}{\texttt{plm()}}.}\label{item:twfe}
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -423,7 +463,6 @@ expression (\ref{DinD})                 & Difference-in-Differences (DD) & $\rho
               \AttributeTok{effect =} \StringTok{"twoways"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\end{enumerate}
 
 We estimate \(\widehat{ATT}_{78}^{TWFE} = 2326.505\) as seen in Table
 \ref{item:plms4} in the Appendix.
@@ -478,6 +517,7 @@ compared to another.
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
+\tightlist
 \item
   (2 p) Verify that \(\widehat{ATT}_{78}^{DD}\) is numerically identical
   to 3 equivalent expressions:\label{item:DinD-diff} \begin{align}
@@ -485,6 +525,7 @@ compared to another.
    \left( \overline{earn}_{78}^{1} -\overline{earn}_{75}^{1}\right) &-\left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right),\label{eq:DDv2} \\ 
    \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
    \end{align}
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -529,11 +570,18 @@ compared to another.
 ## [1] 2326.505
 \end{verbatim}
 
-  We verify that \(\widehat{ATT}_{78}^{DD}\) is numerically equivalent
-  to all the above expressions.
+\begin{verbatim}
+  We verify that $\widehat{ATT}_{78}^{DD}$ is numerically equivalent to all the above expressions. 
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
 \item
   (1 p) Verify that \(\hat{\alpha}\) is numerically identical to
   \(\overline{earn}_{75}^{0}\).
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -545,11 +593,18 @@ compared to another.
 ## [1] 19063.34
 \end{verbatim}
 
-  We verify that \(\hat{\alpha} = 19063.340\) as seen in Table
-  \ref{item:lms5} in the Appendix.
+\begin{verbatim}
+  We verify that $\hat{\alpha} = 19063.340$ as seen in Table \ref{item:lms5} in the Appendix. 
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
 \item
   (1 p) Verify that \(\hat{\delta}\) is numerically identical to
   \(\overline{earn}_{78}^{0}-\overline{earn}_{75}^{0}\).
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -561,11 +616,18 @@ compared to another.
 ## [1] 2490.585
 \end{verbatim}
 
-  We verify that \(\hat{\delta} = 2490.585\) as seen in Table
-  \ref{item:lms5} in the Appendix.
+\begin{verbatim}
+  We verify that $\hat{\delta} = 2490.585$ as seen in Table \ref{item:lms5} in the Appendix.
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
 \item
   (1 p) Verify that \(\hat{\gamma}\) is numerically identical to
   \(\overline{earn}_{75}^{1}-\overline{earn}_{75}^{0}\).
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -577,9 +639,9 @@ compared to another.
 ## [1] -17531.28
 \end{verbatim}
 
-  We verify that \(\hat{\alpha} = -17531.280\) as seen in Table
-  \ref{item:lms5} in the Appendix.
-\end{enumerate}
+\begin{verbatim}
+  We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
+\end{verbatim}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -703,6 +765,7 @@ validity of the sample/sample selection process.
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{11}
+\tightlist
 \item
   The outcome of interest is full-time equivalent (FTE) employment. At
   page 775 of the article the authors explain how FTE employment is
@@ -716,6 +779,7 @@ validity of the sample/sample selection process.
     dataframe.
     \textcolor{gray}{\textbf{Programming guidance:} Columns \texttt{empft}, \texttt{nmgrs}, and \texttt{emppt} report employment by full-time (FT) workers, employment by managers (considered FT employees), and employment by part-time (PT) workers. In our script we named \texttt{fte}, and respectively \texttt{fte2}, wave 1's and wave 2's FTE employment columns. You have some NAs in \texttt{fte} and/or \texttt{fte2} because the underlying counts of FT workers, PT workers and managers may have NAs. To check that you have constructed \texttt{fte} and \texttt{fte2} correctly, use \texttt{mean( )} to calculate sample averages: to disregard NAs you specify an additional argument, e.g., \texttt{mean(df\$fte, na.rm=TRUE)} where \texttt{na.rm} stands for ``NAs removed".}
   \end{enumerate}
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -724,17 +788,9 @@ validity of the sample/sample selection process.
 \end{Highlighting}
 \end{Shaded}
 
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \setcounter{enumii}{1}
-  \tightlist
-  \item
-    (1 p) Check that you have constructed these two columns correctly by
-    computing their sample averages and comparing what you obtain to the
-    values reported in the rectangles superimposed to Table
-    \ref{fig:CK_Tab2}, e.g., 20.4 FTE workers per store on average in
-    NJ-wave 1 and 23.3 FTE workers per store on average in PA-wave 1.
-  \end{enumerate}
+\begin{verbatim}
+b. (1 p) Check that you have constructed these two columns correctly by computing their sample averages and comparing what you obtain to the values reported in the rectangles superimposed to Table \ref{fig:CK_Tab2}, e.g., 20.4 FTE workers per store on average in NJ-wave 1 and 23.3 FTE workers per store on average in PA-wave 1. 
+\end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -747,47 +803,48 @@ validity of the sample/sample selection process.
 \end{Highlighting}
 \end{Shaded}
 
-  \begin{longtable}[]{@{}rrr@{}}
-  \caption{Table 3 Replication, NJ = 1, PA = 0}\tabularnewline
-  \toprule\noalign{}
-  State & FTE Wave 1 & FTE Wave 2 \\
-  \midrule\noalign{}
-  \endfirsthead
-  \toprule\noalign{}
-  State & FTE Wave 1 & FTE Wave 2 \\
-  \midrule\noalign{}
-  \endhead
-  \bottomrule\noalign{}
-  \endlastfoot
-  0 & 23.33117 & 21.16558 \\
-  1 & 20.43941 & 21.02743 \\
-  \end{longtable}
+\begin{longtable}[]{@{}rrr@{}}
+\caption{Table 3 Replication, NJ = 1, PA = 0}\tabularnewline
+\toprule\noalign{}
+State & FTE Wave 1 & FTE Wave 2 \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+State & FTE Wave 1 & FTE Wave 2 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 23.33117 & 21.16558 \\
+1 & 20.43941 & 21.02743 \\
+\end{longtable}
 
-  We confirm that the sample averages are as expected.
+We confirm that the sample averages are as expected.
 
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \setcounter{enumii}{2}
-  \tightlist
-  \item
-    (1 p) What is the purpose of the two panels
-    \texttt{1.\ Distribution\ of\ Stores\ Types\textquotesingle{}\textquotesingle{}\ and}2.
-    Means in Wave 1'\,'? These panels server as summaries of the
-    pre-treatment characteristics of the scores in the sample. In the
-    context of the study, we want samples to be relatively similar
-    before and after treatment as to avoid confounding the treatment
-    effect with differences in the distributions between the two states.
-  \end{enumerate}
+\begin{verbatim}
+c. (1 p) What is the purpose of the two panels ``1. Distribution of Stores Types'' and ``2. Means in Wave 1''?
+\end{verbatim}
 
-  We see that in panel 1 that the distribution of various fast food
-  chains are similar across the two states - this is important because
-  if, for example, NJ had significantly more Wendy's than PA, and
-  Wendy's implemented some new policy, this policy would affect the New
-  Jersey sample much more than the PA sample.
+These panels server as summaries of the pre-treatment characteristics of
+the scores in the sample. In the context of the study, we want samples
+to be relatively similar before and after treatment as to avoid
+confounding the treatment effect with differences in the distributions
+between the two states.
 
-  Similarly, in panel 2 we see that the FTE employment is similar across
-  the two states - thus differences in FTE employment are not likely to
-  be confounded with the treatment.
+We see that in panel 1 that the distribution of various fast food chains
+are similar across the two states - this is important because if, for
+example, NJ had significantly more Wendy's than PA, and Wendy's
+implemented some new policy, this policy would affect the New Jersey
+sample much more than the PA sample.
+
+Similarly, in panel 2 we see that the FTE employment is similar across
+the two states - thus differences in FTE employment are not likely to be
+confounded with the treatment.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{12}
+\tightlist
 \item
   (6 p) Here you reproduce the statistics in the \underline{top}
   rectangle superimposed to Table
@@ -805,52 +862,60 @@ validity of the sample/sample selection process.
   \textcolor{gray}{\textbf{Programming guidance:} Leverage \href{https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/t.test}{\texttt{stats::t.test( )}} which test that the difference between the sample averages of a variable is zero across two groups. This function returns on object that has useful information for you to grab. Say you name the object \texttt{ttest}. Go to the command line and type \texttt{ttest} and append a dollar (\$) sign: you see all the information that you can grab. In particular, you can grab the group-specific sample averages and the standard error of the difference in sample averages. To compute the standard error of each sample average you want to remember that $Var(\bar{x})=Var(x_i)/n$ where $n$ is the number of observations used to compute the average and $se(\bar{x})=\sqrt{Var(\bar{x})}$. To reproduce exactly the numbers in the table, round your results to the 2nd digit using \texttt{round(, digits = 2)} from base R. }
 \end{enumerate}
 
-\begin{verbatim}
-```r
-PA_mean_before <- mean(filter(ff_df, state == 0)$fte, na.rm=TRUE)
-PA_se_before <- t.test(filter(ff_df, state == 0)$fte)$stderr
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{PA\_mean\_before }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\FunctionTok{filter}\NormalTok{(ff\_df, state }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}\SpecialCharTok{$}\NormalTok{fte, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{PA\_se\_before }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(}\FunctionTok{filter}\NormalTok{(ff\_df, state }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}\SpecialCharTok{$}\NormalTok{fte)}\SpecialCharTok{$}\NormalTok{stderr}
 
-NJ_mean_before <- mean(filter(ff_df, state == 1)$fte, na.rm=TRUE)
-NJ_se_before <- t.test(filter(ff_df, state == 1)$fte)$stderr
+\NormalTok{NJ\_mean\_before }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\FunctionTok{filter}\NormalTok{(ff\_df, state }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}\SpecialCharTok{$}\NormalTok{fte, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{NJ\_se\_before }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(}\FunctionTok{filter}\NormalTok{(ff\_df, state }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}\SpecialCharTok{$}\NormalTok{fte)}\SpecialCharTok{$}\NormalTok{stderr}
 
-delta_mean_before <- PA_mean_before - NJ_mean_before
+\NormalTok{delta\_mean\_before }\OtherTok{\textless{}{-}}\NormalTok{ PA\_mean\_before }\SpecialCharTok{{-}}\NormalTok{ NJ\_mean\_before}
 
-delta_se_before <- sqrt(PA_se_before^2 + NJ_se_before^2)
+\NormalTok{delta\_se\_before }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(PA\_se\_before}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ NJ\_se\_before}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
 
-PA_mean_after <- mean(filter(ff_df, state == 0)$fte2, na.rm=TRUE)
-PA_se_after <- t.test(filter(ff_df, state == 0)$fte2)$stderr
+\NormalTok{PA\_mean\_after }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\FunctionTok{filter}\NormalTok{(ff\_df, state }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}\SpecialCharTok{$}\NormalTok{fte2, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{PA\_se\_after }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(}\FunctionTok{filter}\NormalTok{(ff\_df, state }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}\SpecialCharTok{$}\NormalTok{fte2)}\SpecialCharTok{$}\NormalTok{stderr}
 
-NJ_mean_after <- mean(filter(ff_df, state == 1)$fte2, na.rm=TRUE)
-NJ_se_after <- t.test(filter(ff_df, state == 1)$fte2)$stderr
+\NormalTok{NJ\_mean\_after }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\FunctionTok{filter}\NormalTok{(ff\_df, state }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}\SpecialCharTok{$}\NormalTok{fte2, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{NJ\_se\_after }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(}\FunctionTok{filter}\NormalTok{(ff\_df, state }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}\SpecialCharTok{$}\NormalTok{fte2)}\SpecialCharTok{$}\NormalTok{stderr}
 
-delta_mean_after <- PA_mean_after - NJ_mean_after
-delta_se_after <- sqrt(PA_se_after^2 + NJ_se_after^2)
+\NormalTok{delta\_mean\_after }\OtherTok{\textless{}{-}}\NormalTok{ PA\_mean\_after }\SpecialCharTok{{-}}\NormalTok{ NJ\_mean\_after}
+\NormalTok{delta\_se\_after }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(PA\_se\_after}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ NJ\_se\_after}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
 
-table3 <- as.data.frame(matrix(c(PA_mean_before, PA_se_before,
-                                 PA_mean_after, PA_se_after,
-                                 NJ_mean_before, NJ_se_before,
-                                 NJ_mean_after, NJ_se_after,
-                                 delta_mean_before, delta_se_before,
-                                 delta_mean_after, delta_se_after),
-                         nrow = 4, ncol = 3))
-colnames(table3) = c("PA", "NJ", "Difference")
-rownames(table3) = c("FTE before", "(stderr before)", "FTE after", "(stderr after)")
+\NormalTok{table3 }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(PA\_mean\_before, PA\_se\_before,}
+\NormalTok{                                 PA\_mean\_after, PA\_se\_after,}
+\NormalTok{                                 NJ\_mean\_before, NJ\_se\_before,}
+\NormalTok{                                 NJ\_mean\_after, NJ\_se\_after,}
+\NormalTok{                                 delta\_mean\_before, delta\_se\_before,}
+\NormalTok{                                 delta\_mean\_after, delta\_se\_after),}
+                         \AttributeTok{nrow =} \DecValTok{4}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{3}\NormalTok{))}
+\FunctionTok{colnames}\NormalTok{(table3) }\OtherTok{=} \FunctionTok{c}\NormalTok{(}\StringTok{"PA"}\NormalTok{, }\StringTok{"NJ"}\NormalTok{, }\StringTok{"Difference"}\NormalTok{)}
+\FunctionTok{rownames}\NormalTok{(table3) }\OtherTok{=} \FunctionTok{c}\NormalTok{(}\StringTok{"FTE before"}\NormalTok{, }\StringTok{"(stderr before)"}\NormalTok{, }\StringTok{"FTE after"}\NormalTok{, }\StringTok{"(stderr after)"}\NormalTok{)}
 
-kable(table3, caption="Table 4 Replication")
-```
+\FunctionTok{kable}\NormalTok{(table3, }\AttributeTok{caption=}\StringTok{"Table 4 Replication"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
+\begin{longtable}[]{@{}lrrr@{}}
+\caption{Table 4 Replication}\tabularnewline
+\toprule\noalign{}
+& PA & NJ & Difference \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+& PA & NJ & Difference \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+FTE before & 23.3311688 & 20.4394081 & 2.8917607 \\
+(stderr before) & 1.3511489 & 0.5082607 & 1.4435831 \\
+FTE after & 21.1655844 & 21.0274295 & 0.1381549 \\
+(stderr after) & 0.9432212 & 0.5203094 & 1.0772131 \\
+\end{longtable}
 
-
-Table: Table 4 Replication
-
-|                |         PA|         NJ| Difference|
-|:---------------|----------:|----------:|----------:|
-|FTE before      | 23.3311688| 20.4394081|  2.8917607|
-|(stderr before) |  1.3511489|  0.5082607|  1.4435831|
-|FTE after       | 21.1655844| 21.0274295|  0.1381549|
-|(stderr after)  |  0.9432212|  0.5203094|  1.0772131|
 matching the results shown in Table \ref{fig:CK_Tab3}
-\end{verbatim}
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
@@ -859,23 +924,29 @@ matching the results shown in Table \ref{fig:CK_Tab3}
 \item
   (2 p) Which statistics does Table \ref{fig:CK_Tab3} row 3, columns (i)
   through (iii), report? Are any of them interpretable as estimates of
-  the impact of NJ's MW change? Explain. For columns 1 through 3, row 3
-  shows the (1) difference in Pennsylvaniamean full time employment
-  before vs after the introduction of the NJ Minimum Wage Law, (2) the
-  difference in New Jersey mean full time employment before vs after the
-  introduction of the NJ Minimum Wage Law, and (3) the difference
-  between these two differences of means. The differences in differences
-  figure (i.e column 3) is the most interpretable as an estimate of the
-  impact of the NJ minimum wage law - column (1) estimates the
-  difference between the two time periods unaffected by the law, column
-  (2) estimates the impact of the law in conjunction with any time
-  period differences, thus column (3) therefore isolates the difference
-  that can be attributed to just the law.
+  the impact of NJ's MW change? Explain.
 \end{enumerate}
 
-\begin{verbatim}
-However, from these figures alone we cannot neccessarily simply conclude column (3) as the true causal impact of the law - we must consider any possible confounders such as differences between geographic and demographic regions, differences between various fast food chains, etc. That is to say, in order to confidently interpret these figures as an estimator of any sort of causal impact, we must have confidence in our data and the context in which it was collected and the assumptions that we make.
-\end{verbatim}
+For columns 1 through 3, row 3 shows the (1) difference in Pennsylvania
+mean full time employment before vs after the introduction of the NJ
+Minimum Wage Law, (2) the difference in New Jersey mean full time
+employment before vs after the introduction of the NJ Minimum Wage Law,
+and (3) the difference between these two differences of means. The
+differences in differences figure (i.e column 3) is the most
+interpretable as an estimate of the impact of the NJ minimum wage law -
+column (1) estimates the difference between the two time periods
+unaffected by the law, column (2) estimates the impact of the law in
+conjunction with any time period differences, thus column (3) therefore
+isolates the difference that can be attributed to just the law.
+
+However, from these figures alone we cannot neccessarily simply conclude
+column (3) as the true causal impact of the law - we must consider any
+possible confounders such as differences between geographic and
+demographic regions, differences between various fast food chains, etc.
+That is to say, in order to confidently interpret these figures as an
+estimator of any sort of causal impact, we must have confidence in our
+data and the context in which it was collected and the assumptions that
+we make.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -906,23 +977,191 @@ However, from these figures alone we cannot neccessarily simply conclude column 
   (iii); this includes sample averages, their SEs, differences in sample
   averages and their SEs.
   \textcolor{gray}{\textbf{Programming guidance:} Add a column equal to the difference between \texttt{fte2} and \texttt{fte} to your dataframe, we named it \texttt{diff\_fte}. The reason is that rows 4 and 5, columns (i) through (ii), report averages of \texttt{diff\_fte} for NJ and PA respectively. We suggest that you add a column that tags all the stores that were temporarily closed in wave 2 (read the text of the article and the codebook to understand how to use the existing columns to create this new column). In our script we named it \texttt{temp\_closed\_2nd\_wave} so that whenever we want to do anything (e.g., exclude from the analysis) to stores that were temporarily closed in wave 2 we can simply use the filter \texttt{temp\_closed\_2nd\_wave==1}. When reproducing the statistics in row 5, read the Table's notes ``d'' very carefully. To reproduce exactly the numbers in the table, round your results to the 2nd digit.}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# row 4}
+\NormalTok{ff\_df }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{diff\_fte =}\NormalTok{ fte2 }\SpecialCharTok{{-}}\NormalTok{ fte,}
+                          \AttributeTok{temp\_closed\_2nd\_wave =} \FunctionTok{as.integer}\NormalTok{((status2 }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) }\SpecialCharTok{|} 
+\NormalTok{                                                              (status2 }\SpecialCharTok{==} \DecValTok{4}\NormalTok{) }\SpecialCharTok{|} 
+\NormalTok{                                                              (status2 }\SpecialCharTok{==} \DecValTok{5}\NormalTok{)))}
+\NormalTok{bal\_PA }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(state }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(diff\_fte) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{na.omit}\NormalTok{()}
+
+\NormalTok{bal\_NJ }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(state }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(diff\_fte) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{na.omit}\NormalTok{()}
+
+\NormalTok{bal\_PA\_mean\_delta }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(bal\_PA}\SpecialCharTok{$}\NormalTok{diff\_fte)}
+\NormalTok{bal\_NJ\_mean\_delta }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(bal\_NJ}\SpecialCharTok{$}\NormalTok{diff\_fte)}
+\NormalTok{bal\_diff }\OtherTok{\textless{}{-}}\NormalTok{ bal\_NJ\_mean\_delta }\SpecialCharTok{{-}}\NormalTok{ bal\_PA\_mean\_delta}
+
+\NormalTok{bal\_PA\_se }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(bal\_PA}\SpecialCharTok{$}\NormalTok{diff\_fte) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{length}\NormalTok{(bal\_PA}\SpecialCharTok{$}\NormalTok{diff\_fte))}
+\NormalTok{bal\_NJ\_se }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(bal\_NJ}\SpecialCharTok{$}\NormalTok{diff\_fte) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{length}\NormalTok{(bal\_NJ}\SpecialCharTok{$}\NormalTok{diff\_fte))}
+\NormalTok{bal\_diff\_se }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(bal\_PA\_se}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ bal\_NJ\_se}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+
+\CommentTok{\# row 5}
+\NormalTok{ff\_df\_temp }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{fte2 =} \FunctionTok{if\_else}\NormalTok{(temp\_closed\_2nd\_wave }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, fte2),}
+         \AttributeTok{diff\_fte =}\NormalTok{ fte2 }\SpecialCharTok{{-}}\NormalTok{ fte)}
+
+\NormalTok{temp\_PA }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df\_temp }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(state }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(diff\_fte) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{na.omit}\NormalTok{()}
+
+\NormalTok{temp\_NJ }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df\_temp }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(state }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(diff\_fte) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{na.omit}\NormalTok{()}
+
+
+\NormalTok{temp\_PA\_mean\_delta }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(temp\_PA}\SpecialCharTok{$}\NormalTok{diff\_fte)}
+\NormalTok{temp\_NJ\_mean\_delta }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(temp\_NJ}\SpecialCharTok{$}\NormalTok{diff\_fte)}
+\NormalTok{temp\_diff }\OtherTok{\textless{}{-}}\NormalTok{ temp\_NJ\_mean\_delta }\SpecialCharTok{{-}}\NormalTok{ temp\_PA\_mean\_delta}
+
+\NormalTok{temp\_PA\_se }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(temp\_PA}\SpecialCharTok{$}\NormalTok{diff\_fte) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{length}\NormalTok{(temp\_PA}\SpecialCharTok{$}\NormalTok{diff\_fte))}
+\NormalTok{temp\_NJ\_se }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(temp\_NJ}\SpecialCharTok{$}\NormalTok{diff\_fte) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{length}\NormalTok{(temp\_NJ}\SpecialCharTok{$}\NormalTok{diff\_fte))}
+\NormalTok{temp\_diff\_se }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(temp\_PA\_se}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ temp\_NJ\_se}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+
+
+\NormalTok{table3\_bottom }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(bal\_PA\_mean\_delta, bal\_PA\_se,}
+\NormalTok{                                 temp\_PA\_mean\_delta, temp\_PA\_se,}
+\NormalTok{                                 bal\_NJ\_mean\_delta, bal\_NJ\_se,}
+\NormalTok{                                 temp\_NJ\_mean\_delta, temp\_NJ\_se,}
+\NormalTok{                                 bal\_diff, bal\_diff\_se,}
+\NormalTok{                                 temp\_diff, temp\_diff\_se),}
+                         \AttributeTok{nrow =} \DecValTok{4}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{3}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate\_if}\NormalTok{(is.numeric, round, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{)}
+
+\FunctionTok{colnames}\NormalTok{(table3\_bottom) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"PA"}\NormalTok{, }\StringTok{"NJ"}\NormalTok{, }\StringTok{"Difference"}\NormalTok{)}
+\FunctionTok{rownames}\NormalTok{(table3\_bottom) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Change in mean FTE, balanced sample"}\NormalTok{, }\StringTok{"(stderr balanced)"}\NormalTok{, }\StringTok{"Change in mean FTE, setting FTE at temporarily closed stores to 0"}\NormalTok{, }\StringTok{"(stderr temporary set to 0)"}\NormalTok{)}
+
+\FunctionTok{kable}\NormalTok{(table3\_bottom, }\AttributeTok{caption=}\StringTok{"Table 3 Bottom Replication"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.7500}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.0682}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.0568}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1250}}@{}}
+\caption{Table 3 Bottom Replication}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+PA
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NJ
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Difference
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+PA
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NJ
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Difference
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Change in mean FTE, balanced sample & -2.28 & 0.47 & 2.75 \\
+(stderr balanced) & 1.25 & 0.48 & 1.34 \\
+Change in mean FTE, setting FTE at temporarily closed stores to 0 &
+-2.28 & 0.23 & 2.51 \\
+(stderr temporary set to 0) & 1.25 & 0.49 & 1.35 \\
+\end{longtable}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
 \item
   (2 p) Consider row 4: which of the columns (i) through (iii) yields
   the \textcolor{ForestGreen}{Before After (BA) estimator} of the impact
   of the change in NJ's MW? Describe the impact estimate in plain
   English.
+\end{enumerate}
+
+Column (ii) yields the BA estimator because it is derived from the
+employment data from the two time periods (before and after) for the NJ
+sample (treated group because of the MW policy in NJ). The figure in row
+4, column (ii) is 0.47, and this represents the change in mean FTE
+employment per store in New Jersey after the minimum wage increase,
+using a balanced sample of stores that had available employment data in
+both periods under consideration.
+
+In plain English, the impact estimate described by this row suggests
+that, on average, there was a small increase of about half an employee
+(0.47) in FTE employment per store in New Jersey when comparing periods
+before and after the minimum wage increase. This increase is based on a
+consistent set of stores that were open and had data available in both
+the before and after periods.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
 \item
   (2 p) Consider row 4: which of the columns (i) through (iii) yields
   the \textcolor{ForestGreen}{Difference in Differences (DD) estimator}
   of the impact of the change in NJ's MW? Describe the impact estimate
   in plain English. Why is it different from the BA estimate?
+\end{enumerate}
+
+Column (iii) yields the DD estimator. The DD estimator is the result of
+subtracting the change in PA (which did not experience the minimum wage
+change) from the change in NJ (which did experience the minimum wage
+change). The figure of 2.75 indicates that, on average, stores in New
+Jersey saw an increase of 2.75 in their FTE employment relative to the
+changes observed in Pennsylvania stores after the adjustment for the
+minimum wage.
+
+In plain English, the DD impact estimate suggests that NJ's increase in
+the minimum wage led to an average increase of nearly 3 full-time
+equivalent employees per store compared to PA, accounting for the
+general employment trends in PA.
+
+The DD estimate is different from the BA estimate because the BA
+estimate only looks at changes within NJ before and after the policy
+change. In contrast, the DD estimate compares NJ to PA (which functions
+as a control group), which helps to control for those other factors,
+assuming that both states would have followed similar trends in the
+absence of the policy change. This comparison isolates the effect of the
+minimum wage increase from other factors affecting employment that might
+be happening at the same time in both states.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
 \item
   (1 p) Why do the authors produce the statistics in row 5?
 \end{enumerate}
 
+Row 5 is included to account for the effect of temporary store closures.
+When stores close temporarily, their employment data are ``missing'' in
+period 2. If the second-period employment for these stores was simply
+treated as missing, they would be excluded from the calculation of the
+mean, potentially biasing the results because the sample would only
+include stores that remained open. By setting them to 0, the authors
+could still account for the effect observed in stores that were
+temporarily closed and expand the sample size.
+
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{14}
+\tightlist
 \item
   (2 p) Instead of computing averages and differences in averages etc.,
   as done in \textbf{\ref{item:table3-rows-1-2}} and
@@ -931,6 +1170,19 @@ However, from these figures alone we cannot neccessarily simply conclude column 
   dataframe from wide to long so that each store has two rows: one for
   wave 1 and one for wave 2.
   \textcolor{gray}{\textbf{Programming guidance:} In our script we named the new column \texttt{wave} with value 0 for 1st wave and 1 for 2nd wave and we named the long-format dataframe \texttt{df\_long}.}\label{item:CK_longformat}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{df\_long }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{gather}\NormalTok{(wave, fte, fte}\SpecialCharTok{:}\NormalTok{fte2)}
+\NormalTok{df\_long}\SpecialCharTok{$}\NormalTok{wave }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(df\_long}\SpecialCharTok{$}\NormalTok{wave }\SpecialCharTok{==} \StringTok{\textquotesingle{}fte\textquotesingle{}}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{15}
+\tightlist
 \item
   (5 p) Use the long-format data from \textbf{\ref{item:CK_longformat}}
   and estimate the following linear regression model specification using
@@ -943,6 +1195,48 @@ However, from these figures alone we cannot neccessarily simply conclude column 
   to the statistics reported in Table \ref{fig:CK_Tab3} row 4 columns
   (i) and (iii). Are you surprised?
   \textcolor{gray}{\textbf{Programming guidance:} You could use \texttt{stats:lm( )} but we ask you to cluster standard errors by store and to do so you use \texttt{miceadds::lm.cluster( )} which allows you to specify \texttt{cluster=``store\_id''}.}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#first drop stores that have missing employment in one of the two waves}
+
+\NormalTok{df\_long }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(fte }\SpecialCharTok{!=} \StringTok{\textquotesingle{}rm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(fte2 }\SpecialCharTok{!=} \StringTok{\textquotesingle{}rm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{gather}\NormalTok{(wave, fte, fte}\SpecialCharTok{:}\NormalTok{fte2)}
+\NormalTok{df\_long}\SpecialCharTok{$}\NormalTok{wave }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(df\_long}\SpecialCharTok{$}\NormalTok{wave }\SpecialCharTok{==} \StringTok{\textquotesingle{}fte\textquotesingle{}}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{df\_long}\SpecialCharTok{$}\NormalTok{st\_wave }\OtherTok{\textless{}{-}}\NormalTok{ df\_long}\SpecialCharTok{$}\NormalTok{wave }\SpecialCharTok{*}\NormalTok{ df\_long}\SpecialCharTok{$}\NormalTok{state}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(fte }\SpecialCharTok{\textasciitilde{}}\NormalTok{ wave }\SpecialCharTok{+}\NormalTok{ state }\SpecialCharTok{+}\NormalTok{ st\_wave)}
+\NormalTok{ols }\OtherTok{\textless{}{-}}\NormalTok{ miceadds}\SpecialCharTok{::}\FunctionTok{lm.cluster}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ df\_long, }\AttributeTok{cluster =} \StringTok{"store\_id"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We verify that \((\hat{\delta}, \hat{\rho})\) and the standard errors
+are identical:
+
+\begin{table}[!htbp] \centering 
+  \caption{Regression Specification Q16} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & Estimate & Std. Error & t value & Pr(\textgreater \textbar t\textbar ) \\ 
+\hline \\[-1.8ex] 
+(Intercept) & $23.380$ & $1.382$ & $16.917$ & $0$ \\ 
+wave & $$-$2.283$ & $1.249$ & $$-$1.828$ & $0.068$ \\ 
+state & $$-$2.949$ & $1.478$ & $$-$1.995$ & $0.046$ \\ 
+st\_wave & $2.750$ & $1.339$ & $2.054$ & $0.040$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{16}
+\tightlist
 \item
   (3 p) Use the long-format data from Q\ref{item:CK_longformat}, reset
   FTE employment to zero for all the stores that were temporarily closed
@@ -952,6 +1246,52 @@ However, from these figures alone we cannot neccessarily simply conclude column 
   coefficients \((\hat{\delta}, \hat{\rho})\), and their standard
   errors, are identical to those reported in Table \ref{fig:CK_Tab3} row
   5 columns (i) and (iii). Why is that?
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#first set fte for temporarily closed stores to 0, then filter }
+
+\NormalTok{df\_long }\OtherTok{\textless{}{-}}\NormalTok{ ff\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{fte2 =} \FunctionTok{if\_else}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{4}\NormalTok{, }\DecValTok{0}\NormalTok{, fte2)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{fte2 =} \FunctionTok{if\_else}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{5}\NormalTok{, }\DecValTok{0}\NormalTok{, fte2)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{fte2 =} \FunctionTok{if\_else}\NormalTok{(status2 }\SpecialCharTok{==} \DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{, fte2)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(fte }\SpecialCharTok{!=} \StringTok{\textquotesingle{}rm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(fte2 }\SpecialCharTok{!=} \StringTok{\textquotesingle{}rm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{gather}\NormalTok{(wave, fte, fte}\SpecialCharTok{:}\NormalTok{fte2)}
+
+\NormalTok{df\_long}\SpecialCharTok{$}\NormalTok{wave }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(df\_long}\SpecialCharTok{$}\NormalTok{wave }\SpecialCharTok{==} \StringTok{\textquotesingle{}fte\textquotesingle{}}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{df\_long}\SpecialCharTok{$}\NormalTok{st\_wave }\OtherTok{\textless{}{-}}\NormalTok{ df\_long}\SpecialCharTok{$}\NormalTok{wave }\SpecialCharTok{*}\NormalTok{ df\_long}\SpecialCharTok{$}\NormalTok{state}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula }\OtherTok{=} \FunctionTok{as.formula}\NormalTok{(fte }\SpecialCharTok{\textasciitilde{}}\NormalTok{ wave }\SpecialCharTok{+}\NormalTok{ state }\SpecialCharTok{+}\NormalTok{ st\_wave)}
+\NormalTok{ols }\OtherTok{\textless{}{-}}\NormalTok{ miceadds}\SpecialCharTok{::}\FunctionTok{lm.cluster}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ df\_long, }\AttributeTok{cluster =} \StringTok{"store\_id"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We verify that \((\hat{\delta}, \hat{\rho})\) and the standard errors
+are identical:
+
+\begin{table}[!htbp] \centering 
+  \caption{Regression Specification Q17} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & Estimate & Std. Error & t value & Pr(\textgreater \textbar t\textbar ) \\ 
+\hline \\[-1.8ex] 
+(Intercept) & $23.380$ & $1.382$ & $16.917$ & $0$ \\ 
+wave & $$-$2.283$ & $1.249$ & $$-$1.828$ & $0.068$ \\ 
+state & $$-$2.976$ & $1.477$ & $$-$2.015$ & $0.044$ \\ 
+st\_wave & $2.509$ & $1.342$ & $1.869$ & $0.062$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{17}
+\tightlist
 \item
   (5 p) Here you reproduce some of the estimates and statistics in the
   rectangle superimposed to Table
@@ -1014,14 +1354,48 @@ However, from these figures alone we cannot neccessarily simply conclude column 
   \textcolor{BlueViolet}{``Comparison within New Jersey between initially high-wage stores (those paying more than the minimum rate prior to its effective date) and other stores provides an alternative estimate of the impact of the new law.''}
   At page 773 they further write
   \textcolor{BlueViolet}{``Wage variation across stores in New Jersey, ..., allows us to compare the experience of high-wage and low-wage stores within New Jersey and to \textit{test} the validity of the Pennsylvania control group."}
-  Explain what the authors mean.
+  Explain what the authors mean. The authors suggest that the treatment
+  effect of increased wages can be alternatively estimated by comparing
+  the impact of the new law on ``control'' stores who were already
+  paying higher than minimum wage, effectively ``opting out'' of
+  treatment, to stores who were paying minimum wage and thus had to
+  increase wages. Thus, this provides a comparison of the treatment
+  effect in which various unit-level and temporal confounders, for
+  example, state-level differences such as tax policies, employee laws,
+  etc, are similar/the same between the groups (as both groups are from
+  New Jersey).
+
+  The second part, from page 773, suggests that they use this
+  comparision to test the validity of the Pennsylvania control group.
+  This is the case because both Pennsylvania stores and high-paying New
+  Jersey stores should be unaffected by the New Jersey minimum wage
+  hike, thus, if the treatment effect/impact of this wage hike is found
+  to be very different between the Pennsylvania stores and the
+  high-paying New Jersey stores, this would suggest that the
+  Pennsylvania stores could not be used as a valid control group (likely
+  due to various unfixed confounders related to differences in state
+  policies and demographics, etc).
 \item
   (2 p) At page 773 the authors write
   \textcolor{BlueViolet}{``We have complete information on store closings and take account of employment changes at the closed stores in our analyses. We therefore measure the overall effect of the minimum wage on average employment, and not simply its effect on surviving establishments.''}
-  Explain why this may be important.
-\end{enumerate}
+  Explain why this may be important. Taking account the employment
+  changes at closes stores is an important factor of the analysis for a
+  variety of reasons. Firstly, it is plausible that stores that closed
+  might have been more affected by the minimum wage hike than stores
+  that remained open - for example, if a store was already struggling to
+  pay its employees, a minimum wage hike might be the final straw that
+  causes it to close. Thus, if we were to ignore the employment changes
+  at closed stores, we would be ignoring a significant portion of the
+  treatment effect and lead to bias towards higher employment levels
+  than reality.
 
-\subsection{Appendix}\label{appendix}
+  Secondly, if we were to ignore the employment changes at closed
+  stores, we would be ignoring the possiblility that employees of a
+  closing store might be able to find employment at another store. In
+  such a case, our employment estimate for these stores that remained
+  open would be biased upward, as we would not be taking into account
+  the decreased employment of stores that closed. \#\# Appendix
+\end{enumerate}
 
 \begin{table}[!htbp] \centering 
   \caption{Linear Regression Implementation of Specification 2} 

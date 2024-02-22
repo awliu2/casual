@@ -15,7 +15,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
+knitr::opts_knit$set(root.dir = "~/casual/pset7")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -222,48 +222,48 @@ We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:lm
       \overline{earn}_{t=78}^{D=1} &- \big[ \overline{earn}_{75}^{1}+ \left( \overline{earn}_{78}^{0}-\overline{earn}_{t=75}^{D=0}\right) \big].\label{eq:DDv3}
       \end{align}
   
-      ```{r}
-      treatment <- long_psid %>% filter(treat == 1)
-      control <- long_psid %>% filter(treat == 0)
+```{r}
+treatment <- long_psid %>% filter(treat == 1)
+control <- long_psid %>% filter(treat == 0)
 
-      treat75 <- treatment %>% filter(dyear2 == 0)
-      treat78 <- treatment %>% filter(dyear2 == 1)
+treat75 <- treatment %>% filter(dyear2 == 0)
+treat78 <- treatment %>% filter(dyear2 == 1)
 
-      control75 <- control %>% filter(dyear2 == 0)
-      control78 <- control %>% filter(dyear2 == 1)
-      ```
+control75 <- control %>% filter(dyear2 == 0)
+control78 <- control %>% filter(dyear2 == 1)
+```
 
-      ```{r}
-      print((mean(treat78$earns) - mean(control78$earns)) - (mean(treat75$earns) - mean(control75$earns)))
-      ```
-        
-      ```{r}
-      print((mean(treat78$earns) - mean(treat75$earns)) - (mean(control78$earns) - mean(control75$earns)))
-      ```
+```{r}
+print((mean(treat78$earns) - mean(control78$earns)) - (mean(treat75$earns) - mean(control75$earns)))
+```
+  
+```{r}
+print((mean(treat78$earns) - mean(treat75$earns)) - (mean(control78$earns) - mean(control75$earns)))
+```
 
-      ```{r}
-      print(mean(treat78$earns) - (mean(treat75$earns) + (mean(control78$earns) - mean(control75$earns))))
-      ```
+```{r}
+print(mean(treat78$earns) - (mean(treat75$earns) + (mean(control78$earns) - mean(control75$earns))))
+```
       We verify that $\widehat{ATT}_{78}^{DD}$ is numerically equivalent to all the above expressions. 
 
   b. (1 p) Verify that $\hat{\alpha}$ is numerically identical to $\overline{earn}_{75}^{0}$.
-      ```{r}
-      print(mean(control75$earns))
-      ```
+```{r}
+print(mean(control75$earns))
+```
 
       We verify that $\hat{\alpha} = 19063.340$ as seen in Table \ref{item:lms5} in the Appendix. 
   
   c. (1 p) Verify that $\hat{\delta}$ is numerically identical to $\overline{earn}_{78}^{0}-\overline{earn}_{75}^{0}$.
-      ```{r}
-      print(mean(control78$earns) - mean(control75$earns))
-      ```
+```{r}
+print(mean(control78$earns) - mean(control75$earns))
+```
   
       We verify that $\hat{\delta} = 2490.585$ as seen in Table \ref{item:lms5} in the Appendix.
 
   d. (1 p) Verify that $\hat{\gamma}$ is numerically identical to $\overline{earn}_{75}^{1}-\overline{earn}_{75}^{0}$.
-      ```{r}
-      print(mean(treat75$earns) - mean(control75$earns))
-      ```
+```{r}
+print(mean(treat75$earns) - mean(control75$earns))
+```
       We verify that $\hat{\alpha} = -17531.280$ as seen in Table \ref{item:lms5} in the Appendix. 
 
 8. (6 p) Explain why the DD approach may be regarded as an improvement over the TCC approach and the BA approach when it comes to credible identification of average treatment effects. \textcolor{gray}{\textbf{Hint}: Feel free to utilize what we did in class.}
@@ -281,34 +281,34 @@ We estimate $\widehat{ATT}_{78}^{TWFE} = 2326.505$ as seen in Table \ref{item:lm
     \newline \texttt{Canvas/Files/Literature/CardKrueger\_MinimumWages\_AER1994.pdf}.
 
 10. (1 p) Load the data from \texttt{fast-food-data.csv}. Familiarize yourself with the columns in the dataframe by reading \texttt{fast-food-codebook.txt}. Do the authors have access to \textcolor{ForestGreen}{panel data (PD)} or \textcolor{ForestGreen}{repeated cross sectional (RCS) data}? \textcolor{gray}{\textbf{Hint:} We added a column named \texttt{store\_id} for convenience. The columns whose name ends with ``\texttt{2}'' are measured after the MW change. For example, \texttt{empft} is the number of full-time workers at a store before the MW change (wave 1 of the survey) and \texttt{empft2} is the number of full-time workers at a store after the MW change (wave 2 of the survey).} \textcolor{gray}{\textbf{Programming guidance:} Use \texttt{utils::read.csv( )} to read the CSV file.}
-  ```{r}
-  ff_df <- read.csv("starter-files/fast-food-data.csv")
-  ```
+```{r}
+ff_df <- read.csv("starter-files/fast-food-data.csv")
+```
   The authors have access to panel data - they are keeping track of the same restaurants over time.
 
 11. (4 p) Reproduce the counts in the rectangle superimposed over Table \ref{fig:CK_Tab1}. What is the purpose of this Table? \textcolor{gray}{\textbf{Hint:} You want to read carefully the notes to the table and the codebook.}
-  ```{r}
-  group_summary = ff_df %>% group_by(state) %>%
-    dplyr::summarize(
-      num_stores = n(),
-      num_closed = sum(status2 == 3),
-      num_renovation = sum(status2 == 2),
-      num_temp_closed = sum(status2 == 4 | status2 == 5),
-      num_refusals = sum(status2 == 0),
-      num_interviewed = sum(status2 == 1),
-    )
-  transposed <- t(group_summary)[-c(1),]
-  rownames(transposed) = c("Number of Stores",
-                           "Number closed",
-                           "Number under renovation",
-                           "Number temporarily closed",
-                           "Number of refusals",
-                           "Number interviewed")
+```{r}
+group_summary = ff_df %>% group_by(state) %>%
+  dplyr::summarize(
+    num_stores = n(),
+    num_closed = sum(status2 == 3),
+    num_renovation = sum(status2 == 2),
+    num_temp_closed = sum(status2 == 4 | status2 == 5),
+    num_refusals = sum(status2 == 0),
+    num_interviewed = sum(status2 == 1),
+  )
+transposed <- t(group_summary)[-c(1),]
+rownames(transposed) = c("Number of Stores",
+                         "Number closed",
+                         "Number under renovation",
+                         "Number temporarily closed",
+                         "Number of refusals",
+                         "Number interviewed")
 
-  kable(cbind(transposed, transposed[,1] + transposed[,2]),
-      col.names = c("NJ", "PA", "All"),
-      caption="Table 2 Replication")
-  ```
+kable(cbind(transposed, transposed[,1] + transposed[,2]),
+    col.names = c("NJ", "PA", "All"),
+    caption="Table 2 Replication")
+```
   The purpose of this table is to provide a summary of the panel data by state. We see that across the two periods, we track 79 New Jersey stores and 331 Pennsylvania stores. However, we see that there are some amount of stores that were closed or otherwise could not participate in both waves of the survey, thus some attrition is present in our data. Understanding the proportion of stores that are part of the panel is important for understanding the participation rate of the stores and the validity of the sample/sample selection process.
 
 12. The outcome of interest is full-time equivalent (FTE) employment. At page 775 of the article the authors explain how FTE employment is constructed. 
@@ -386,16 +386,95 @@ However, from these figures alone we cannot neccessarily simply conclude column 
 14. (10 p) Here you reproduce the statistics in the \underline{bottom} rectangle superimposed to Table \ref{fig:CK_Tab3}.\label{item:table3-rows-4-5} 
 
   a. (1 p) Why do the authors refer to the stores used to produce the statistics in row 4 as the ``balanced sample?'' On what grounds is this sample preferable to the sample used to produce the impact estimates reported in row 3?
-
-The authors refer to the stores used to produce the statistics in row 4 as the "balanced sample" because these are the stores that were open in both waves of the survey - thus they represent two-period balanced data. This sample is preferable to the sample used to produce the impact estimates reported in row 3 because stores missing a wave 2 observation may have unobserved confounders that could result in less accurate estimations.
+    The authors refer to the stores used to produce the statistics in row 4 as the "balanced sample" because these are the stores that were open in both waves of the survey - thus they represent two-period balanced data. This sample is preferable to the sample used to produce the impact estimates reported in row 3 because stores missing a wave 2 observation may have unobserved confounders that could result in less accurate estimations.
 
   b. (4 p) Reproduce the statistics in the bottom rectangle superimposed to Table \ref{fig:CK_Tab3}, i.e., rows 4 and 5, columns (i) through (iii); this includes sample averages, their SEs, differences in sample averages and their SEs. \textcolor{gray}{\textbf{Programming guidance:} Add a column equal to the difference between \texttt{fte2} and \texttt{fte} to your dataframe, we named it \texttt{diff\_fte}. The reason is that rows 4 and 5, columns (i) through (ii), report averages of \texttt{diff\_fte} for NJ and PA respectively. We suggest that you add a column that tags all the stores that were temporarily closed in wave 2 (read the text of the article and the codebook to understand how to use the existing columns to create this new column). In our script we named it \texttt{temp\_closed\_2nd\_wave} so that whenever we want to do anything (e.g., exclude from the analysis) to stores that were temporarily closed in wave 2 we can simply use the filter \texttt{temp\_closed\_2nd\_wave==1}. When reproducing the statistics in row 5, read the Table's notes ``d'' very carefully. To reproduce exactly the numbers in the table, round your results to the 2nd digit.}
+  
+```{r}
+# row 4
+ff_df <- ff_df %>% mutate(diff_fte = fte2 - fte,
+                          temp_closed_2nd_wave = as.integer((status2 == 2) | 
+                                                              (status2 == 4) | 
+                                                              (status2 == 5)))
+bal_PA <- ff_df %>%
+  filter(state == 0) %>%
+  select(diff_fte) %>%
+  na.omit()
 
-  c. (2 p) Consider row 4: which of the columns (i) through (iii) yields the \textcolor{ForestGreen}{Before After (BA) estimator} of the impact of the change in NJ's MW? Describe the impact estimate in plain English.
+bal_NJ <- ff_df %>%
+  filter(state == 1) %>%
+  select(diff_fte) %>%
+  na.omit()
+
+bal_PA_mean_delta <- mean(bal_PA$diff_fte)
+bal_NJ_mean_delta <- mean(bal_NJ$diff_fte)
+bal_diff <- bal_NJ_mean_delta - bal_PA_mean_delta
+
+bal_PA_se <- sd(bal_PA$diff_fte) / sqrt(length(bal_PA$diff_fte))
+bal_NJ_se <- sd(bal_NJ$diff_fte) / sqrt(length(bal_NJ$diff_fte))
+bal_diff_se <- sqrt(bal_PA_se^2 + bal_NJ_se^2)
+
+# row 5
+ff_df_temp <- ff_df %>%
+  mutate(fte2 = if_else(temp_closed_2nd_wave == 1, 0, fte2),
+         diff_fte = fte2 - fte)
+
+temp_PA <- ff_df_temp %>%
+  filter(state == 0) %>%
+  select(diff_fte) %>%
+  na.omit()
+
+temp_NJ <- ff_df_temp %>%
+  filter(state == 1) %>%
+  select(diff_fte) %>%
+  na.omit()
+
+
+temp_PA_mean_delta <- mean(temp_PA$diff_fte)
+temp_NJ_mean_delta <- mean(temp_NJ$diff_fte)
+temp_diff <- temp_NJ_mean_delta - temp_PA_mean_delta
+
+temp_PA_se <- sd(temp_PA$diff_fte) / sqrt(length(temp_PA$diff_fte))
+temp_NJ_se <- sd(temp_NJ$diff_fte) / sqrt(length(temp_NJ$diff_fte))
+temp_diff_se <- sqrt(temp_PA_se^2 + temp_NJ_se^2)
+
+
+table3_bottom <- as.data.frame(matrix(c(bal_PA_mean_delta, bal_PA_se,
+                                 temp_PA_mean_delta, temp_PA_se,
+                                 bal_NJ_mean_delta, bal_NJ_se,
+                                 temp_NJ_mean_delta, temp_NJ_se,
+                                 bal_diff, bal_diff_se,
+                                 temp_diff, temp_diff_se),
+                         nrow = 4, ncol = 3)) %>% 
+  mutate_if(is.numeric, round, digits = 2)
+
+colnames(table3_bottom) <- c("PA", "NJ", "Difference")
+rownames(table3_bottom) <- c("Change in mean FTE, balanced sample", "(stderr balanced)", "Change in mean FTE, setting FTE at temporarily closed stores to 0", "(stderr temporary set to 0)")
+
+kable(table3_bottom, caption="Table 3 Bottom Replication")
+
+
+```
+
+c. (2 p) Consider row 4: which of the columns (i) through (iii) yields the \textcolor{ForestGreen}{Before After (BA) estimator} of the impact of the change in NJ's MW? Describe the impact estimate in plain English.
+  
+Column (ii) yields the BA estimator because it is derived from the employment data from the two time periods (before and after) for the NJ sample (treated group because of the MW policy in NJ). The figure in row 4, column (ii) is 0.47, and this represents the change in mean FTE employment per store in New Jersey after the minimum wage increase, using a balanced sample of stores that had available employment data in both periods under consideration.
+
+In plain English, the impact estimate described by this row suggests that, on average, there was a small increase of about half an employee (0.47) in FTE employment per store in New Jersey when comparing periods before and after the minimum wage increase. This increase is based on a consistent set of stores that were open and had data available in both the before and after periods.
 
   d. (2 p) Consider row 4: which of the columns (i) through (iii) yields the \textcolor{ForestGreen}{Difference in Differences (DD) estimator} of the impact of the change in NJ's MW? Describe the impact estimate in plain English. Why is it different from the BA estimate?
   
+Column (iii) yields the DD estimator. The DD estimator is the result of subtracting the change in PA (which did not experience the minimum wage change) from the change in NJ (which did experience the minimum wage change). The figure of 2.75 indicates that, on average, stores in New Jersey saw an increase of 2.75 in their FTE employment relative to the changes observed in Pennsylvania stores after the adjustment for the minimum wage.
+
+In plain English, the DD impact estimate suggests that NJ's increase in the minimum wage led to an average increase of nearly 3 full-time equivalent employees per store compared to PA, accounting for the general employment trends in PA. 
+
+The DD estimate is different from the BA estimate because the BA estimate only looks at changes within NJ before and after the policy change. In contrast, the DD estimate compares NJ to PA (which functions as a control group), which helps to control for those other factors, assuming that both states would have followed similar trends in the absence of the policy change. This comparison isolates the effect of the minimum wage increase from other factors affecting employment that might be happening at the same time in both states.
+
+  
   e. (1 p) Why do the authors produce the statistics in row 5?
+  
+Row 5 is included to account for the effect of temporary store closures. When stores close temporarily, their employment data are "missing" in period 2. If the second-period employment for these stores was simply treated as missing, they would be excluded from the calculation of the mean, potentially biasing the results because the sample would only include stores that remained open. By setting them to 0, the authors could still account for the effect observed in stores that were temporarily closed and expand the sample size. 
+
 
 15. (2 p) Instead of computing averages and differences in averages etc., as done in \textbf{\ref{item:table3-rows-1-2}} and \textbf{\ref{item:table3-rows-4-5}}, you can estimate the parameters of linear regression models. As an interim step, reshape your original dataframe from wide to long so that each store has two rows: one for wave 1 and one for wave 2. \textcolor{gray}{\textbf{Programming guidance:} In our script we named the new column \texttt{wave} with value 0 for 1st wave and 1 for 2nd wave and we named the long-format dataframe \texttt{df\_long}.}\label{item:CK_longformat}
 

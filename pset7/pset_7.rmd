@@ -425,7 +425,7 @@ formula = as.formula(fte ~ wave + state + st_wave)
 ols <- miceadds::lm.cluster(formula, data = df_long, cluster = "store_id")
 ```
 
-We verify that $(\hat{\delta}, \hat{\rho})$ and the standard errors are identical.
+We verify that $(\hat{\delta}, \hat{\rho})$ and the standard errors are identical:
 
 \begin{table}[!htbp] \centering 
   \caption{Regression Specification Q16} 
@@ -443,7 +443,46 @@ st\_wave & $2.750$ & $1.339$ & $2.054$ & $0.040$ \\
 \end{tabular} 
 \end{table} 
 
+  <!-- TODO: explanation  -->
+
 17. (3 p) Use the long-format data from Q\ref{item:CK_longformat}, reset FTE employment to zero for all the stores that were temporarily closed in 2nd wave, and \underline{then} estimate specification (\ref{eq:CK_DD}) using all the stores that have employment information in both waves. Verify that the estimates of the regression coefficients $(\hat{\delta}, \hat{\rho})$, and their standard errors, are identical to those reported in Table \ref{fig:CK_Tab3} row 5 columns (i) and (iii). Why is that?
+
+```{r}
+#first set fte for temporarily closed stores to 0, then filter 
+
+df_long <- ff_df %>% mutate(fte2 = if_else(status2 == 4, 0, fte2)) %>% 
+  mutate(fte2 = if_else(status2 == 5, 0, fte2)) %>% 
+  mutate(fte2 = if_else(status2 == 2, 0, fte2)) %>% 
+  filter(fte != 'rm') %>% filter(fte2 != 'rm') %>% gather(wave, fte, fte:fte2)
+
+df_long$wave <- ifelse(df_long$wave == 'fte', 0, 1)
+df_long$st_wave <- df_long$wave * df_long$state
+```
+
+```{r}
+formula = as.formula(fte ~ wave + state + st_wave)
+ols <- miceadds::lm.cluster(formula, data = df_long, cluster = "store_id")
+```
+
+We verify that $(\hat{\delta}, \hat{\rho})$ and the standard errors are identical:
+
+\begin{table}[!htbp] \centering 
+  \caption{Regression Specification Q17} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & Estimate & Std. Error & t value & Pr(\textgreater \textbar t\textbar ) \\ 
+\hline \\[-1.8ex] 
+(Intercept) & $23.380$ & $1.382$ & $16.917$ & $0$ \\ 
+wave & $$-$2.283$ & $1.249$ & $$-$1.828$ & $0.068$ \\ 
+state & $$-$2.976$ & $1.477$ & $$-$2.015$ & $0.044$ \\ 
+st\_wave & $2.509$ & $1.342$ & $1.869$ & $0.062$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+<!-- TODO: explanation  -->
 
 18. (5 p) Here you reproduce some of the estimates and statistics in the rectangle superimposed to Table \ref{fig:CK_Tab4}.\label{item:CK_tab4-col-i-ii}
 

@@ -15,7 +15,7 @@ colorlinks: true
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Change root.dir to match your working directory location
-knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
+knitr::opts_knit$set(root.dir = "~/casual/pset8")
 rmarkdown::pandoc_available()
 library(tidyverse)
 library(utils)
@@ -71,5 +71,25 @@ options(tinytex.install_packages = FALSE)
 17. (0.5 p) Void. Note: This half point is assigned to everybody by default.
 
 ## Part 3: Part 3: Joshua Angrist’ 2021 Economics Nobel Prize Lecture
+
+18. (1 p) What is Angrist’s definition of “empirical strategy?”
+
+He defined empirical strategy to be a research plan that emcompasses data collection, identification, and econometric estimation.
+
+19. (5 p) Angrist’s describes RD via multiple applications. Understand the approach and summarize it in 1 paragraph written to explain the approach to your classmates. Make sure to briefly explain why Angrist says that “Fuzzy RD is IV.”
+
+RD is an approach that exploits the jumps in human affairs induced by rules and the need to classify people for various assignment purposes. An application that he mentions is the Nobel prize nomination which involves a tiebreaking variable crossing or failing to cross a threshold (becoming a Nobel prize winner or just missing it - "near Nobel"). In these situations, those just below the threshold become a natural control group for those who clear it. To further explain Angrist's claim that "Fuzzy ID is IV", Fuzzy RD leverages discontinuities in the probability or expected value of treatment based on a covariate. This creates a study framework where the discontinuity serves as an instrumental variable for treatment status, rather than simply toggling treatment on or off deterministically.
+
+20. (2 p) Compare and contrast the empirical strategy of Alan Krueger’s 1999 QJE article that estimate the impact of class size on test scores in Tennessee’s elementary schools using data from the STAR RCT to the empirical strategy of Angrist and Lavy’s 1999 QJE article “Using Maimonides’ rule to estimate the effect of class size on scholastic achievement” that estimates the impact of class size in Israel’s elementary schools
+
+Krueger's analysis draws upon data from the STAR project, a large-scale RCT. Within this trial, students were randomly assigned to small classes consisting of 13-17 students, regular classes with 22-25 students, or regular classes supplemented with a teacher's aide. This random assignment serves to mitigate selection bias and establishes a clear causal relationship between class size and academic outcomes. On the other hand, Angrist and Lavy employ a natural experiment rooted in Maimonides' Rule, a historical guideline governing Israeli schools that sets a maximum class size of 40 students. When student enrollment surpasses this threshold, an additional class is formed. These imposed thresholds create discontinuities in class size, which the authors utilize as an instrumental variable to gauge the impact of class size on academic achievement.
+
+21. (2 p) Angrist asks “What is the causal effect of charter school attendance on learning?” Explain the implications of the “LATE theorem” for answering this question.
+
+Addressing this inquiry involves dealing with issues of selection bias and endogeneity. Students who enroll in charter schools may exhibit systematic differences from those who do not, not only in observable traits but also in unobservable factors like motivation or parental involvement. The LATE theorem presents a robust framework for tackling this issue, especially in scenarios where the treatment, such as attending a charter school, is not randomly assigned. In attempting to answer this question, the LATE theorem provides a rigorous strategy to estimate the causal effect of charter school attendance on academic performance for a specific subgroup of students, thereby confronting the challenges posed by selection bias and endogeneity.
+
+The LATE theorem offers a means to estimate the causal impact of a treatment on a specific subset of the population, known as "compliers," even in the presence of endogenous selection. It pertains to individuals who adhere to the treatment assignment within a context featuring an IV. In the case of charter schools, the IV was winning the charter school lottery. Compliers, in this context, are students who opt for charter schools because of lottery success but would have chosen traditional public schools otherwise.The effectiveness of this approach hinges on the validity of the IV — it must correlate with the likelihood of attending a charter school (relevance) and should not directly influence the outcome variable except through its impact on the treatment (exogeneity).
+
+
 
 ## Part 4: Compliers

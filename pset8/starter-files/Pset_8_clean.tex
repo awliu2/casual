@@ -1,0 +1,330 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ECMA 31360 PSet 8: IV
+% Author: Melissa Tartari
+% Created: 11/23/2023
+% Last Updated: 02/22/2024
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage[]{graphicx}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{float}
+
+\setcounter{MaxMatrixCols}{10}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\usepackage{alltt}
+\textwidth=7.6in
+\textheight=9.9in
+\topmargin=-1.2in
+\headheight=0in
+\headsep=.5in
+\hoffset  -1.25in
+
+\newcommand{\psetyear}{2023}
+\newcommand{\psetnum}{8}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy} 
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[R]{\color{Gray}{ECMA 31360 PSet \psetnum, Page \thepage}}
+
+\usepackage{lineno}
+\linenumbers
+
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{ECMA 31360, Pset \psetnum: Estimation of TEs with Instrumental Variables (IVs)}
+\date{}
+\author{Melissa Tartari}
+\maketitle
+\thispagestyle{fancy}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+{\LARGE Part 1: The Wald Estimator (15 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: In \textsc{CAUS\_6.pdf} we analyze a situation in which the data consists of a random sample $\{(y_i,D_i,z_i)|i=1,\ldots,N\}$ where $i$ indexes a sample unit; $N$ denotes the sample size; $y_i$ denotes the outcome variable; $D_i$ denotes treatment status with $D_i=1$ if unit $i$ is treated and zero otherwise; and, $z_i$ denotes treatment assignment (the \textcolor{ForestGreen}{instrumental variable (IV)}) with $z_i=1$ if unit $i$ is assigned to receive treatment and zero otherwise. Let $\bar{y}^{z=1}$ (respectively $\bar{y}^{z=0}$) denote the average of $y_i$ in the sub-sample of units assigned to be treated (respectively not to be treated). Define similarly $\bar{D}^{z=1}$ and $\bar{D}^{z=0}$. Suppose that $\bar{D}^{z=1} \neq \bar{D}^{z=0}$, i.e., that the instrument is \textcolor{ForestGreen}{relevant} in the sample at hands. The \textcolor{ForestGreen}{Wald estimator} of the ATE of treatment is: 
+\begin{equation}
+\hat{\rho}^{\text{IV, Wald}}  = \frac{\bar{y}^{z=1} - \bar{y}^{z=0}}{\bar{D}^{z=1} - \bar{D}^{z=0}}. \label{eq:wald}
+\end{equation}
+You obtain $\hat{\rho}^{\text{IV, Wald}}$ from a two-stage estimation approach:
+\begin{enumerate}[label=\textbf{STAGE \arabic{enumi}}.,ref=STAGE\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt]
+\item Regress $D_i$ on a constant and $z_i$ and obtain the fitted value $\hat{D}_i$ and residual value $\hat{\epsilon}_i$, in so achieving a decomposition $D_i = \hat{D}_i + \hat{\epsilon}_i$. 
+\item Regress $y_i$ on a constant and $\hat{D}_i$. $\hat{\rho}^{\text{IV, Wald}}$ is the OLS estimator of the slope coefficient from the second stage regression. 
+\end{enumerate}
+Below you verify the above claims.}
+
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt]
+
+\item (1p) Describe in plain English the relevance condition $\bar{D}^{z=1} \neq \bar{D}^{z=0}$. 
+
+\item (1p) Show that the decomposition $D_i = \hat{D}_i + \hat{\epsilon}_i$ is an orthogonal decomposition, i.e., the two $N \times 1$ vectors $[\hat{D}_1, \ldots, \hat{D}_N]^T$ and $[\hat{\epsilon}_1,\ldots, \hat{\epsilon}_N]^T$ are orthogonal.
+
+\item (1p) Show that the 1st-stage regression yields an additive decomposition of the sample variance of $D_i$ between variation accounted for by $z_i$ and variation accounted for by all residual determinants of $D_i$.
+
+\item (1p) Show how to test for relevance after running the 1st-stage regression. \textcolor{gray}{\textbf{Hint}: Define the null and alternative hypotheses, define the test statistics to use, spell out the decision rule for accepting/rejecting the null hypothesis. You may use any hypothesis testing approach of your choosing, e.g., critical value approach, p-value approach, confidence interval approach.}
+
+\item (2p) Let $\bar{y}$ and $\bar{D}$ denote the (overall) averages of $y_i$, and, respectively, of $D_i$. Show that the OLS estimator of the slope coefficient in the 2nd-stage regression has the form:
+
+\begin{equation}
+\hat{\rho}^{\text{2nd stage}} = \frac{\sum_{i=1}^N (y_i-\bar{y})(\hat{D}_i-\bar{D})}{\sum_{i=1}^N (\hat{D}_i-\bar{D})^2}.\label{eq:2ndstage_a}
+\end{equation}
+
+\item (8p) Show that the right-end-side (RHS) of expression (\ref{eq:2ndstage_a}) simplifies to the RHS of expression (\ref{eq:wald}).
+
+\item (1p) Agree or disagree with each of the following statements: 
+\begin{enumerate}
+\item \textcolor{Orchid}{``If subjects perfectly comply with treatment assignment, the Wald-IV estimator is not defined.''}
+\item \textcolor{Orchid}{``If subjects perfectly comply with treatment assignment, the Wald-IV estimator coincides with the Treatment Control Comparison (TCC) estimator of the offer of treatment.''}
+\item \textcolor{Orchid}{``If subjects not offered treatment cannot access treatment, the Wald-IV estimator is not defined.''}
+\item \textcolor{Orchid}{``If subjects not offered treatment cannot access treatment, the Wald-IV estimator is always larger in absolute value than the TCC estimator of the offer of treatment.''}
+\item \textcolor{Orchid}{``If subjects offered treatment are less likely to take up treatment than subject not offered treatment, the Wald-IV estimator is not defined.''}
+\item \textcolor{Orchid}{``If subjects offered treatment are less likely to take up treatment than subject not offered treatment, the Wald-IV estimator has the opposite sign of the Treatment Control Comparison (TCC) estimator of the offer of treatment.''}
+\end{enumerate}
+
+\end{enumerate}
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Part 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+{\LARGE Part 2: Guido Imbens' 2021 Economics Nobel Prize Lecture (5 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: You watch Guido Imbens' \href{https://www.youtube.com/watch?v=yTrVg-t8O8A}{2021 Nobel Lecture}. Here is a quote from the \href{https://www.nobelprize.org/prizes/economic-sciences/2021/imbens/facts/}{official Noble Prize webpage}: ``Many of the big questions in the social sciences deal with cause and effect. Some of these questions are possible to answer using natural experiments, in which chance events or policy changes result in groups of people being treated differently. In 1994, Joshua Angrist and Guido Imbens showed what conclusions about causation can be drawn from natural experiments in which people cannot be either forced or forbidden to participate in the programme being studied.'' In his Nobel lecture Imbens covers several topics you studied in ECMA 31360. Examples are: Rubin's potential outcome model, ATE, the NSW training experiment, matching methods, Instrumental Variables and the LATE estimand. Therefore, Imbens' lecture ideally bookends ECMA 31360.}\\
+
+Write down the minute when Imbens mentions the following concepts/articles:
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt, resume]
+
+%\item (0.5 p) The average treatment effect (ATE).
+
+\item (0.5 p) The fundamental problem of causal inference.
+
+\item (0.5 p) That random control trials (RCTs) ensure balance.
+
+\item (0.5 p) Observational studies and the problem of confounders.
+
+\item (0.5 p) Rubin's Potential Outcome Model also called Rubin Causal Model (RCM).
+
+\item (0.5 p) The NSW experiment. \textcolor{gray}{Note: you used this data in several PSets.}
+
+\item (0.5 p) The ``observational'' data constructed by combining the NSW experimental sample with a control sample taken from survey data such as PSID. \textcolor{gray}{Note: You used this data in several PSets.}
+
+\item (0.5 p) Matching and propensity score method. \textcolor{gray}{Note: You applied these methods in several PSets.} 
+
+\item (0.5 p) The 2001 Imbens, Rubin, Sacerdote's Lottery paper. \textcolor{gray}{Note: We discuss this paper in \textsc{CAUS\_3.pdf}.}
+
+\item (0.5 p) The difference in differences (DD) estimation method.
+
+\item (0.5 p) Void. \textcolor{gray}{Note: This half point is assigned to everybody by default.}
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Part 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+{\LARGE Part 3: Joshua Angrist' 2021 Economics Nobel Prize Lecture (10 p)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}: You watch Joshua Angrist's \href{https://www.youtube.com/watch?v=SEX8FC7UHbU&t=131s}{2021 Nobel Lecture}. Angrist describes \textcolor{ForestGreen}{Regression Discontinuity Design (RD)}, a design to estimate causal impacts which we have not had the time to cover in ECMA 31360. RD design is closely related to the IV approach. Thus this lecture nicely complements the last topic covered in ECMA 31360.}\\
+
+Answer the following questions:
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt, resume]
+
+\item (1 p) What is Angrist's definition of ``empirical strategy?''
+%%%%
+\item (5 p) Angrist's describes RD via multiple applications. Understand the approach and summarize it in 1 paragraph written to explain the approach to your classmates. Make sure to briefly explain why Angrist says that \textcolor{ForestGreen}{``Fuzzy RD is IV.''} 
+%%%%
+\item (2 p) Compare and contrast the empirical strategy of \href{https://www.jstor.org/stable/2587015}{Alan Krueger's 1999 QJE article} that estimate the impact of class size on test scores in Tennessee's elementary schools using data from the STAR RCT to the empirical strategy of \href{https://www.jstor.org/stable/2587016}{Angrist and Lavy's 1999 QJE article} ``Using Maimonides' rule to estimate the effect of class size on scholastic achievement'' that estimates the impact of class size in Israel's elementary schools.
+%%%%
+\item (2 p) Angrist asks ``What is the causal effect of charter school attendance on learning?'' Explain the implications of the ``LATE theorem'' for answering this question.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 4
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+{\LARGE Part 4: Compliers (70 p + 30 bonus)}
+\end{center}
+
+\noindent \textcolor{Maroon}{\textbf{Objective}. In \textsc{CAUS\_6.pdf} we show that, except in special cases, each instrumental variable identifies a unique causal parameter, the average treatment effect for that instrument's (subpopulation of) \textcolor{ForestGreen}{\textsc{compliers}}. This causal estimand is called \textcolor{ForestGreen}{Local ATE or LATE}. Thus, different instruments identify different treatment effects if the subpopulation of \textsc{compliers} associated with one instrument differs from the subpopulation of \textsc{compliers} associated with another instrument. Clearly, we would like to learn as much as possible about the \textsc{compliers} associated with any given instrument. Unfortunately, \textsc{compliers} cannot be individually identified. However, in the questions below you show that for any given instrument: 1) the size of the \textsc{compliers} group is identified; thus, we can use the sample data to make statement such as ``compliers are 20\% of the population;'' 2) the distribution of the observable characteristics of \textsc{compliers} is identified; and, 3) the marginal distributions of potential outcomes for \textsc{compliers} are identified. Throughout, you use the Rubin Causal Model (RCM) and you assume that HIV.1 to HIV.4 (see slide 50 in CAUS\_6.pdf) hold with reference to an instrumental variable $z$.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{enumerate}[label=\textbf{Q\arabic{enumi}}.,ref=Q\arabic{enumi}, wide=0pt, itemsep=0em, topsep=5pt, labelindent=0pt, resume]
+
+
+
+%%%%% identification and estimation of share of compliers, NT, AT
+\item (18p) \textit{Is it possible to know the share of \textsc{compliers}, \textsc{always takers}, and \textsc{never takers}?} The claim below gives an affirmative answer when HIV.1 to HIV.4 hold. Prove the claim (12p). Then, provide an intuitive explanation of the three identification results \ref{item:id-pc} through \ref{item:id-pn} targeted to your classmates (6p).
+\begin{claim}\label{cl:identification_shares}
+Assume \textbf{HIV.1} through \textbf{HIV.4} hold. Let $(p_{c},p_{a},p_{n})$ denote the population shares of \textsc{compliers}, \textsc{always takers}, and \textsc{never takers} respectively.  Then:
+\begin{enumerate}[label=(\alph*)]
+\item $p_c$ is identified by the population data moment (PDM) $\Pr(D_i=1|z_i=1)-\Pr(D_i=1|z_i=0)$,\label{item:id-pc} 
+\item $p_a$ is identified by the PDM $\Pr(D_i=1|z_i=0)$, and \label{item:id-pa}
+\item $p_n$ is identified by the PDM $\Pr(D_i=0|z_i=1)$. \label{item:id-pn}
+\end{enumerate}
+Assume you have access to a random sample of size $N$, $\{(y_i,D_i,z_i)|i=1,\ldots,N\}$. Regress $D_i$ on $(\mathbf{1},z_i)$ and let $(\hat{\pi}_0,\hat{\pi}_1)$ denote the OLS estimators of the intercept and slope coefficients. Then,
+\begin{enumerate}[label=(\alph*), resume]
+\item $\hat{\pi}_1$ is an unbiased and consistent estimator of $p_c$;
+\item $\hat{\pi}_0$ is an unbiased and consistent estimator of $p_a$;
+\item $1- (\hat{\pi}_0+\hat{\pi}_1)$ is an unbiased and consistent estimator of $p_n$.
+\end{enumerate}
+\end{claim}
+
+
+%%%%% get estimates of shares of C, NT, AT from table
+
+\item (18p) Table \ref{tab:ds-angrist} reports descriptive statistics for two studies that use an IV approach to estimate causal impacts: 1) \href{https://www.jstor.org/stable/2006669}{Angrist (1990)'s study}: they use Vietnam war draft eligibility to instrument veteran status and estimate the effect of veteran status on 1981 earnings for the population of US white men born in 1950; and, 2) \href{https://www.jstor.org/stable/116844}{Angrist and Evans (1998)'s study}: they use twins at second birth to instrument family size (specifically having more than 2 children) and estimate the effect of family size on maternal employment for the population of US married women aged 21-35 with two or more children as of the 1980 Census. The notation is as follows: $\overline{D}$ denotes the sample average of $D$; $\overline{z}$ denotes the sample average of $z$; $\widehat{\pi }$ denotes the OLS estimate of the coefficient of $z$ in a regression of $D$ on a constant and $z$ (i.e., the \textcolor{ForestGreen}{first stage}). Throughout we use a ``hat'' to mean ``estimate'' or ``estimator'' (depending on the context). 
+
+\begin{table}[H]
+\centering
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{cccccc}
+\hline\hline
+\textbf{Study} & $D$ & $z$ & $\overline{D}$ & $\overline{z}$ & $\widehat{\pi}$ \\ \hline
+\multicolumn{1}{l}{Angrist (1990)} & \multicolumn{1}{l}{Veteran Status} & 
+Draft Eligibility & 0.267 & 0.534 & 0.159 \\ 
+\multicolumn{1}{l}{Angrist and Evans (1998)} & \multicolumn{1}{l}{$>$ 2 children} & Twins at 2nd birth & 0.381 & 0.008 & 0.603 \\ 
+\hline\hline
+\end{tabular} 
+} 
+\caption{Descriptive statistics and first stage coefficients from Angrist (1990) and Angrist and Evans (1998)}
+\label{tab:ds-angrist}
+\end{table}
+
+\noindent Using \textbf{Claim \ref{cl:identification_shares}} and Table \ref{tab:ds-angrist}, fill Table \ref{tab:ds-angrist-share-estimates}, that is, provide estimates of the shares of \textsc{compliers}, \textsc{always takers}, and \textsc{never takers} (2p each). \textcolor{gray}{\textbf{Note}: You are asked to produce 6 estimates.} Then, write a narrative description of your findings targeted to a general non-technical audience (6p). 
+
+\begin{table}[H]
+\centering
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{cccc}
+\hline\hline
+\textbf{Study} &  $\hat{p}_c$ & $\hat{p}_a$ & $\hat{p}_n$ \\ \hline
+\multicolumn{1}{l}{Angrist (1990)}  &  &  \\ 
+\multicolumn{1}{l}{Angrist and Evans (1998)}  &  &  \\ 
+\hline\hline
+\end{tabular} 
+} 
+\caption{Estimates of \textsc{compliers}, \textsc{always takers}, and \textsc{never takers} shares for Angrist (1990) and Angrist and Evans (1998)}
+\label{tab:ds-angrist-share-estimates}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%% identify share of compliers among the treated and the untreated
+\item (4p) \textit{Is it possible to know the share of treated (untreated) who are \textsc{compliers}?} The claim below gives an affirmative answer when HIV.1 to HIV.4 hold. Prove the claim.
+
+\begin{claim}\label{cl:identification_compliers_conditional_shares}
+Assume \textbf{HIV.1} through \textbf{HIV.4} hold. Then,
+\begin{enumerate}
+\item the proportion of treated units who are \textsc{compliers}, i.e., $\Pr \left( D_{1i}>D_{0i}|D_{i}=1\right)$, is identified:
+\begin{eqnarray*}
+\Pr \left( D_{1i}>D_{0i}|D_{i}=1\right)  &=&\frac{\Pr \left( z_{i}=1\right) 
+}{\Pr \left( D_{i}=1\right) }\Big[\Pr(D_i=1|z_i=1)-\Pr(D_i=1|z_i=0) \Big].
+\end{eqnarray*}
+
+\item the proportion of untreated units who are \textsc{compliers}, i.e., $\Pr \left( D_{1i}>D_{0i}|D_{i}=1\right)$, is identified:
+\begin{eqnarray*}
+\Pr \left( D_{1i}>D_{0i}|D_{i}=0\right)  &=&\frac{\Pr \left( z_{i}=0\right) 
+}{\Pr \left( D_{i}=0\right) }\Big[\Pr(D_i=1|z_i=1)-\Pr(D_i=1|z_i=0) \Big].
+\end{eqnarray*}
+\end{enumerate}
+\end{claim}
+
+
+%%%%%%%%%%%%%%%%%%% estimate share of compliers among the treated and the untreated
+\item (16p) Use \textbf{Claim \ref{cl:identification_compliers_conditional_shares}} and the analogy principle to propose estimators of the share of treated who are \textsc{compliers}, i.e., $\widehat{\Pr }\left(D_{1i}>D_{0i}|D_{i}=1\right)$, and of the share of untreated who are \textsc{compliers}, i.e., $\widehat{\Pr }\left(D_{1i}>D_{0i}|D_{i}=0\right)$ (2p). Then, use these estimators along with the information in Table \ref{tab:ds-angrist} and Table \ref{tab:ds-angrist-share-estimates}, to fill Table \ref{tab:ds-angrist-2} with the corresponding estimates (8p). \textcolor{gray}{\textbf{Note}: You are asked to produce 4 estimates.} Finally describe in plain English your findings targeting the narrative to your classmates. Do the findings surprise you or do they accord with your intuition/prior beliefs? (6p) 
+
+\begin{table}[H]
+\centering
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{ccc}
+\hline\hline
+\textbf{Study} &  $\widehat{\Pr }\left(D_{1i}>D_{0i}|D_{i}=1\right) $ & $\widehat{\Pr }\left(D_{1i}>D_{0i}|D_{i}=0\right) $ \\ \hline
+\multicolumn{1}{l}{Angrist (1990)} & \multicolumn{1}{l}{} &    \\ 
+\multicolumn{1}{l}{Angrist and Evans (1998)} & \multicolumn{1}{l}{} &    \\ 
+\hline\hline
+\end{tabular}}
+\caption{\textsc{Compliers} shares out of Treated and Untreated in Angrist (1990) and Angrist and Evans (1998)}
+\label{tab:ds-angrist-2}
+\end{table}
+
+
+%%%%%%%%%%%%%%%%%%% identification of the distribution of x
+\item (8p) \textit{Is it possible to know the distribution of pre-determined characteristics for \textsc{compliers}?} Let $x_{i}$ denote a predetermined characteristic (covariate) of individual $i$. For simplicity, suppose that $x_{i}$ is a binary 0-1 variable, e.g., whether they are African American, whether they have completed high school. \textbf{Claim \ref{cl:complier_distr_x}} provides an affirmative answer when HIV.1 to HIV.4 hold in the sense that it says that we can learn the relative likelihood that a \textsc{complier} has characteristics $x_i=1$. Prove the claim (4p). Then, propose and estimator of the quantity given in expression (\ref{rel_like}) (4p).
+
+\begin{claim}\label{cl:complier_distr_x}
+Let $p_{c}\left( 1\right) $ denote the share of \textsc{compliers} amongst the units with $x_i=1\,$. Under \textbf{HIV.1} through \textbf{HIV.4}, the relative likelihood that a \textsc{complier} has characteristic $x_i=1$ is given by 
+\begin{equation}
+\frac{\Pr \left( x_{i}=1|D_{1i}>D_{0i}\right) }{\Pr \left( x_{i}=1\right) }=\frac{p_{c}\left( 1\right) }{p_{c}}\text{.}  \label{rel_like}
+\end{equation}
+\end{claim}
+
+%%%%%%%%%%%%%%%%%%% estimation of the distribution of x
+
+\item (6p) Table \ref{tab:ds-angrist-3} reports some findings for the Angrist and Evans (1998) study. In particular: $\overline{x}$ denotes the sample average of $x_i$ where $x_i=1$ if the woman is age 30 or older at 1st birth, and zero otherwise. Use \textbf{Claim \ref{cl:complier_distr_x}} to fill the last column (3p). Finally describe in plain English your findings targeting the narrative to your classmates. (3p)
+
+\begin{table}[H]
+\centering
+{\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{cccc}
+\hline\hline
+\textbf{Study} & $\overline{x}$ & $\frac{\widehat{\Pr }\left(
+x_{i}=1|D_{1i}>D_{0i}\right) }{\widehat{\Pr }\left( x_{i}=1\right) }$ & $\widehat{\Pr }\left( x_{i}=1|D_{1i}>D_{0i}\right) $ \\ \hline
+\multicolumn{1}{l}{Angrist and Evans (1998)} & \multicolumn{1}{l}{0.0029} & 
+1.39 &  \\ \hline\hline
+\end{tabular}}
+\caption{Selected statistics from Angrist and Evans (1998)}
+\label{tab:ds-angrist-3}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%% identification of counterfactual mean outcome
+\item (\textcolor{red}{30p bonus}) The LATE theorem tells us that when HIV.1 through HIV.4 hold, the local ATE, i.e., \\ $LATE \equiv E\left[y_{1i}-y_{0i}|\left( D_{0i},D_{1i}\right) =\left( 0,1\right) \right]$, is identified. This causal estimand is the difference between the mean of the potential outcome with treatment and the mean of the potential outcome without treatment for \textsc{compliers}. \textit{Are these two population means separately identified?} \textbf{Claim \ref{cl:maginal_densities}} gives an affirmative answer. Prove the claim. \textcolor{gray}{\textbf{Hint}: You want to show that both means that be written exclusively as functions of PDMs.}
+
+\begin{claim}\label{cl:maginal_densities}
+Under \textbf{HIV.1} through \textbf{HIV.4}, $E\left[ y_{0i}|\left( D_{0i},D_{1i}\right)=\left( 0,1\right) \right] $ and $E\left[ y_{1i}|\left( D_{0i},D_{1i}\right)=\left( 0,1\right) \right] $ are identified.
+\end{claim}
+
+
+\end{enumerate}
+
+
+\end{document}

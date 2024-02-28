@@ -1,0 +1,75 @@
+---
+title: "Problem Set 8: Estimation of TEs with Instrumental Variables"
+author: "Tessie Dong, Derek Li, Andi Liu"
+date: Due Feb 29th, 2024
+geometry: margin=1cm
+output:
+    pdf_document:
+        keep_tex: true
+        extra_dependencies: ['amsmath', 'optidef', 'accents','caption']
+    html_document: default
+colorlinks: true
+---
+
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Change root.dir to match your working directory location
+knitr::opts_knit$set(root.dir = "~/Documents/UCHICAGO/Fourth Year/Winter23/ECMA/casual/pset7")
+rmarkdown::pandoc_available()
+library(tidyverse)
+library(utils)
+library(dplyr)
+library(systemfit)
+library(knitr)
+library(readr)
+library(plm)
+library(miceadds)
+options(tinytex.install_packages = FALSE)
+```
+
+## Part 1: The Wald Estimator 
+
+## Part 2: Guido Imbens’ 2021 Economics Nobel Prize Lecture
+
+8. (0.5 p) The fundamental problem of causal inference.
+
+3:10 
+
+9. (0.5 p) That random control trials (RCTs) ensure balance.
+
+4:19
+
+10. (0.5 p) Observational studies and the problem of confounders.
+
+4:37 
+
+11. (0.5 p) Rubin’s Potential Outcome Model also called Rubin Causal Model (RCM).
+
+8:02
+
+12. (0.5 p) The NSW experiment. Note: you used this data in several PSets.
+
+10:17
+
+13. (0.5 p) The “observational” data constructed by combining the NSW experimental sample with a control sample taken from survey data such as PSID. Note: You used this data in several PSets.
+
+10:38
+
+14. (0.5 p) Matching and propensity score method. Note: You applied these methods in several PSets.
+
+11:50
+
+15. (0.5 p) The 2001 Imbens, Rubin, Sacerdote’s Lottery paper. Note: We discuss this paper in CAUS 3.pdf.
+
+12:42
+
+16. (0.5 p) The difference in differences (DD) estimation method.
+
+26:09
+
+17. (0.5 p) Void. Note: This half point is assigned to everybody by default.
+
+## Part 3: Part 3: Joshua Angrist’ 2021 Economics Nobel Prize Lecture
+
+## Part 4: Compliers
